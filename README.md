@@ -49,6 +49,13 @@ To find your Guild ID:
 
 ## Installation
 
+### Download the Plugin
+
+1. Visit the [GW2 Guild Login GitHub repository](https://github.com/AlteredM1nd/gw2-guild-login)
+2. Click the green "Code" button
+3. Select "Download ZIP"
+4. Save the file to your computer
+
 ### Method 1: WordPress Admin Panel
 
 1. Log in to your WordPress admin panel
@@ -66,6 +73,19 @@ To find your Guild ID:
 4. Log in to your WordPress admin panel
 5. Navigate to **Plugins**
 6. Find **GW2 Guild Login** in the list and click **Activate**
+
+### Updating the Plugin
+
+To update the plugin to the latest version:
+
+1. Download the latest version using the steps above
+2. In your WordPress admin, go to **Plugins > Add New**
+3. Click **Upload Plugin**
+4. Select the new plugin ZIP file and click **Install Now**
+5. WordPress will automatically detect it's an update and prompt you to replace the current version
+6. Click **Replace current with uploaded**
+
+**Note**: Your plugin settings will be preserved during the update as they are stored in the WordPress database.
 
 ## Configuration
 
@@ -126,11 +146,7 @@ To find your Guild ID:
   - Check for JavaScript errors in your browser's console
   - Ensure your theme's `wp_footer()` function is called in the footer.php file
 
-## Usage
-
 ## Complete Usage Guide
-
-## Page Templates
 
 ### Guild Members Only Template
 
