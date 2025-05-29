@@ -15,6 +15,14 @@ All notable changes to the GW2 Guild Login plugin will be documented in this fil
 - Added input sanitization for improved security
 - Fixed issues with the welcome email sending process
 - Improved error messages and user feedback
+- Fixed potential security vulnerabilities in form handling
+- Resolved issues with user session management
+- Fixed compatibility issues with various WordPress themes
+- Addressed PHP warnings and notices
+- Fixed issues with user role assignments
+- Resolved caching-related issues with API responses
+- Fixed issues with the login/logout process
+- Addressed issues with redirects after login 
 
 ### Added
 - New `GW2_Login_Shortcode` class for better code organization
@@ -42,16 +50,6 @@ All notable changes to the GW2 Guild Login plugin will be documented in this fil
 - Improved code quality and maintainability
 - Enhanced session management and security
 - Better handling of API responses and errors
-
-### Fixed
-- Fixed potential security vulnerabilities in form handling
-- Resolved issues with user session management
-- Fixed compatibility issues with various WordPress themes
-- Addressed PHP warnings and notices
-- Fixed issues with user role assignments
-- Resolved caching-related issues with API responses
-- Fixed issues with the login/logout process
-- Addressed issues with redirects after login
 
 ## [2.2.1] - 2025-05-29
 
