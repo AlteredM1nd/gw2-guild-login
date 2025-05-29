@@ -20,10 +20,27 @@ $is_guild_member = false;
 $current_user = wp_get_current_user();
 
 if ($current_user->ID > 0) {
-    // Check if user has a valid GW2 API key and is a guild member
-    $api_key = get_user_meta($current_user->ID, 'gw2_api_key', true);
-    if ($api_key) {
-        $is_guild_member = $gw2_plugin->api->verify_guild_membership($api_key);
+    try {
+        // Get the user handler instance
+        $user_handler = $gw2_plugin->get_user_handler();
+        
+        if ($user_handler && method_exists($user_handler, 'current_user_is_guild_member')) {
+            // Check if user is a guild member using the user handler
+            $membership_check = $user_handler->current_user_is_guild_member();
+            
+            // Handle the result
+            if (is_wp_error($membership_check)) {
+                // Log the error but continue with access denied
+                error_log('GW2 Guild Login: Error checking guild membership - ' . $membership_check->get_error_message());
+                $is_guild_member = false;
+            } else {
+                $is_guild_member = (bool) $membership_check;
+            }
+        } else {
+            error_log('GW2 Guild Login: User handler not available or missing required method');
+        }
+    } catch (Exception $e) {
+        error_log('GW2 Guild Login: Exception while checking guild membership - ' . $e->getMessage());
     }
 }
 

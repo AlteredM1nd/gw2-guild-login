@@ -82,7 +82,11 @@ class GW2_User_Handler {
         $user = $this->get_user_by_gw2_account_id($account_info['id']);
         
         // If user not found and auto-registration is enabled, create a new user
-        if (is_wp_error($user) && $user->get_error_code() === 'user_not_found') {
+        if (is_wp_error($user)) {
+            if ($user->get_error_code() !== 'user_not_found') {
+                return $user; // Return other errors
+            }
+            
             $options = get_option('gw2gl_settings', array());
             
             if (empty($options['enable_auto_register'])) {
@@ -93,6 +97,18 @@ class GW2_User_Handler {
             }
             
             $user = $this->create_user($account_info, $api_key);
+            
+            // Ensure create_user returned a valid user or error
+            if (is_wp_error($user) || !($user instanceof WP_User)) {
+                return is_wp_error($user) 
+                    ? $user 
+                    : new WP_Error('invalid_user_object', __('Failed to create user account.', 'gw2-guild-login'));
+            }
+        }
+        
+        // Ensure we have a valid user object
+        if (!($user instanceof WP_User)) {
+            return new WP_Error('invalid_user_object', __('Invalid user object returned.', 'gw2-guild-login'));
         }
         
         return $user;
@@ -129,39 +145,82 @@ class GW2_User_Handler {
      * @param string $api_key
      * @return WP_User|WP_Error
      */
+    /**
+     * Create a new WordPress user for a GW2 account
+     *
+     * @param array $account_info
+     * @param string $api_key
+     * @return WP_User|WP_Error
+     */
     protected function create_user($account_info, $api_key) {
-        $username = $this->generate_username($account_info['name']);
-        $email = $this->generate_email($username);
-        $password = wp_generate_password(24, true, true);
-        
-        // Get role from settings
-        $options = get_option('gw2gl_settings', array());
-        $role = isset($options['member_role']) ? $options['member_role'] : 'subscriber';
-        
-        // Create the user
-        $user_id = wp_insert_user(array(
-            'user_login' => $username,
-            'user_email' => $email,
-            'user_pass' => $password,
-            'role' => $role,
-            'display_name' => $account_info['name'],
-            'first_name' => $account_info['name'],
-        ));
-        
-        if (is_wp_error($user_id)) {
-            return $user_id;
+        if (!is_array($account_info) || empty($account_info['name']) || empty($account_info['id'])) {
+            return new WP_Error('invalid_account_info', __('Invalid account information provided.', 'gw2-guild-login'));
         }
-        
-        $user = get_user_by('id', $user_id);
-        $user->just_created = true;
-        
-        // Store GW2 account info
-        $this->update_user_meta($user_id, $account_info, $api_key);
-        
-        // Send notification email if needed
-        $this->send_welcome_email($user, $password);
-        
-        return $user;
+
+        try {
+            $username = $this->generate_username($account_info['name']);
+            $email = $this->generate_email($username);
+            $password = wp_generate_password(24, true, true);
+            
+            // Get role from settings
+            $options = get_option('gw2gl_settings', array());
+            $role = isset($options['member_role']) ? $options['member_role'] : 'subscriber';
+            
+            // Create the user
+            $user_data = array(
+                'user_login' => $username,
+                'user_email' => $email,
+                'user_pass' => $password,
+                'role' => $role,
+                'display_name' => $account_info['name'],
+                'first_name' => $account_info['name']
+            );
+            
+            $user_id = wp_insert_user($user_data);
+            
+            if (is_wp_error($user_id)) {
+                return $user_id; // Return the WP_Error object
+            }
+            
+            // Get the user object
+            $user = get_user_by('id', $user_id);
+            
+            if (!$user || !($user instanceof WP_User)) {
+                return new WP_Error(
+                    'user_creation_failed', 
+                    __('Failed to retrieve the created user.', 'gw2-guild-login')
+                );
+            }
+            
+            // Add a flag to indicate this is a newly created user
+            $user->just_created = true;
+            
+            // Store GW2 account info
+            try {
+                $this->update_user_meta($user_id, $account_info, $api_key);
+            } catch (Exception $e) {
+                error_log('GW2 Guild Login: Failed to update user meta - ' . $e->getMessage());
+                // Continue anyway since the user was created
+            }
+            
+            // Send welcome email if the user was just created
+            try {
+                $this->send_welcome_email($user, $password);
+            } catch (Exception $e) {
+                error_log('GW2 Guild Login: Failed to send welcome email to ' . $user->user_email . ' - ' . $e->getMessage());
+                // Continue anyway since this is not a critical error
+            }
+            
+            return $user;
+            
+        } catch (Exception $e) {
+            error_log('GW2 Guild Login: Uncaught exception in create_user - ' . $e->getMessage());
+            return new WP_Error(
+                'user_creation_exception', 
+                __('An error occurred while creating your account. Please try again later.', 'gw2-guild-login'),
+                $e->getMessage()
+            );
+        }
     }
 
     /**

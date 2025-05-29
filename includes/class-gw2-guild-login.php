@@ -8,7 +8,37 @@ class GW2_Guild_Login {
      *
      * @var string
      */
-    const VERSION = GW2_GUILD_LOGIN_VERSION;
+    const VERSION = '2.1.1';
+    
+    /**
+     * The API handler instance
+     *
+     * @var GW2_API
+     */
+    private $api;
+    
+    /**
+     * The user handler instance
+     *
+     * @var GW2_User_Handler
+     */
+    private $user_handler;
+    
+    /**
+     * Admin handler instance
+     *
+     * @var GW2_Guild_Login_Admin
+     */
+    private $admin;
+    
+    /**
+     * List of available templates
+     *
+     * @var array
+     */
+    private $templates = array(
+        'template-guild-only.php' => 'Guild Members Only',
+    );
 
     /**
      * The single instance of the class
@@ -16,6 +46,27 @@ class GW2_Guild_Login {
      * @var GW2_Guild_Login
      */
     protected static $instance = null;
+    
+    /**
+     * Plugin file path
+     *
+     * @var string
+     */
+    protected $plugin_file;
+    
+    /**
+     * Plugin directory path
+     *
+     * @var string
+     */
+    protected $plugin_dir;
+    
+    /**
+     * Plugin directory URL
+     *
+     * @var string
+     */
+    protected $plugin_url;
 
     /**
      * Main instance
@@ -29,17 +80,18 @@ class GW2_Guild_Login {
         return self::$instance;
     }
 
-    /**
-     * @var array List of available templates
-     */
-    private $templates = array(
-        'template-guild-only.php' => 'Guild Members Only',
-    );
+
 
     /**
      * Constructor
      */
     public function __construct() {
+        // Set up plugin paths
+        $this->plugin_file = defined('GW2_GUILD_LOGIN_FILE') ? GW2_GUILD_LOGIN_FILE : dirname(dirname(__FILE__)) . '/gw2-guild-login.php';
+        $this->plugin_dir = defined('GW2_GUILD_LOGIN_PLUGIN_DIR') ? GW2_GUILD_LOGIN_PLUGIN_DIR : plugin_dir_path($this->plugin_file);
+        $this->plugin_url = defined('GW2_GUILD_LOGIN_PLUGIN_URL') ? GW2_GUILD_LOGIN_PLUGIN_URL : plugin_dir_url($this->plugin_file);
+        
+        // Initialize
         $this->define_constants();
         $this->includes();
         $this->init_hooks();
@@ -49,11 +101,31 @@ class GW2_Guild_Login {
      * Define plugin constants
      */
     private function define_constants() {
-        $this->define('GW2_GUILD_LOGIN_ABSPATH', dirname(dirname(__FILE__)) . '/');
-        $this->define('GW2_GUILD_LOGIN_PLUGIN_FILE', GW2_GUILD_LOGIN_ABSPATH . 'gw2-guild-login.php');
-        $this->define('GW2_GUILD_LOGIN_PLUGIN_URL', plugin_dir_url(GW2_GUILD_LOGIN_PLUGIN_FILE));
-        $this->define('GW2_GUILD_LOGIN_PLUGIN_BASENAME', plugin_basename(GW2_GUILD_LOGIN_PLUGIN_FILE));
-        $this->define('GW2_GUILD_LOGIN_VERSION', self::VERSION);
+        // Define constants if not already defined in main plugin file
+        if (!defined('GW2_GUILD_LOGIN_VERSION')) {
+            $this->define('GW2_GUILD_LOGIN_VERSION', self::VERSION);
+        }
+        
+        if (!defined('GW2_GUILD_LOGIN_FILE')) {
+            $this->define('GW2_GUILD_LOGIN_FILE', $this->plugin_file);
+        }
+        
+        if (!defined('GW2_GUILD_LOGIN_PLUGIN_DIR')) {
+            $this->define('GW2_GUILD_LOGIN_PLUGIN_DIR', $this->plugin_dir);
+        }
+        
+        if (!defined('GW2_GUILD_LOGIN_PLUGIN_URL')) {
+            $this->define('GW2_GUILD_LOGIN_PLUGIN_URL', $this->plugin_url);
+        }
+        
+        if (!defined('GW2_GUILD_LOGIN_PLUGIN_BASENAME')) {
+            $this->define('GW2_GUILD_LOGIN_PLUGIN_BASENAME', plugin_basename($this->plugin_file));
+        }
+        
+        // Backward compatibility
+        if (!defined('GW2_GUILD_LOGIN_ABSPATH')) {
+            $this->define('GW2_GUILD_LOGIN_ABSPATH', $this->plugin_dir);
+        }
     }
 
     /**
@@ -72,7 +144,15 @@ class GW2_Guild_Login {
      * Include required files
      */
     public function includes() {
-        // Include other required files here
+        // Ensure constants are defined
+        $this->define_constants();
+        
+        // Include required files
+        require_once $this->plugin_dir . 'includes/class-gw2-api.php';
+        require_once $this->plugin_dir . 'includes/class-gw2-user-handler.php';
+        
+        // Initialize components
+        $this->init_components();
     }
 
     /**
@@ -80,8 +160,8 @@ class GW2_Guild_Login {
      */
     private function init_hooks() {
         // Activation and deactivation hooks
-        register_activation_hook(GW2_GUILD_LOGIN_PLUGIN_FILE, array($this, 'activate'));
-        register_deactivation_hook(GW2_GUILD_LOGIN_PLUGIN_FILE, array($this, 'deactivate'));
+        register_activation_hook($this->plugin_file, array($this, 'activate'));
+        register_deactivation_hook($this->plugin_file, array($this, 'deactivate'));
 
         // Initialize plugin
         add_action('init', array($this, 'init'), 0);
@@ -120,7 +200,7 @@ class GW2_Guild_Login {
         load_plugin_textdomain(
             'gw2-guild-login',
             false,
-            dirname(plugin_basename(GW2_GUILD_LOGIN_PLUGIN_FILE)) . '/languages/'
+            dirname(plugin_basename($this->plugin_file)) . '/languages/'
         );
     }
     
@@ -168,8 +248,8 @@ class GW2_Guild_Login {
      */
     private function load_dependencies() {
         // Load required files
-        require_once GW2_GUILD_LOGIN_ABSPATH . 'includes/class-gw2-api.php';
-        require_once GW2_GUILD_LOGIN_ABSPATH . 'includes/class-gw2-user-handler.php';
+        require_once $this->plugin_dir . 'includes/class-gw2-api.php';
+        require_once $this->plugin_dir . 'includes/class-gw2-user-handler.php';
     }
 
     /**
@@ -224,7 +304,11 @@ class GW2_Guild_Login {
         $sql = "CREATE TABLE IF NOT EXISTS $table_name (
             id bigint(20) NOT NULL AUTO_INCREMENT,\n            user_id bigint(20) NOT NULL,\n            api_key varchar(100) NOT NULL,\n            permissions text NOT NULL,\n            created_at datetime DEFAULT CURRENT_TIMESTAMP,\n            last_used datetime DEFAULT NULL,\n            is_active tinyint(1) DEFAULT 1,\n            PRIMARY KEY (id),\n            UNIQUE KEY user_id (user_id),\n            KEY api_key (api_key)\n        ) $charset_collate;";
         
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        if (!defined('ABSPATH')) {
+            require_once dirname(dirname(dirname(dirname(__DIR__)))) . '/wp-admin/includes/upgrade.php';
+        } else {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
         dbDelta($sql);
     }
 
@@ -252,16 +336,11 @@ class GW2_Guild_Login {
      *
      * @return GW2_User_Handler
      */
-    private $user_handler;
-    
-    /**
-     * @var GW2_Guild_Login_Admin
-     */
-    private $admin;
-
     public function get_user_handler() {
         return $this->user_handler;
     }
+
+
     
     /**
      * Initialize admin functionality

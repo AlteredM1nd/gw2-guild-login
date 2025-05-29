@@ -241,12 +241,15 @@ function gw2_handle_login_submission() {
         }
         
         // Set remember me cookie if needed
-        if ($remember) {
+        if ($remember && !empty($result['user_id'])) {
             $user = get_user_by('id', $result['user_id']);
-            if ($user) {
+            if ($user && is_a($user, 'WP_User')) {
                 wp_set_auth_cookie($user->ID, $remember);
                 wp_set_current_user($user->ID, $user->user_login);
                 do_action('wp_login', $user->user_login, $user);
+            } else {
+                gw2_set_message(__('Error: Could not retrieve user information.', 'gw2-guild-login'), 'error');
+                return;
             }
         }
         
