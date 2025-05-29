@@ -12,7 +12,7 @@
 If you discover a security vulnerability within GW2 Guild Login, please follow these steps:
 
 1. **Do not** create a public GitHub issue for security vulnerabilities
-2. Email the security team directly at [your-email@example.com](mailto:your-email@example.com)
+2. Email the security team directly at [gw2-guild-login@protonmail.com](mailto:gw2-guild-login@protonmail.com)
 3. Include the following details:
    - A description of the vulnerability
    - Steps to reproduce the issue
