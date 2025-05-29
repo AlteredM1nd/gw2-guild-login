@@ -475,26 +475,6 @@ You can customize the login form by:
 - Improved error handling in guild membership verification
 - Added proper type checking and return types
 - Fixed duplicate method declarations in GW2_Guild_Login class
-- Enhanced template security with better error handling
-- Added more detailed error logging
-
-### 2.1.0
-- Added Guild Members Only page template for full page access restriction
-- Improved template handling and documentation
-- Added template registration and loading system
-- Updated admin interface to support page templates
-
-### 2.0.0
-- Complete rewrite with improved architecture
-- Added admin interface for settings
-- Added guild membership verification
-- Improved security and error handling
-- Added shortcode for protected content
-
-### 1.0.0
-- Initial release
-- Basic API key authentication
-- Simple login form
 
 ## Support
 
