@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name:       GW2 Guild Login
- * Plugin URI:        https://yourwebsite.com/
+ * Plugin URI:        https://github.com/AlteredM1nd
  * Description:       Allows users to log in using their GW2 API key to verify guild membership with WordPress user integration.
  * Version:           2.0.0
- * Author:            Your Name
- * Author URI:        https://yourwebsite.com/
+ * Author:            AlteredM1nd
+ * Author URI:        https://github.com/AlteredM1nd
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       gw2-guild-login
