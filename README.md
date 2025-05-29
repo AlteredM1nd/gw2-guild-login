@@ -437,6 +437,12 @@ You can customize the login form by:
 
 ## Changelog
 
+### 2.1.0
+- Added Guild Members Only page template for full page access restriction
+- Improved template handling and documentation
+- Added template registration and loading system
+- Updated admin interface to support page templates
+
 ### 2.0.0
 - Complete rewrite with improved architecture
 - Added admin interface for settings
