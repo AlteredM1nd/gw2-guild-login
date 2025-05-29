@@ -2,6 +2,57 @@
 
 All notable changes to the GW2 Guild Login plugin will be documented in this file.
 
+## [2.3.0] - 2025-05-29
+
+### Fixed
+- Fixed parameter mismatch in `login_user` method to properly handle remember me functionality
+- Updated `update_user_meta` to return proper success/error responses
+- Enhanced `get_user_by_gw2_account_id` with better type checking and error handling
+- Fixed potential issues with user session management
+- Addressed PHP warnings and notices in the user handler class
+- Improved error handling and validation throughout the authentication process
+- Ensured proper return types for all user-related methods
+- Added input sanitization for improved security
+- Fixed issues with the welcome email sending process
+- Improved error messages and user feedback
+
+### Added
+- New `GW2_Login_Shortcode` class for better code organization
+- Comprehensive form validation with client and server-side checks
+- AJAX form submission for better user experience
+- Responsive login form with improved UI/UX
+- Enhanced security with nonce verification and input sanitization
+- Session management system for secure user authentication
+- Rate limiting to prevent brute force attacks
+- Custom error messages and user feedback system
+- Support for custom redirects after login
+- "Remember Me" functionality
+- Mobile-friendly design with responsive breakpoints
+- Comprehensive documentation in README.md
+- New shortcode attributes for better customization
+- Support for custom user meta storage
+- Developer hooks and filters for extensibility
+
+### Changed
+- Refactored login form handling into a dedicated class
+- Improved error handling and user feedback
+- Enhanced security measures throughout the codebase
+- Better organization of frontend assets (CSS/JS)
+- Updated documentation with new features and examples
+- Improved code quality and maintainability
+- Enhanced session management and security
+- Better handling of API responses and errors
+
+### Fixed
+- Fixed potential security vulnerabilities in form handling
+- Resolved issues with user session management
+- Fixed compatibility issues with various WordPress themes
+- Addressed PHP warnings and notices
+- Fixed issues with user role assignments
+- Resolved caching-related issues with API responses
+- Fixed issues with the login/logout process
+- Addressed issues with redirects after login
+
 ## [2.2.1] - 2025-05-29
 
 ### Added

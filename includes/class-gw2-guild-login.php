@@ -8,7 +8,7 @@ class GW2_Guild_Login {
 	 *
 	 * @var string
 	 */
-	const VERSION = '2.1.1';
+	const VERSION = '2.3.0';
 
 	/**
 	 * The API handler instance

@@ -1,16 +1,58 @@
 # GW2 Guild Login
 
-A WordPress plugin that allows users to log in using their Guild Wars 2 API key, with optional guild membership verification and user role management.
+A secure WordPress plugin that allows users to log in using their Guild Wars 2 API key, with guild membership verification, user role management, and enhanced security features.
 
 ## Features
 
-- **GW2 API Integration**: Authenticate users using their Guild Wars 2 API keys
+### Core Features
+- **Secure GW2 API Integration**: Authenticate users using their Guild Wars 2 API keys with proper validation
 - **Guild Membership Verification**: Restrict access to users who are members of specific guilds
-- **User Role Management**: Assign WordPress user roles based on guild membership
+- **User Role Management**: Assign WordPress user roles based on guild membership and rank
 - **Auto-Registration**: Automatically create WordPress user accounts for new GW2 players
-- **Secure API Key Storage**: Securely store API keys in the database
-- **Shortcodes**: Easy-to-use shortcodes for login forms and protected content
-- **Customizable Settings**: Configure guild requirements and user roles through the WordPress admin
+- **Secure Session Management**: Custom session handler for enhanced security
+- **Rate Limiting**: Built-in protection against brute force attacks
+
+### Security Features
+- **API Key Encryption**: All API keys are encrypted before storage
+- **Secure Session Handling**: Custom session management with proper security headers
+- **CSRF Protection**: Nonce verification for all form submissions
+- **Input Validation**: Comprehensive validation of all user inputs with proper sanitization
+- **Type Safety**: Strict type checking for all user-related operations
+- **Error Handling**: Secure error handling without exposing sensitive information
+- **Secure Cookies**: HTTP-only and secure flags set for all cookies
+- **Parameter Validation**: Enhanced validation for all function parameters
+- **Return Type Safety**: Ensured proper return types for all methods
+
+### Recent Improvements
+
+- Fixed parameter handling in authentication methods for better reliability
+- Enhanced type safety and return type checking throughout the codebase
+- Improved error handling and validation in user management functions
+- Fixed issues with the welcome email sending process
+- Added comprehensive input sanitization for all user inputs
+- Improved session management and security
+- Added better error messages and user feedback
+- Fixed PHP warnings and notices in the user handler class
+- Ensured proper return types for all user-related methods
+- Added parameter validation for critical functions
+
+### User Experience
+- **Responsive Login Form**: Mobile-friendly login interface
+- **AJAX Form Submission**: Smooth form handling without page reloads
+- **Customizable Messages**: Tailor feedback messages to your users
+- **Remember Me**: Option to keep users logged in
+- **Redirect After Login**: Customizable redirect URLs after successful login
+
+### Shortcodes
+- `[gw2_login]` - Display the GW2 login form
+- `[gw2_loginout]` - Show login/logout links
+- `[gw2_guild_only]` - Protect content for guild members only
+
+### Developer Friendly
+- **Action & Filter Hooks**: Extend functionality with custom code
+- **WP-CLI Commands**: Manage plugin via command line
+- **Comprehensive Logging**: Debug issues with detailed logs
+- **Multisite Support**: Works in WordPress Multisite installations
 
 ## Requirements
 
@@ -64,20 +106,9 @@ To find your Guild ID, you can use one of these methods:
 ### Method 1: WordPress Admin Panel
 
 1. Log in to your WordPress admin panel
-2. Navigate to **Plugins > Add New**
-3. Click **Upload Plugin**
-4. Upload the `gw2-guild-login.zip` file
-5. Click **Install Now**
-6. After installation, click **Activate Plugin**
-
-### Method 2: Manual Installation
-
-1. Download the plugin files
-2. Extract the `gw2-guild-login` folder to your computer
 3. Upload the `gw2-guild-login` folder to the `/wp-content/plugins/` directory
-4. Log in to your WordPress admin panel
-5. Navigate to **Plugins**
-6. Find **GW2 Guild Login** in the list and click **Activate**
+4. Activate the plugin through the 'Plugins' menu in WordPress
+5. Go to Settings > GW2 Guild Login to configure the plugin
 
 ### Updating the Plugin
 
@@ -99,17 +130,52 @@ To update the plugin to the latest version:
 1. After activation, navigate to **Settings > GW2 Guild Login** in your WordPress admin panel
 2. You'll see the main configuration page with the following sections:
 
-### Required Settings
+### Guild Settings
 
 - **Target Guild ID**
   - Enter the Guild ID you found earlier
   - This is the guild that users must be a member of to log in
-  - Example: `A1B2C3D4-1234-1234-1234-1234567890AB`
+  - Leave empty to allow any GW2 player to register
+
+### User Registration
 
 - **Default User Role**
   - Select the default WordPress role for new users
-  - Recommended: `Subscriber` for most cases
-  - This role will be assigned to users when they first log in
+  - Recommended: 'Subscriber' for most sites
+
+- **Auto-Create Accounts**
+  - Enable to automatically create WordPress accounts for new GW2 players
+  - If disabled, users must be manually created first
+
+### Security Settings
+
+- **Session Management**
+  - Session Lifetime: Set how long login sessions last (in seconds)
+  - Regenerate Session ID: Enable to regenerate session ID on login
+  - Secure Cookies: Enable to only send cookies over HTTPS
+
+- **Rate Limiting**
+  - Login Attempts: Maximum number of failed login attempts before blocking
+  - Lockout Time: How long to block login attempts after reaching the limit
+
+### Appearance
+
+- **Login Form**
+  - Custom CSS: Add custom styles for the login form
+  - Show Remember Me: Enable/disable the "Remember Me" checkbox
+  - Redirect After Login: Set a custom redirect URL after successful login
+
+### Advanced
+
+- **API Settings**
+  - API Cache TTL: How long to cache API responses (in seconds)
+  - Debug Mode: Enable for detailed error logging (only for development)
+
+- **Maintenance**
+  - Clear Cache: Clear all cached API responses
+  - Reset Settings: Reset all settings to defaults
+
+## Shortcode Usage
 
 ### Optional Settings
 

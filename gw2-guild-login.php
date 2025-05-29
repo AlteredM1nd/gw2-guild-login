@@ -3,7 +3,7 @@
  * Plugin Name:       GW2 Guild Login
  * Plugin URI:        https://github.com/AlteredM1nd/gw2-guild-login
  * Description:       Allows users to log in using their GW2 API key to verify guild membership with WordPress user integration.
- * Version:           2.1.1
+ * Version:           2.3.0
  * Author:            AlteredM1nd
  * Author URI:        https://github.com/AlteredM1nd
  * License:           GPL v2 or later
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin version
-define( 'GW2_GUILD_LOGIN_VERSION', '2.2.0' );
+define( 'GW2_GUILD_LOGIN_VERSION', '2.3.0' );
 
 // Define plugin file constant
 if ( ! defined( 'GW2_GUILD_LOGIN_FILE' ) ) {
@@ -50,6 +50,10 @@ if ( ! defined( 'GW2_GUILD_LOGIN_ABSPATH' ) ) {
 if ( ! defined( 'GW2_GUILD_LOGIN_PLUGIN_BASENAME' ) ) {
 	define( 'GW2_GUILD_LOGIN_PLUGIN_BASENAME', plugin_basename( GW2_GUILD_LOGIN_FILE ) );
 }
+
+// Load required files
+require_once GW2_GUILD_LOGIN_PLUGIN_DIR . 'includes/class-gw2-session-handler.php';
+require_once GW2_GUILD_LOGIN_PLUGIN_DIR . 'includes/class-gw2-login-shortcode.php';
 
 // Load the main plugin class
 if ( ! class_exists( 'GW2_Guild_Login' ) ) {
@@ -89,6 +93,9 @@ function gw2_guild_login_init() {
 		false,
 		dirname( plugin_basename( GW2_GUILD_LOGIN_FILE ) ) . '/languages/'
 	);
+
+	// Initialize the shortcode handler
+	GW2_Login_Shortcode::instance();
 }
 
 // Shortcode for displaying the login form
