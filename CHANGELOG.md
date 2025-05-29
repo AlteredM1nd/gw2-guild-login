@@ -2,6 +2,17 @@
 
 All notable changes to the GW2 Guild Login plugin will be documented in this file.
 
+## [2.2.1] - 2025-05-29
+
+### Added
+- Added comprehensive documentation files (CONTRIBUTING.md, SECURITY.md, CHANGELOG.md)
+- Added GitHub issue templates for bugs and feature requests
+- Added reference to CHANGELOG.md in README.md
+
+### Changed
+- Moved changelog from README.md to dedicated CHANGELOG.md
+- Improved project documentation structure
+
 ## [2.2.0] - 2025-05-29
 
 ### Added
