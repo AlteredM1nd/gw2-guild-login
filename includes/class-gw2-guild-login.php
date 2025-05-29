@@ -30,6 +30,13 @@ class GW2_Guild_Login {
     }
 
     /**
+     * @var array List of available templates
+     */
+    private $templates = array(
+        'template-guild-only.php' => 'Guild Members Only',
+    );
+
+    /**
      * Constructor
      */
     public function __construct() {
@@ -84,6 +91,10 @@ class GW2_Guild_Login {
         
         // Initialize admin
         add_action('admin_init', array($this, 'init_admin'));
+        
+        // Register page templates
+        add_filter('theme_page_templates', array($this, 'register_page_templates'));
+        add_filter('template_include', array($this, 'load_page_template'));
     }
 
     /**
@@ -109,8 +120,47 @@ class GW2_Guild_Login {
         load_plugin_textdomain(
             'gw2-guild-login',
             false,
-            dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
+            dirname(plugin_basename(GW2_GUILD_LOGIN_PLUGIN_FILE)) . '/languages/'
         );
+    }
+    
+    /**
+     * Add our template to the page template dropdown
+     */
+    public function register_page_templates($templates) {
+        $templates = array_merge($templates, $this->templates);
+        return $templates;
+    }
+    
+    /**
+     * Load the template if it's set
+     */
+    public function load_page_template($template) {
+        global $post;
+        
+        // Return the template if it's not a page
+        if (!$post) {
+            return $template;
+        }
+        
+        // Get the template name from post meta
+        $template_name = get_post_meta($post->ID, '_wp_page_template', true);
+        
+        // Return default template if we don't have a custom one
+        if (!isset($this->templates[$template_name])) {
+            return $template;
+        }
+        
+        // Check if the template file exists
+        $template_file = GW2_GUILD_LOGIN_PLUGIN_DIR . 'templates/' . $template_name;
+        
+        // Return the template file if it exists
+        if (file_exists($template_file)) {
+            return $template_file;
+        }
+        
+        // Return the default template if our custom one doesn't exist
+        return $template;
     }
 
     /**

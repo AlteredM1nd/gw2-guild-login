@@ -3,7 +3,7 @@
  * Plugin Name:       GW2 Guild Login
  * Plugin URI:        https://github.com/AlteredM1nd/gw2-guild-login
  * Description:       Allows users to log in using their GW2 API key to verify guild membership with WordPress user integration.
- * Version:           2.0.0
+ * Version:           2.1.1
  * Author:            AlteredM1nd
  * Author URI:        https://github.com/AlteredM1nd
  * License:           GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin version
-define('GW2_GUILD_LOGIN_VERSION', '2.0.0');
+define('GW2_GUILD_LOGIN_VERSION', '2.1.0');
 
 // Define plugin file constant
 if (!defined('GW2_GUILD_LOGIN_FILE')) {
@@ -67,7 +67,12 @@ add_action('plugins_loaded', 'gw2_guild_login_init', 15);
  */
 function gw2_guild_login_init() {
     // Load the main plugin class
-    $GLOBALS['gw2_guild_login'] = GW2_Guild_Login();
+    $plugin = GW2_Guild_Login();
+    $GLOBALS['gw2_guild_login'] = $plugin;
+    
+    // Register template hooks
+    add_filter('theme_page_templates', array($plugin, 'register_page_templates'));
+    add_filter('template_include', array($plugin, 'load_page_template'));
     
     // Load text domain for translations
     load_plugin_textdomain(

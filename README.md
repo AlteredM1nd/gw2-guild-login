@@ -130,7 +130,37 @@ To find your Guild ID:
 
 ## Complete Usage Guide
 
+## Page Templates
+
+### Guild Members Only Template
+
+This template completely restricts access to a page, showing it only to guild members. Non-members will be redirected to the login page.
+
+**How to use:**
+
+1. In the WordPress admin, go to **Pages > Add New**
+2. Add a title and content for your page
+3. In the Page Attributes box (usually on the right side), find the **Template** dropdown
+4. Select **Guild Members Only** from the dropdown
+5. Publish or Update the page
+
+**Features:**
+- Completely blocks access to non-guild members
+- Automatically redirects to the login page if not logged in
+- Shows an error message if the user is logged in but not a guild member
+- Maintains the original URL for clean navigation
+
 ### Shortcodes
+
+### Shortcode vs. Page Template
+
+| Feature | Shortcode | Page Template |
+|---------|-----------|---------------|
+| Shows page to non-members | Yes | No |
+| Shows page to logged-out users | Yes | No |
+| Redirects non-members | No | Yes |
+| Good for public pages with protected sections | ✓ |  |
+| Good for completely private pages |  | ✓ |
 
 #### 1. Basic Login Form
 
