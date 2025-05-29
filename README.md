@@ -30,15 +30,20 @@ Before installing the plugin, you'll need:
 
 ### Finding Your Guild ID
 
-To find your Guild ID:
+To find your Guild ID, you can use one of these methods:
 
-1. **Using the Guild Panel in-game (easiest method):**
-   - Open your Guild Panel in Guild Wars 2 (default key: `G`)
-   - Select the guild you want to use
-   - Look at the URL in your browser's address bar
-   - The URL will contain your guild ID in this format: `https://guildwars2.com/guild/[GUILD_ID]/`
+1. **Using the Guild Search API (easiest method):**
+   - Visit this URL in your browser (replace `GUILD_NAME` with your guild's exact name, with spaces as `%20`):
+     ```
+     https://api.guildwars2.com/v2/guild/search?name=GUILD_NAME
+     ```
+   - Example for guild "Lunar Melodies":
+     ```
+     https://api.guildwars2.com/v2/guild/search?name=Lunar%20Melodies
+     ```
+   - This will return your guild's ID in the format: `["GUILD_ID_HERE"]`
 
-2. **Using the GW2 API (alternative method):**
+2. **Using Your Account's Guilds (requires API key):**
    - Log in to your Guild Wars 2 account at [account.arena.net](https://account.arena.net/)
    - Create an API key with the `guilds` permission
    - Visit this URL in your browser (replace `YOUR_API_KEY` with your actual API key):
