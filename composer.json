@@ -1,0 +1,15 @@
+{
+    "name": "alteredm1nd/gw2-guild-login",
+    "description": "A WordPress plugin for Guild Wars 2 guild member authentication",
+    "type": "wordpress-plugin",
+    "require-dev": {
+        "php-stubs/wordpress-stubs": "^6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "GW2GuildLogin\\": "includes/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
