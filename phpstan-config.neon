@@ -1,0 +1,22 @@
+parameters:
+    level: 1
+    paths:
+        - .
+    excludePaths:
+        - vendor/*
+        - node_modules/*
+    reportUnmatchedIgnoredErrors: false
+    bootstrapFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+    scanFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+    ignoreErrors:
+        - message: '#Constant GW2_GUILD_LOGIN_PLUGIN_DIR not found.#'
+          path: includes/class-gw2-guild-login.php
+        - message: '#Call to an undefined method.*#'
+        - message: '#Access to an undefined property.*#'
+        - message: '#Class .* not found#'
+        - message: '#Instantiated class .* not found#'
+        - message: '#Undefined class constant#'
+        - message: '#Undefined function.*#'
+        - message: '#Function .* not found#'

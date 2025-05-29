@@ -3,202 +3,202 @@
  */
 
 .wrap {
-    max-width: 1200px;
-    margin-right: 20px;
-    position: relative;
+	max-width: 1200px;
+	margin-right: 20px;
+	position: relative;
 }
 
 .gw2gl-admin-sidebar {
-    float: right;
-    width: 280px;
-    margin: 20px 0 20px 20px;
-    padding: 0;
+	float: right;
+	width: 280px;
+	margin: 20px 0 20px 20px;
+	padding: 0;
 }
 
 .gw2gl-admin-box {
-    background: #fff;
-    border: 1px solid #ccd0d4;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-    margin-bottom: 20px;
-    padding: 15px;
-    border-radius: 3px;
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	margin-bottom: 20px;
+	padding: 15px;
+	border-radius: 3px;
 }
 
 .gw2gl-admin-box h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #eee;
-    font-size: 14px;
-    line-height: 1.4;
+	margin-top: 0;
+	margin-bottom: 15px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid #eee;
+	font-size: 14px;
+	line-height: 1.4;
 }
 
 .gw2gl-admin-box p {
-    margin: 0 0 15px;
-    font-size: 13px;
-    line-height: 1.5;
+	margin: 0 0 15px;
+	font-size: 13px;
+	line-height: 1.5;
 }
 
 .gw2gl-admin-box p:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 .gw2gl-admin-box .button {
-    margin-right: 8px;
-    margin-bottom: 8px;
+	margin-right: 8px;
+	margin-bottom: 8px;
 }
 
 /* Form styles */
 .form-table th {
-    width: 200px;
+	width: 200px;
 }
 
 .form-table td .description {
-    color: #666;
-    font-style: italic;
-    margin-top: 4px;
-    display: block;
-    line-height: 1.4;
+	color: #666;
+	font-style: italic;
+	margin-top: 4px;
+	display: block;
+	line-height: 1.4;
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 782px) {
-    .gw2gl-admin-sidebar {
-        float: none;
-        width: 100%;
-        margin: 20px 0;
-    }
-    
-    .form-table th {
-        width: auto;
-        display: block;
-        padding-bottom: 0;
-    }
-    
-    .form-table td {
-        display: block;
-        padding-top: 0;
-        padding-bottom: 15px;
-    }
-    
-    .form-table td p {
-        margin-top: 0.5em;
-    }
+	.gw2gl-admin-sidebar {
+		float: none;
+		width: 100%;
+		margin: 20px 0;
+	}
+
+	.form-table th {
+		width: auto;
+		display: block;
+		padding-bottom: 0;
+	}
+
+	.form-table td {
+		display: block;
+		padding-top: 0;
+		padding-bottom: 15px;
+	}
+
+	.form-table td p {
+		margin-top: 0.5em;
+	}
 }
 
 /* Settings sections */
 .gw2gl-settings-section {
-    background: #fff;
-    border: 1px solid #ccd0d4;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-    margin-bottom: 20px;
-    padding: 0 15px 15px;
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	margin-bottom: 20px;
+	padding: 0 15px 15px;
 }
 
 .gw2gl-settings-section h2 {
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin: 1em 0;
+	border-bottom: 1px solid #eee;
+	padding-bottom: 10px;
+	margin: 1em 0;
 }
 
 /* Toggle switches */
 .gw2gl-toggle {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 24px;
-    margin-right: 10px;
-    vertical-align: middle;
+	position: relative;
+	display: inline-block;
+	width: 50px;
+	height: 24px;
+	margin-right: 10px;
+	vertical-align: middle;
 }
 
 .gw2gl-toggle input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+	opacity: 0;
+	width: 0;
+	height: 0;
 }
 
 .gw2gl-toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 24px;
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	transition: .4s;
+	border-radius: 24px;
 }
 
 .gw2gl-toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
+	position: absolute;
+	content: "";
+	height: 16px;
+	width: 16px;
+	left: 4px;
+	bottom: 4px;
+	background-color: white;
+	transition: .4s;
+	border-radius: 50%;
 }
 
 input:checked + .gw2gl-toggle-slider {
-    background-color: #0073aa;
+	background-color: #0073aa;
 }
 
 input:focus + .gw2gl-toggle-slider {
-    box-shadow: 0 0 1px #0073aa;
+	box-shadow: 0 0 1px #0073aa;
 }
 
 input:checked + .gw2gl-toggle-slider:before {
-    transform: translateX(26px);
+	transform: translateX(26px);
 }
 
 /* Status indicators */
 .gw2gl-status {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 5px;
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	margin-right: 5px;
 }
 
 .gw2gl-status-active {
-    background-color: #46b450;
+	background-color: #46b450;
 }
 
 .gw2gl-status-inactive {
-    background-color: #a00;
+	background-color: #a00;
 }
 
 /* Tooltips */
 .gw2gl-tooltip {
-    position: relative;
-    display: inline-block;
-    cursor: help;
-    margin-left: 5px;
-    color: #0073aa;
+	position: relative;
+	display: inline-block;
+	cursor: help;
+	margin-left: 5px;
+	color: #0073aa;
 }
 
 .gw2gl-tooltip .gw2gl-tooltiptext {
-    visibility: hidden;
-    width: 200px;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -100px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-size: 12px;
-    line-height: 1.4;
+	visibility: hidden;
+	width: 200px;
+	background-color: #333;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px;
+	position: absolute;
+	z-index: 1;
+	bottom: 125%;
+	left: 50%;
+	margin-left: -100px;
+	opacity: 0;
+	transition: opacity 0.3s;
+	font-size: 12px;
+	line-height: 1.4;
 }
 
 .gw2gl-tooltip:hover .gw2gl-tooltiptext {
-    visibility: visible;
-    opacity: 1;
+	visibility: visible;
+	opacity: 1;
 }

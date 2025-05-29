@@ -458,6 +458,18 @@ You can customize the login form by:
 
 ## Changelog
 
+### 2.2.0 (2025-05-29)
+- Added PHPStan static analysis tool for code quality assurance
+- Configured PHP_CodeSniffer for WordPress coding standards compliance
+- Fixed constant definition issues in the main plugin file
+- Improved error handling and type safety throughout the codebase
+- Added proper documentation for all functions and methods
+- Enhanced plugin initialization process
+- Fixed potential issues with path definitions
+- Added proper WordPress stubs for better IDE support
+- Improved error messages and debugging information
+- Updated development dependencies
+
 ### 2.1.1 (2025-05-29)
 - Fixed user handler initialization and access
 - Improved error handling in guild membership verification
