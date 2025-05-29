@@ -18,6 +18,35 @@ A WordPress plugin that allows users to log in using their Guild Wars 2 API key,
 - PHP 7.4 or higher
 - A Guild Wars 2 account with API key generation access
 
+## Getting Started
+
+### Prerequisites
+
+Before installing the plugin, you'll need:
+
+1. A self-hosted WordPress installation (version 5.6 or higher)
+2. A Guild Wars 2 account with an active API key
+3. The guild ID of the guild you want to verify membership against
+
+### Finding Your Guild ID
+
+To find your Guild ID:
+
+1. **Using the Guild Panel in-game (easiest method):**
+   - Open your Guild Panel in Guild Wars 2 (default key: `G`)
+   - Select the guild you want to use
+   - Look at the URL in your browser's address bar
+   - The URL will contain your guild ID in this format: `https://guildwars2.com/guild/[GUILD_ID]/`
+
+2. **Using the GW2 API (alternative method):**
+   - Log in to your Guild Wars 2 account at [account.arena.net](https://account.arena.net/)
+   - Create an API key with the `guilds` permission
+   - Visit this URL in your browser (replace `YOUR_API_KEY` with your actual API key):
+     ```
+     https://api.guildwars2.com/v2/account/guilds?access_token=YOUR_API_KEY
+     ```
+   - This will return a list of guild IDs your account has access to
+
 ## Installation
 
 ### Method 1: WordPress Admin Panel
@@ -40,17 +69,222 @@ A WordPress plugin that allows users to log in using their Guild Wars 2 API key,
 
 ## Configuration
 
-1. After activation, go to **Settings > GW2 Guild Login**
-2. Configure the following settings:
-   - **Target Guild ID**: Enter the Guild ID that users must be a member of
-   - **Default User Role**: Select the default role for new users
-   - **Auto-register New Users**: Enable to automatically create accounts for new users
-   - **API Cache Expiry**: Set how long to cache API responses (in seconds)
-3. Click **Save Changes**
+### Initial Setup
+
+1. After activation, navigate to **Settings > GW2 Guild Login** in your WordPress admin panel
+2. You'll see the main configuration page with the following sections:
+
+### Required Settings
+
+- **Target Guild ID**
+  - Enter the Guild ID you found earlier
+  - This is the guild that users must be a member of to log in
+  - Example: `A1B2C3D4-1234-1234-1234-1234567890AB`
+
+- **Default User Role**
+  - Select the default WordPress role for new users
+  - Recommended: `Subscriber` for most cases
+  - This role will be assigned to users when they first log in
+
+### Optional Settings
+
+- **Auto-register New Users**
+  - When enabled: Automatically creates a WordPress account for users who don't have one
+  - When disabled: Only existing WordPress users can log in
+  - Recommended: Enable this if you want to allow new members to join without manual account creation
+
+- **API Cache Expiry**
+  - How long to cache API responses (in seconds)
+  - Default: `3600` (1 hour)
+  - Lower values mean more up-to-date guild membership but more API calls
+  - Higher values reduce server load but may show outdated guild information
+
+3. Click **Save Changes** to apply your settings
+
+### Testing Your Setup
+
+1. Log out of WordPress
+2. Visit a page with the `[gw2_login]` shortcode
+3. Try logging in with your GW2 API key
+4. If auto-registration is enabled, a new WordPress account will be created
+5. Verify that you can access protected content with the `[gw2_guild_only]` shortcode
+
+### Troubleshooting Common Issues
+
+- **"Invalid API Key" error**
+  - Double-check that you've copied the entire API key
+  - Ensure the API key has the required permissions (`account` and `guilds`)
+  - Try generating a new API key
+
+- **"Not a member of the required guild" error**
+  - Verify the Guild ID in your settings matches your guild's ID exactly
+  - Ensure your API key has the `guilds` permission
+  - Check that your character is still a member of the guild in-game
+
+- **Login form not appearing**
+  - Make sure you're logged out of WordPress
+  - Check for JavaScript errors in your browser's console
+  - Ensure your theme's `wp_footer()` function is called in the footer.php file
 
 ## Usage
 
+## Complete Usage Guide
+
 ### Shortcodes
+
+#### 1. Basic Login Form
+
+The most common way to use the plugin is with the login form shortcode:
+
+```
+[gw2_login]
+```
+
+This will display a simple login form where users can enter their GW2 API key.
+
+#### 2. Customizing the Login Form
+
+You can customize the login form with additional attributes:
+
+```
+[gw2_login 
+    redirect="/members-only/"
+    label="GW2 API Key"
+    button_text="Connect with GW2"
+    remember="true"
+]
+```
+
+- `redirect`: URL to redirect to after successful login (default: current page)
+- `label`: Custom label for the API key field
+- `button_text`: Custom text for the submit button
+- `remember`: Whether to show "Remember Me" checkbox (true/false)
+
+#### 3. Protecting Content
+
+Restrict content to logged-in guild members:
+
+```
+[gw2_guild_only]
+    <h2>Welcome, Guild Member!</h2>
+    <p>This content is only visible to members of our guild.</p>
+    <p>You can include any HTML content here.</p>
+[/gw2_guild_only]
+```
+
+#### 4. Showing Different Content to Members and Guests
+
+```
+[gw2_guild_only]
+    <p>Welcome back, guild member!</p>
+[gw2_guild_else]
+    <p>Please log in with your GW2 API key to view this content.</p>
+    [gw2_login]
+[/gw2_guild_only]
+```
+
+#### 5. Login/Logout Links
+
+Add a dynamic login/logout link:
+
+```
+[gw2_loginout]
+```
+
+Customize the text:
+
+```
+[gw2_loginout login_text="Sign In" logout_text="Sign Out"]
+```
+
+### Advanced Usage
+
+#### Custom Redirects After Login
+
+Set a default redirect URL in the plugin settings, or use the `redirect` parameter:
+
+```
+[gw2_login redirect="/members-area/"]
+```
+
+#### Styling the Login Form
+
+Add this CSS to your theme's `style.css` or Customizer:
+
+```css
+/* Container */
+.gw2-login-form {
+    max-width: 400px;
+    margin: 2em auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Input fields */
+.gw2-login-form input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+/* Submit button */
+.gw2-login-form .button {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Error messages */
+.gw2-login-error {
+    color: #d32f2f;
+    margin: 10px 0;
+    padding: 10px;
+    background: #ffebee;
+    border-left: 4px solid #d32f2f;
+}
+
+/* Success messages */
+.gw2-login-success {
+    color: #388e3c;
+    margin: 10px 0;
+    padding: 10px;
+    background: #e8f5e9;
+    border-left: 4px solid #388e3c;
+}
+```
+
+### Managing Users
+
+#### Viewing GW2 Information
+
+After users log in, their GW2 account information is stored in their WordPress user profile:
+
+1. Go to **Users** in the WordPress admin
+2. Click on a user to edit their profile
+3. Scroll down to the "GW2 Information" section
+4. You'll see their account name, guild membership status, and other details
+
+#### Manual User Management
+
+- To remove a user's access, simply remove their GW2 API key from their profile
+- To block a user, change their WordPress role to one that doesn't have access to protected content
+- To delete a user, use the standard WordPress user management tools
+
+### API Rate Limiting
+
+The plugin respects the Guild Wars 2 API rate limits. By default, it will:
+- Cache API responses for 1 hour
+- Automatically handle rate limiting
+- Show appropriate error messages if the API is unavailable
+
+You can adjust the cache duration in the plugin settings if needed.
 
 #### Login Form
 
