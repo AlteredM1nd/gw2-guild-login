@@ -3,16 +3,146 @@
 A comprehensive guide to installing, configuring, and customizing the GW2 Guild Login plugin for WordPress.
 
 ## Table of Contents
+- [Quick Start Guide](#quick-start-guide)
+  - [For Administrators](#for-administrators)
+  - [For Developers](#for-developers)
+- [System Requirements](#system-requirements)
+  - [Minimum Requirements](#minimum-requirements)
+  - [Recommended Requirements](#recommended-requirements)
+- [Before You Begin](#before-you-begin)
 - [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [Installation Methods](#installation-methods)
+    - [Method 1: WordPress Admin (Recommended)](#method-1-wordpress-admin-recommended)
+    - [Method 2: Manual Installation](#method-2-manual-installation)
+  - [Post-Installation Checklist](#post-installation-checklist)
 - [Configuration](#configuration)
+  - [Initial Setup](#initial-setup)
+  - [Basic Settings](#basic-settings)
+    - [Guild Configuration](#guild-configuration)
+    - [User Settings](#user-settings)
+    - [Security Settings](#security-settings)
+    - [API Settings](#api-settings)
+  - [Advanced Configuration](#advanced-configuration)
+    - [Rate Limiting](#rate-limiting)
+    - [Email Notifications](#email-notifications)
+  - [Configuration via wp-config.php](#configuration-via-wp-configphp)
+- [Admin Interface](#admin-interface)
+  - [Main Menu](#main-menu)
+  - [Submenus](#submenus)
+    - [Dashboard](#dashboard)
+    - [Guild Settings](#guild-settings)
+    - [User Management](#user-management)
+    - [Guild Roster](#guild-roster)
+    - [Reports](#reports)
+    - [Tools](#tools)
+  - [Admin Bar Integration](#admin-bar-integration)
+- [Page Templates](#page-templates)
+  - [Available Templates](#available-templates)
+  - [Using Page Templates](#using-page-templates)
 - [Shortcodes](#shortcodes)
-- [User Management](#user-management)
+  - [Login Form](#login-form)
+  - [Login/Logout Links](#loginlogout-links)
+  - [Content Restriction](#content-restriction)
+    - [By Guild Rank](#by-guild-rank)
+    - [By Guild Membership](#by-guild-membership)
+  - [User Profile Display](#user-profile-display)
+  - [Guild Roster](#guild-roster-1)
+- [User Management](#user-management-1)
+  - [User Registration Flow](#user-registration-flow)
+  - [Admin Management](#admin-management)
+    - [User List Enhancements](#user-list-enhancements)
+    - [Bulk Actions](#bulk-actions)
+  - [User Roles and Capabilities](#user-roles-and-capabilities)
+    - [Default Roles](#default-roles)
+    - [Custom Role Creation](#custom-role-creation)
+  - [Profile Integration](#profile-integration)
 - [Troubleshooting](#troubleshooting)
+  - [Common Issues and Solutions](#common-issues-and-solutions)
+    - [API Connection Issues](#api-connection-issues)
+    - [Guild Data Not Updating](#guild-data-not-updating)
+  - [Debugging](#debugging)
+    - [Enable Debug Mode](#enable-debug-mode)
+    - [Check Logs](#check-logs)
+  - [Common Error Messages](#common-error-messages)
 - [Advanced Usage](#advanced-usage)
+  - [Custom Templates](#custom-templates)
+  - [Theme Integration](#theme-integration)
+    - [Custom CSS](#custom-css)
+    - [Template Functions](#template-functions)
+  - [Hooks and Filters](#hooks-and-filters)
+    - [Actions](#actions)
+    - [Filters](#filters)
+  - [WP-CLI Commands](#wp-cli-commands)
+    - [Available Commands](#available-commands)
+    - [Scheduled Tasks](#scheduled-tasks)
 - [API Reference](#api-reference)
+  - [Endpoints](#endpoints)
+  - [Webhooks](#webhooks)
 - [Performance Optimization](#performance-optimization)
+  - [Caching Strategy](#caching-strategy)
+  - [Database Optimization](#database-optimization)
 - [Security Best Practices](#security-best-practices)
+  - [API Security](#api-security)
+  - [Data Protection](#data-protection)
 - [Frequently Asked Questions](#frequently-asked-questions)
+  - [How do I reset a user's 2FA?](#how-do-i-reset-a-users-2fa)
+  - [Can I use multiple guild IDs?](#can-i-use-multiple-guild-ids)
+  - [How do I migrate users from another system?](#how-do-i-migrate-users-from-another-system)
+- [Common Recipes](#common-recipes)
+  - [Restrict Content to Specific Ranks](#restrict-content-to-specific-ranks)
+  - [Custom Login Redirects](#custom-login-redirects)
+  - [Error Reference](#error-reference)
+- [Version History](#version-history)
+- [Getting Help](#getting-help)
+  - [Support Channels](#support-channels)
+  - [Reporting Security Issues](#reporting-security-issues)
+- [Contributing](#contributing)
+- [Known Issues](#known-issues)
+
+## Quick Start Guide
+
+### For Administrators
+1. [Install the plugin](#installation)
+2. [Configure basic settings](#configuration)
+3. [Set up user roles](#user-management)
+4. [Create login pages](#page-templates)
+
+### For Developers
+1. [Explore available hooks](#advanced-usage)
+2. [Customize templates](#custom-templates)
+3. [Use the API](#api-reference)
+
+## System Requirements
+
+### Minimum Requirements
+- WordPress 5.6+
+- PHP 7.4+
+- MySQL 5.7+ or MariaDB 10.3+
+- SSL Certificate (highly recommended)
+- cURL extension enabled
+- JSON extension enabled
+
+### Recommended Requirements
+- WordPress 6.0+
+- PHP 8.0+
+- MySQL 8.0+ or MariaDB 10.5+
+- OPcache enabled
+- Redis or Memcached for object caching
+
+## Before You Begin
+
+1. **Backup Your Site**
+   - Database backup
+   - File system backup
+   - Note current plugin settings
+
+2. **Check Compatibility**
+   - Verify theme compatibility
+   - Check for plugin conflicts
+   - Test in staging environment first
+
+
 
 ## Installation
 
@@ -116,6 +246,121 @@ define('GW2GL_DEFAULT_ROLE', 'subscriber');
 define('GW2GL_ENABLE_2FA', true);
 define('GW2GL_API_TIMEOUT', 15); // seconds
 ```
+
+## Admin Interface
+
+The plugin adds a comprehensive admin interface for managing all aspects of your guild's authentication system.
+
+### Main Menu
+
+1. **GW2 Guild Login**
+   - Dashboard with system status
+   - Quick access to common tasks
+   - Activity feed
+
+### Submenus
+
+#### 1. Dashboard
+- System status overview
+- Recent activity
+- Quick links to common tasks
+- Server environment information
+
+#### 2. Guild Settings
+- **General**
+  - Guild ID configuration
+  - API key management
+  - Default user roles
+
+- **Security**
+  - 2FA settings
+  - Session management
+  - Rate limiting
+  - Login attempt limits
+
+#### 3. User Management
+- **All Users**
+  - Filter by guild membership
+  - Bulk actions
+  - Export functionality
+
+- **Add New**
+  - Manual user creation
+  - Role assignment
+  - Guild rank mapping
+
+#### 4. Guild Roster
+- Member list with filtering
+- Rank management
+- Join date tracking
+- Last login information
+
+#### 5. Reports
+- Login activity
+- Failed login attempts
+- User engagement metrics
+- Security events
+
+#### 6. Tools
+- **Import/Export**
+  - User data import
+  - Settings backup/restore
+  - Guild member sync
+
+- **System Tools**
+  - Clear cache
+  - Reset settings
+  - Debug information
+
+### Admin Bar Integration
+Quick access to common functions:
+- View guild status
+- Access user management
+- Check for updates
+- View documentation
+
+## Page Templates
+
+The plugin provides several page templates that can be used to create custom layouts for different sections of your guild site:
+
+### Available Templates
+
+1. **GW2 Login** (`gw2-login.php`)
+   - Displays the login form
+   - Automatically redirects logged-in users
+   - Customizable login redirects
+
+2. **Member Dashboard** (`gw2-dashboard.php`)
+   - User profile overview
+   - Guild membership details
+   - Account settings
+   - Active sessions
+
+3. **Guild Roster** (`gw2-roster.php`)
+   - Complete list of guild members
+   - Sortable columns
+   - Search functionality
+   - Pagination support
+
+### Using Page Templates
+
+1. **Create a New Page**
+   - Go to **Pages > Add New**
+   - Enter a title (e.g., "Member Login")
+   - In the Page Attributes section, select the desired template
+   - Publish the page
+
+2. **Template Parameters**
+   Some templates accept additional parameters:
+   ```
+   [gw2_roster show_rank="yes" show_join_date="yes" sort_by="name"]
+   ```
+
+3. **Template Overrides**
+   To customize a template, copy it to your theme's directory:
+   ```
+   /wp-content/themes/your-theme/gw2-guild-login/template-name.php
+   ```
 
 ## Shortcodes
 
@@ -471,15 +716,64 @@ Guild1ID,Guild2ID,Guild3ID
    wp gw2-guild-login import-users users.csv
    ```
 
-## Support
+## Common Recipes
 
-### Getting Help
-- [Documentation](https://github.com/AlteredM1nd/gw2-guild-login/wiki)
+### Restrict Content to Specific Ranks
+```php
+if (function_exists('gw2gl_user_has_rank')) {
+    if (gw2gl_user_has_rank(get_current_user_id(), 'Officer')) {
+        // Show officer content
+    }
+}
+```
+
+### Custom Login Redirects
+```php
+add_filter('gw2gl_login_redirect', function($redirect, $user_id) {
+    if (gw2gl_user_has_rank($user_id, 'Leader')) {
+        return '/leader-dashboard/';
+    }
+    return $redirect;
+}, 10, 2);
+```
+
+### Error Reference
+
+| Error Code | Description | Solution |
+|------------|-------------|-----------|
+| GW2-1001 | Invalid API Key | [See API Key Setup](#api-settings) |
+| GW2-1002 | Guild Not Found | [Verify Guild ID](#guild-configuration) |
+| GW2-1003 | Rate Limited | [Adjust Rate Limiting](#rate-limiting) |
+| GW2-1004 | Authentication Failed | [Check API Permissions](#api-settings) |
+| GW2-1005 | Session Expired | [Adjust Session Settings](#session-management) |
+
+## Version History
+
+[View complete changelog](CHANGELOG.md)
+
+## Getting Help
+
+### Support Channels
 - [GitHub Issues](https://github.com/AlteredM1nd/gw2-guild-login/issues)
 
 ### Reporting Security Issues
 Please report security vulnerabilities to gw2-guild-login@protonmail.com
 
+## Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. Report bugs and submit feature requests
+2. Submit pull requests
+3. Improve documentation
+4. Help test new releases
+
+See our [Contributing Guidelines](CONTRIBUTING.md) for more details.
+
+## Known Issues
+
+- See [GitHub Issues](https://github.com/AlteredM1nd/gw2-guild-login/issues) for current issues
+
 ---
 
-*GW2 Guild Login v2.4.0 | [Changelog](CHANGELOG.md) | [License](LICENSE)*
+*GW2 Guild Login v2.4.0 | [Changelog](CHANGELOG.md) | [License](LICENSE) | [Contribute](CONTRIBUTING.md)*
