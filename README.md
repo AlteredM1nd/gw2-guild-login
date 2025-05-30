@@ -388,32 +388,6 @@ The plugin respects the Guild Wars 2 API rate limits. By default, it will:
 
 You can adjust the cache duration in the plugin settings if needed.
 
-#### Login Form
-
-Add a login form to any page or post using the `[gw2_login]` shortcode:
-
-```
-[gw2_login]
-```
-
-#### Protected Content
-
-Restrict content to logged-in GW2 guild members using the `[gw2_guild_only]` shortcode:
-
-```
-[gw2_guild_only]
-This content is only visible to guild members.
-[/gw2_guild_only]
-```
-
-#### Login/Logout Link
-
-Add a dynamic login/logout link with the `[gw2_loginout]` shortcode:
-
-```
-[gw2_loginout]
-```
-
 ### Getting a GW2 API Key
 
 1. Log in to your Guild Wars 2 account at [account.arena.net](https://account.arena.net/)
