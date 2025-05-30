@@ -39,19 +39,6 @@ A secure WordPress plugin that allows users to log in using their Guild Wars 2 A
 - **Parameter Validation**: Enhanced validation for all function parameters
 - **Return Type Safety**: Ensured proper return types for all methods
 
-### Recent Improvements
-
-- Fixed parameter handling in authentication methods for better reliability
-- Enhanced type safety and return type checking throughout the codebase
-- Improved error handling and validation in user management functions
-- Fixed issues with the welcome email sending process
-- Added comprehensive input sanitization for all user inputs
-- Improved session management and security
-- Added better error messages and user feedback
-- Fixed PHP warnings and notices in the user handler class
-- Ensured proper return types for all user-related methods
-- Added parameter validation for critical functions
-
 ### User Experience
 - **2FA Setup Wizard**: Step-by-step guide for enabling two-factor authentication
 - **Backup Code Management**: Easy access to view and regenerate backup codes
