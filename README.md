@@ -106,9 +106,11 @@ To find your Guild ID, you can use one of these methods:
 ### Method 1: WordPress Admin Panel
 
 1. Log in to your WordPress admin panel
-3. Upload the `gw2-guild-login` folder to the `/wp-content/plugins/` directory
-4. Activate the plugin through the 'Plugins' menu in WordPress
-5. Go to Settings > GW2 Guild Login to configure the plugin
+2. Go to **Plugins > Add New**
+3. Click **Upload Plugin**
+4. Select the new plugin ZIP file and click **Install Now**
+5. Activate the plugin through the 'Plugins' menu in WordPress
+6. Go to Settings > GW2 Guild Login to configure the plugin
 
 ### Updating the Plugin
 
@@ -174,23 +176,6 @@ To update the plugin to the latest version:
 - **Maintenance**
   - Clear Cache: Clear all cached API responses
   - Reset Settings: Reset all settings to defaults
-
-## Shortcode Usage
-
-### Optional Settings
-
-- **Auto-register New Users**
-  - When enabled: Automatically creates a WordPress account for users who don't have one
-  - When disabled: Only existing WordPress users can log in
-  - Recommended: Enable this if you want to allow new members to join without manual account creation
-
-- **API Cache Expiry**
-  - How long to cache API responses (in seconds)
-  - Default: `3600` (1 hour)
-  - Lower values mean more up-to-date guild membership but more API calls
-  - Higher values reduce server load but may show outdated guild information
-
-3. Click **Save Changes** to apply your settings
 
 ### Testing Your Setup
 
