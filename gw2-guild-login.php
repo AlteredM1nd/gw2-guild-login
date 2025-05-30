@@ -3,40 +3,64 @@
  * Plugin Name:       GW2 Guild Login
  * Plugin URI:        https://github.com/AlteredM1nd/gw2-guild-login
  * Description:       Allows users to log in using their GW2 API key to verify guild membership with WordPress user integration.
- * Version:           2.3.0
+ * Version:           2.4.0
  * Author:            AlteredM1nd
  * Author URI:        https://github.com/AlteredM1nd
- * License:           GPL v2 or later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       gw2-guild-login
  * Domain Path:       /languages
- * Requires at least: 5.6
- * Requires PHP:      7.4
- *
- * @package GW2_Guild_Login
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+if (!defined('WPINC')) {
+    die;
 }
 
-// Plugin version
-define( 'GW2_GUILD_LOGIN_VERSION', '2.3.0' );
-
-// Define plugin file constant
-if ( ! defined( 'GW2_GUILD_LOGIN_FILE' ) ) {
-	define( 'GW2_GUILD_LOGIN_FILE', __FILE__ );
+// Define ABSPATH if not defined (for unit tests)
+if (!defined('ABSPATH')) {
+    define('ABSPATH', dirname(__FILE__) . '/');
 }
 
-// Define plugin directory path and URL
-if ( ! defined( 'GW2_GUILD_LOGIN_PLUGIN_DIR' ) ) {
-	define( 'GW2_GUILD_LOGIN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+// Load WordPress helper functions if not already loaded
+if (!function_exists('get_plugin_data')) {
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
 }
 
-if ( ! defined( 'GW2_GUILD_LOGIN_PLUGIN_URL' ) ) {
-	define( 'GW2_GUILD_LOGIN_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+// Get plugin data
+$plugin_data = get_plugin_data(__FILE__);
+
+// Define plugin version
+if (!defined('GW2_GUILD_LOGIN_VERSION')) {
+    define('GW2_GUILD_LOGIN_VERSION', $plugin_data['Version']);
 }
+
+// Define plugin paths
+if (!defined('GW2_GUILD_LOGIN_FILE')) {
+    define('GW2_GUILD_LOGIN_FILE', __FILE__);
+}
+
+if (!defined('GW2_GUILD_LOGIN_DIR')) {
+    define('GW2_GUILD_LOGIN_DIR', plugin_dir_path(__FILE__));
+}
+
+if (!defined('GW2_GUILD_LOGIN_URL')) {
+    define('GW2_GUILD_LOGIN_URL', plugin_dir_url(__FILE__));
+}
+
+if (!defined('GW2_GUILD_LOGIN_PLUGIN_BASENAME')) {
+    define('GW2_GUILD_LOGIN_PLUGIN_BASENAME', plugin_basename(__FILE__));
+}
+
+// 2FA Constants
+define('GW2_2FA_TABLE_SECRETS', 'gw2_2fa_secrets');
+define('GW2_2FA_TABLE_DEVICES', 'gw2_2fa_trusted_devices');
+define('GW2_2FA_COOKIE', 'gw2_2fa_trusted_device');
+define('GW2_2FA_COOKIE_EXPIRY', 30 * 24 * 60 * 60); // 30 days in seconds
+
+// Backward compatibility
+define('GW2_GUILD_LOGIN_PLUGIN_DIR', GW2_GUILD_LOGIN_DIR);
+define('GW2_GUILD_LOGIN_PLUGIN_URL', GW2_GUILD_LOGIN_URL);
 
 if ( ! defined( 'GW2_GUILD_LOGIN_PLUGIN_BASENAME' ) ) {
 	define( 'GW2_GUILD_LOGIN_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -47,17 +71,37 @@ if ( ! defined( 'GW2_GUILD_LOGIN_ABSPATH' ) ) {
 	define( 'GW2_GUILD_LOGIN_ABSPATH', plugin_dir_path( __FILE__ ) );
 }
 
-if ( ! defined( 'GW2_GUILD_LOGIN_PLUGIN_BASENAME' ) ) {
-	define( 'GW2_GUILD_LOGIN_PLUGIN_BASENAME', plugin_basename( GW2_GUILD_LOGIN_FILE ) );
-}
+// Include required files
+require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-api.php';
+require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-session-handler.php';
+require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-user-handler.php';
+require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-user-dashboard.php';
 
-// Load required files
-require_once GW2_GUILD_LOGIN_PLUGIN_DIR . 'includes/class-gw2-session-handler.php';
-require_once GW2_GUILD_LOGIN_PLUGIN_DIR . 'includes/class-gw2-login-shortcode.php';
+// Load the core plugin class.
+require plugin_dir_path(__FILE__) . 'includes/class-gw2-guild-login.php';
+
+// Load the 2FA functionality
+require_once plugin_dir_path(__FILE__) . 'includes/class-gw2-2fa.php';
+
+// Load the user dashboard
+require_once plugin_dir_path(__FILE__) . 'includes/class-gw2-user-dashboard.php';
+
+// Load the guild ranks functionality
+require_once plugin_dir_path(__FILE__) . 'includes/class-gw2-guild-ranks.php';
+
+// Load the admin menu
+require_once plugin_dir_path(__FILE__) . 'includes/admin/class-gw2-admin-menu.php';
+require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-2fa-login.php'; 
+
+// Include database migration if needed
+if (defined('WP_CLI') && WP_CLI) {
+    require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-cli.php';
+}
+require_once GW2_GUILD_LOGIN_PLUGIN_DIR . 'includes/class-gw2-user-dashboard.php';
 
 // Load the main plugin class
-if ( ! class_exists( 'GW2_Guild_Login' ) ) {
-	require_once GW2_GUILD_LOGIN_PLUGIN_DIR . 'includes/class-gw2-guild-login.php';
+if (!class_exists('GW2_Guild_Login')) {
+    require_once GW2_GUILD_LOGIN_PLUGIN_DIR . 'includes/class-gw2-guild-login.php';
 }
 
 /**
@@ -67,11 +111,129 @@ if ( ! class_exists( 'GW2_Guild_Login' ) ) {
  * @return GW2_Guild_Login The main plugin instance
  */
 function GW2_Guild_Login() {
-	return GW2_Guild_Login::instance();
+    return GW2_Guild_Login::instance();
 }
 
 // Initialize the plugin
-add_action( 'plugins_loaded', 'gw2_guild_login_init', 15 );
+add_action('plugins_loaded', 'gw2_guild_login_init', 15);
+
+// Initialize 2FA
+add_action('init', 'gw2_2fa_init');
+
+/**
+ * Initialize 2FA functionality
+ */
+function gw2_2fa_init() {
+    // Initialize 2FA admin for logged-in users with appropriate capabilities
+    if (is_admin() && current_user_can('edit_users')) {
+        new GW2_2FA_Admin();
+    }
+    
+    // Always initialize 2FA login handling
+    // It will handle both logged-in and non-logged-in users appropriately
+    new GW2_2FA_Login();
+}
+
+// Handle AJAX requests for 2FA
+add_action('wp_ajax_gw2_regenerate_backup_codes', 'gw2_handle_regenerate_backup_codes');
+
+/**
+ * Handle AJAX request to regenerate backup codes
+ */
+function gw2_handle_regenerate_backup_codes() {
+    check_ajax_referer('gw2_2fa_nonce', 'nonce');
+    
+    if (!current_user_can('edit_users')) {
+        wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'gw2-guild-login')]);
+    }
+    
+    $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : get_current_user_id();
+    $handler = GW2_2FA_Handler::instance();
+    $new_codes = $handler->generate_backup_codes();
+    
+    // Get the current secret
+    global $wpdb;
+    $table = $wpdb->prefix . 'gw2_2fa_secrets';
+    $secret_row = $wpdb->get_row($wpdb->prepare(
+        "SELECT secret FROM $table WHERE user_id = %d",
+        $user_id
+    ));
+    
+    if (!$secret_row) {
+        wp_send_json_error(['message' => __('2FA is not enabled for this user.', 'gw2-guild-login')]);
+    }
+    
+    // Update the backup codes
+    $result = $handler->enable_2fa($user_id, $handler->decrypt_secret($secret_row->secret), $new_codes);
+    
+    if (is_wp_error($result)) {
+        wp_send_json_error(['message' => $result->get_error_message()]);
+    }
+    
+    wp_send_json_success([
+        'codes' => $new_codes,
+        'message' => __('New backup codes have been generated. Please save them in a safe place.', 'gw2-guild-login')
+    ]);
+}
+
+// Activation hook
+register_activation_hook(__FILE__, 'gw2_2fa_activate');
+
+/**
+ * Plugin activation
+ */
+function gw2_2fa_activate() {
+    // Create database tables if they don't exist
+    global $wpdb;
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    // 2FA Secrets table
+    $table_name = $wpdb->prefix . 'gw2_2fa_secrets';
+    $sql = "CREATE TABLE $table_name (
+        user_id bigint(20) UNSIGNED NOT NULL,
+        secret varchar(255) NOT NULL,
+        backup_codes text,
+        is_enabled tinyint(1) NOT NULL DEFAULT 0,
+        created_at datetime NOT NULL,
+        updated_at datetime NOT NULL,
+        PRIMARY KEY  (user_id)
+    ) $charset_collate;";
+    
+    // Trusted devices table
+    $table_name = $wpdb->prefix . 'gw2_2fa_trusted_devices';
+    $sql .= "CREATE TABLE $table_name (
+        id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        user_id bigint(20) UNSIGNED NOT NULL,
+        device_name varchar(100) NOT NULL,
+        device_token varchar(64) NOT NULL,
+        last_used datetime NOT NULL,
+        created_at datetime NOT NULL,
+        PRIMARY KEY  (id),
+        KEY user_id (user_id),
+        UNIQUE KEY device_token (device_token)
+    ) $charset_collate;";
+    
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+    
+    // Add version to options for future updates
+    add_option('gw2_2fa_db_version', '1.0');
+}
+
+// Add settings link to plugin actions
+add_filter('plugin_action_links_' . GW2_GUILD_LOGIN_PLUGIN_BASENAME, 'gw2_2fa_plugin_action_links');
+
+/**
+ * Add settings link to plugin actions
+ * 
+ * @param array $links
+ * @return array
+ */
+function gw2_2fa_plugin_action_links($links) {
+    $settings_link = '<a href="' . admin_url('profile.php#two-factor-auth') . '">' . __('2FA Settings', 'gw2-guild-login') . '</a>';
+    array_unshift($links, $settings_link);
+    return $links;
+}
 
 /**
  * Initialize the plugin
@@ -79,51 +241,79 @@ add_action( 'plugins_loaded', 'gw2_guild_login_init', 15 );
  * @since 1.0.0
  */
 function gw2_guild_login_init() {
-	// Load the main plugin class
-	$plugin                     = GW2_Guild_Login();
-	$GLOBALS['gw2_guild_login'] = $plugin;
+    // Load the main plugin class
+    $plugin = GW2_Guild_Login();
+    $GLOBALS['gw2_guild_login'] = $plugin;
 
-	// Register template hooks
-	add_filter( 'theme_page_templates', array( $plugin, 'register_page_templates' ) );
-	add_filter( 'template_include', array( $plugin, 'load_page_template' ) );
+    // Register template hooks
+    add_filter('theme_page_templates', array($plugin, 'register_page_templates'));
+    add_filter('template_include', array($plugin, 'load_page_template'));
 
-	// Load text domain for translations
-	load_plugin_textdomain(
-		'gw2-guild-login',
-		false,
-		dirname( plugin_basename( GW2_GUILD_LOGIN_FILE ) ) . '/languages/'
-	);
+    // Load text domain for translations
+    load_plugin_textdomain(
+        'gw2-guild-login',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages/'
+    );
+    
+    // Initialize core classes
+    $gw2_api = new GW2_API();
+    
+    // Initialize session handler (static class)
+    GW2_Session_Handler::init();
+    
+    // Initialize user handler with API dependency
+    $gw2_user_handler = new GW2_User_Handler($gw2_api);
+    
+    // Initialize shortcode handler using singleton pattern
+    $gw2_login_shortcode = GW2_Login_Shortcode::instance();
+    
+    // Initialize 2FA handler
+    $gw2_2fa_handler = GW2_2FA_Handler::instance();
+    
+    // Store instances in global for backward compatibility
+    $GLOBALS['gw2_guild_login_api'] = $gw2_api;
+    $GLOBALS['gw2_guild_login_session'] = 'GW2_Session_Handler';
+    $GLOBALS['gw2_guild_login_user_handler'] = $gw2_user_handler;
+    $GLOBALS['gw2_2fa_handler'] = $gw2_2fa_handler;
 
-	// Initialize the shortcode handler
-	GW2_Login_Shortcode::instance();
+    // Initialize dashboard if we're in the admin area
+    if (is_admin()) {
+        $gw2_dashboard = new GW2_User_Dashboard();
+    }
 }
 
 // Shortcode for displaying the login form
 function gw2_login_form_shortcode() {
-	// Don't show the form to logged-in users
-	if ( is_user_logged_in() ) {
-		$current_user = wp_get_current_user();
-		$gw2_account  = get_user_meta( $current_user->ID, 'gw2_account_name', true );
+    // Don't show the form to logged-in users
+    if (is_user_logged_in()) {
+        $current_user = wp_get_current_user();
+        $gw2_account = get_user_meta($current_user->ID, 'gw2_account_name', true);
 
-		ob_start();
-		?>
-		<div class="gw2-login-status">
-			<p>
-			<?php
-				printf(
-					__( 'Logged in as %1$s (GW2: %2$s)', 'gw2-guild-login' ),
-					esc_html( $current_user->display_name ),
-					esc_html( $gw2_account ?: __( 'No GW2 account linked', 'gw2-guild-login' ) )
-				);
-			?>
-			</p>
-			<p><a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" class="button">
-				<?php _e( 'Logout', 'gw2-guild-login' ); ?>
-			</a></p>
-		</div>
-		<?php
-		return ob_get_clean();
-	}
+        ob_start();
+        ?>
+        <div class="gw2-login-status">
+            <p>
+                <?php
+                printf(
+                    __('Logged in as %1$s (GW2: %2$s)', 'gw2-guild-login'),
+                    esc_html($current_user->display_name),
+                    esc_html($gw2_account ?: __('No GW2 account linked', 'gw2-guild-login'))
+                );
+                ?>
+            </p>
+            <p>
+                <a href="<?php echo esc_url(admin_url('users.php?page=gw2-account')); ?>" class="button">
+                    <?php _e('My GW2 Account', 'gw2-guild-login'); ?>
+                </a>
+                <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" class="button">
+                    <?php _e('Logout', 'gw2-guild-login'); ?>
+                </a>
+            </p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
 
 	// Show login form for non-logged-in users
 	ob_start();
@@ -188,6 +378,10 @@ add_shortcode( 'gw2_login', 'gw2_login_form_shortcode' );
 
 // Enqueue frontend styles and scripts
 function gw2_login_enqueue_assets() {
+    // Guild rank styles
+    wp_register_style('gw2-guild-ranks', plugins_url('assets/css/guild-ranks.css', __FILE__), array(), GW2_GUILD_LOGIN_VERSION);
+    wp_enqueue_style('gw2-guild-ranks');
+    
 	// Only load on pages with the shortcode
 	global $post;
 	if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'gw2_login' ) ) {

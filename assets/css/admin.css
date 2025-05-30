@@ -1,0 +1,106 @@
+/* Admin Styles */
+.gw2-admin-dashboard,
+.gw2-admin-rank-access,
+.gw2-admin-settings,
+.gw2-admin-user-management {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Cards Layout */
+.gw2-admin-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.gw2-admin-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.gw2-admin-card-wide {
+    grid-column: 1 / -1;
+}
+
+.gw2-admin-card h2 {
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.4;
+    border-bottom: 1px solid #dcdcde;
+    background: #f8f9fa;
+}
+
+.gw2-admin-card-content {
+    padding: 16px;
+}
+
+/* Forms */
+.gw2-admin-settings .form-table th {
+    width: 200px;
+}
+
+.gw2-admin-settings .form-table td {
+    padding: 15px 10px;
+}
+
+/* Tables */
+.gw2-admin-user-management table {
+    margin-top: 15px;
+    width: 100%;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .gw2-admin-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Status Indicators */
+.gw2-status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.gw2-status-active {
+    background-color: #46b450;
+}
+
+.gw2-status-inactive {
+    background-color: #dc3232;
+}
+
+/* Buttons */
+.gw2-admin-actions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.gw2-admin-actions li {
+    margin-bottom: 8px;
+}
+
+.gw2-admin-actions a {
+    display: block;
+    padding: 8px 12px;
+    background: #f0f0f1;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #2271b1;
+    transition: all 0.2s ease;
+}
+
+.gw2-admin-actions a:hover {
+    background: #f0f0f1;
+    color: #135e96;
+}

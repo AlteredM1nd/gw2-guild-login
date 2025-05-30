@@ -296,10 +296,85 @@ class GW2_API {
 	/**
 	 * Get character names for an account
 	 *
-	 * @param string $api_key
-	 * @return array|WP_Error
+	 * @param string $api_key The GW2 API key
+	 * @return array|WP_Error Array of character names on success, WP_Error on failure
 	 */
-	public function get_character_names( $api_key ) {
-		return $this->make_api_request( 'characters', $api_key );
+	public function get_character_names($api_key) {
+		$characters = $this->make_api_request('characters', $api_key);
+		
+		if (is_wp_error($characters)) {
+			return $characters;
+		}
+		
+		// Extract just the character names
+		return array_map(function($char) {
+			return $char['name'];
+		}, $characters);
 	}
+
+    /**
+     * Get account data from the GW2 API using an API key
+     * 
+     * @param string $api_key The GW2 API key
+     * @return array|WP_Error Account data on success, WP_Error on failure
+     */
+    public function get_account_data($api_key) {
+        // First validate the API key
+        $token_info = $this->validate_api_key($api_key);
+        if (is_wp_error($token_info)) {
+            return $token_info;
+        }
+
+        // Check if the key has the required permissions
+        $required_permissions = ['account', 'characters', 'guilds'];
+        $missing_permissions = array_diff($required_permissions, $token_info['permissions']);
+        
+        if (!empty($missing_permissions)) {
+            return new WP_Error(
+                'missing_permissions',
+                sprintf( 
+                    __('API key is missing required permissions: %s', 'gw2-guild-login'),
+                    implode(', ', $missing_permissions)
+                )
+            );
+        }
+
+        // Get account info
+        $account = $this->make_api_request('account', $api_key);
+        if (is_wp_error($account)) {
+            return $account;
+        }
+
+        // Get guilds if available
+        $guilds = [];
+        if (in_array('guilds', $token_info['permissions'])) {
+            $guilds = $this->make_api_request('account/guilds', $api_key);
+            if (is_wp_error($guilds)) {
+                // Don't fail the whole request if guilds can't be fetched
+                $guilds = [];
+            }
+        }
+
+        // Get characters if available
+        $characters = [];
+        if (in_array('characters', $token_info['permissions'])) {
+            $character_names = $this->get_character_names($api_key);
+            if (!is_wp_error($character_names)) {
+                $characters = $character_names;
+            }
+            // Don't fail the whole request if characters can't be fetched
+        }
+
+        // Format the response
+        return array(
+            'id'           => $account['id'],
+            'name'         => $account['name'],
+            'world'        => $account['world'],
+            'created'      => $account['created'],
+            'access'       => $account['access'],
+            'guilds'       => $guilds,
+            'characters'   => $characters,
+            'last_updated' => current_time('mysql')
+        );
+    }
 }

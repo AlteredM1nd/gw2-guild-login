@@ -1,0 +1,282 @@
+/**
+ * GW2 Guild Login - Dashboard Styles
+ *
+ * @package GW2_Guild_Login
+ * @since 2.4.0
+ */
+
+/* Base Styles */
+.gw2-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.gw2-dashboard h1 {
+    color: #23282d;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 500;
+}
+
+.gw2-dashboard h2 {
+    font-size: 20px;
+    margin: 0 0 20px;
+    padding: 0 0 10px;
+    border-bottom: 1px solid #eee;
+    color: #23282d;
+}
+
+/* Grid Layout */
+.gw2-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* Cards */
+.gw2-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.gw2-card-content {
+    padding: 10px 0;
+}
+
+/* Account Info */
+.gw2-account-info {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.gw2-account-avatar img {
+    border-radius: 4px;
+    width: 96px;
+    height: 96px;
+}
+
+.gw2-account-details h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #23282d;
+}
+
+.gw2-account-details p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.gw2-account-details strong {
+    color: #23282d;
+    font-weight: 500;
+}
+
+/* Guild List */
+.gw2-guild-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.gw2-guild-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.gw2-guild-item:last-child {
+    border-bottom: none;
+}
+
+.gw2-guild-avatar {
+    margin-right: 15px;
+}
+
+.gw2-guild-avatar img {
+    width: 64px;
+    height: 64px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.gw2-guild-details h4 {
+    margin: 0 0 5px;
+    font-size: 16px;
+    color: #23282d;
+}
+
+.gw2-guild-rank,
+.gw2-guild-joined {
+    margin: 3px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.gw2-guild-rank .dashicons,
+.gw2-guild-joined .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    vertical-align: middle;
+    color: #72777c;
+}
+
+/* Sessions Table */
+.gw2-sessions table {
+    width: 100%;
+    margin: 10px 0 20px;
+    border-collapse: collapse;
+}
+
+.gw2-sessions th {
+    text-align: left;
+    padding: 10px;
+    background: #f9f9f9;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    color: #555;
+}
+
+.gw2-sessions td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.gw2-sessions tr:last-child td {
+    border-bottom: none;
+}
+
+.gw2-sessions .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    vertical-align: middle;
+    color: #72777c;
+}
+
+/* Badges */
+.gw2-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #f0f6fc;
+    color: #2271b1;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* Buttons */
+.gw2-account-actions,
+.gw2-session-actions {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.gw2-account-actions .button,
+.gw2-session-actions .button {
+    margin-right: 8px;
+}
+
+.gw2-account-actions .dashicons,
+.gw2-session-actions .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+/* Footer */
+.gw2-dashboard-footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    text-align: center;
+    color: #72777c;
+    font-size: 13px;
+}
+
+.gw2-dashboard-footer .sep {
+    margin: 0 10px;
+    color: #ddd;
+}
+
+.gw2-dashboard-footer a {
+    color: #2271b1;
+    text-decoration: none;
+}
+
+.gw2-dashboard-footer a:hover {
+    color: #135e96;
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .gw2-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .gw2-account-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .gw2-account-avatar {
+        margin-bottom: 15px;
+    }
+    
+    .gw2-account-actions {
+        text-align: center;
+    }
+    
+    .gw2-guild-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .gw2-guild-avatar {
+        margin: 0 0 10px 0;
+    }
+    
+    .gw2-sessions table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+/* Loading State */
+.gw2-loading {
+    position: relative;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.gw2-loading:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7) url(../images/spinner-2x.gif) no-repeat center center;
+    background-size: 20px 20px;
+    z-index: 10;
+}

@@ -2,6 +2,40 @@
 
 All notable changes to the GW2 Guild Login plugin will be documented in this file.
 
+## [2.4.0] - 2025-05-30
+
+### Added
+- **New Admin Interface**: Completely redesigned admin area with a dedicated dashboard
+  - Centralized access to all plugin features
+  - Intuitive navigation with a top-level menu
+  - At-a-glance guild status and activity
+  - Responsive design for all screen sizes
+
+- **Two-Factor Authentication (2FA)**: Initial implementation of two-factor authentication for enhanced security
+  - Basic TOTP support for authenticator apps (Google Authenticator, Authny, etc.)
+  - Backup code generation and verification
+  - Basic trusted device support via cookies (30-day remember me)
+  - Simple setup interface (full wizard coming in a future update)
+  - Admin controls for enabling/disabling 2FA per user
+
+- **Guild Rank Access Control**: Restrict content based on guild rank
+  - Shortcode support for rank-restricted content
+  - Admin settings for guild ID and API key configuration
+  - Caching system to minimize API calls
+  - Customizable access denied messages
+
+- **User Management**
+  - New user dashboard with account overview
+  - Guild membership information display
+  - Active sessions management with the ability to revoke sessions
+  - Improved user profile integration
+
+- **Security Enhancements**
+  - Encrypted storage of 2FA secrets
+  - Rate limiting for login attempts
+  - Secure backup code generation and handling
+  - Automatic session management for trusted devices
+
 ## [2.3.0] - 2025-05-29
 
 ### Fixed

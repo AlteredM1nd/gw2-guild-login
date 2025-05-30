@@ -1,0 +1,90 @@
+/* Two-Factor Authentication Login Styles */
+
+/* Main login form adjustments */
+.login form {
+    padding-bottom: 20px;
+}
+
+/* 2FA specific form */
+#loginform.gw2-2fa-form {
+    padding-bottom: 14px;
+}
+
+/* Verification code input */
+#gw2-2fa-code {
+    font-size: 24px;
+    width: 100%;
+    padding: 3px;
+    margin: 2px 6px 16px 0;
+    text-align: center;
+    letter-spacing: 0.2em;
+}
+
+/* Backup code link */
+.gw2-2fa-actions {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.gw2-2fa-actions a {
+    text-decoration: none;
+}
+
+/* Error messages */
+.gw2-2fa-error {
+    background: #f8d7da;
+    border-left: 4px solid #dc3232;
+    padding: 12px;
+    margin: 0 0 20px 0;
+}
+
+/* Success messages */
+.gw2-2fa-success {
+    background: #d4edda;
+    border-left: 4px solid #46b450;
+    padding: 12px;
+    margin: 0 0 20px 0;
+}
+
+/* QR code display */
+.gw2-qr-code-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.gw2-qr-code {
+    padding: 10px;
+    background: #fff;
+    display: inline-block;
+    border: 1px solid #ddd;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    #gw2-2fa-code {
+        font-size: 20px;
+    }
+    
+    .gw2-qr-code {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* Loading state */
+.gw2-2fa-loading {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+.gw2-2fa-loading:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7) url(../images/spinner-2x.gif) no-repeat center center;
+    background-size: 20px 20px;
+}

@@ -4,8 +4,9 @@
 
 | Version | Supported          | Security Updates Until |
 | ------- | ------------------ | --------------------- |
-| 2.3.x   | :white_check_mark: | TBD                   |
-| 2.2.x   | :white_check_mark: | 2025-08-29            |
+| 2.4.x   | :white_check_mark: | TBD                   |
+| 2.3.x   | :white_check_mark: | 2025-11-29            |
+| 2.2.x   | :x:                | 2025-08-29            |
 | < 2.2   | :x:                | -                     |
 
 ## Reporting a Vulnerability
@@ -38,15 +39,35 @@ If you discover a security vulnerability within GW2 Guild Login, please follow t
 
 ### Data Protection
 - **API Key Encryption**: All API keys are encrypted using AES-256-CBC before storage
+- **2FA Secrets**: TOTP secrets are encrypted using AES-256-CBC
+- **Backup Codes**: Stored using one-way hashing (bcrypt)
 - **Secure Session Management**: Custom session handler with proper security headers
 - **Data Sanitization**: Comprehensive input validation and output escaping
-- **Secure Cookies**: HTTP-only and secure flags set for all cookies
+- **Secure Cookies**: HTTP-only, secure, and SameSite=Lax flags set for all cookies
 
 ### Authentication Security
-- **Rate Limiting**: Protection against brute force attacks
-- **Session Regeneration**: Session ID regeneration on login and privilege changes
-- **Secure Password Storage**: Uses WordPress's built-in password hashing
-- **CSRF Protection**: Nonce verification for all form submissions
+- **Two-Factor Authentication (2FA)**: Basic TOTP-based 2FA support (Phase 1)
+  - Time-based One-Time Password (TOTP) algorithm (RFC 6238)
+  - Compatible with TOTP-compatible authenticator apps
+  - Fixed 6-digit codes
+  - 30-second time step (not currently configurable)
+  - Basic trusted device support via cookies
+  - Backup code generation and verification
+- **Rate Limiting**: Protection against brute force attacks with exponential backoff
+- **Session Management**:
+  - Session ID regeneration on login and privilege changes
+  - Configurable session lifetime
+  - Concurrent session control
+  - Device fingerprinting for session binding
+- **Secure Credential Storage**:
+  - API keys encrypted with AES-256-CBC
+  - Passwords hashed using WordPress's built-in password hashing (PHP's password_hash() with bcrypt)
+  - Secure storage of 2FA secrets and backup codes
+- **CSRF Protection**: Nonce verification for all form submissions and AJAX requests
+- **Trusted Device Management**:
+  - Secure cookie-based device recognition
+  - Configurable trust duration (default: 30 days)
+  - Device revocation capability
 
 ### API Security
 - **Input Validation**: Strict validation of all API inputs
