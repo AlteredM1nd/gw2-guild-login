@@ -1,11 +1,12 @@
 <?php
 /**
- * GW2 User Dashboard
+ * GW2_User_Dashboard
  *
- * Handles the enhanced user dashboard for GW2 Guild Login.
+ * Handles the enhanced user dashboard for the GW2 Guild Login plugin.
+ * Manages user data display, session management, AJAX actions, and profile integration.
  *
  * @package GW2_Guild_Login
- * @since 2.4.0
+ * @since 2.4.1
  */
 
 // Exit if accessed directly.
@@ -17,7 +18,7 @@ class GW2_User_Dashboard {
     /**
      * Instance of this class.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      * @var GW2_User_Dashboard
      */
     private static $instance = null;
@@ -25,7 +26,7 @@ class GW2_User_Dashboard {
     /**
      * Get the singleton instance of this class.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      * @return GW2_User_Dashboard
      */
     public static function get_instance() {
@@ -38,7 +39,7 @@ class GW2_User_Dashboard {
     /**
      * Constructor.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      */
     private function __construct() {
         add_action('init', array($this, 'init'));
@@ -50,7 +51,7 @@ class GW2_User_Dashboard {
     /**
      * Initialize the dashboard.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      */
     public function init() {
         // Add user profile fields
@@ -65,12 +66,12 @@ class GW2_User_Dashboard {
     /**
      * Add dashboard menu item.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      */
     public function add_dashboard_menu() {
         add_users_page(
-            __('GW2 Account', 'gw2-guild-login'),
-            __('GW2 Account', 'gw2-guild-login'),
+            esc_html__('GW2 Account', 'gw2-guild-login'),
+            esc_html__('GW2 Account', 'gw2-guild-login'),
             'read',
             'gw2-account',
             array($this, 'render_dashboard_page')
@@ -80,7 +81,7 @@ class GW2_User_Dashboard {
     /**
      * Enqueue dashboard scripts and styles.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      * @param string $hook Current admin page.
      */
     public function enqueue_scripts($hook) {
@@ -117,7 +118,7 @@ class GW2_User_Dashboard {
     /**
      * Render the dashboard page.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      */
     public function render_dashboard_page() {
         if (!is_user_logged_in()) {
@@ -150,7 +151,7 @@ class GW2_User_Dashboard {
     /**
      * Add GW2 account section to user profile.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      * @param WP_User $user User object.
      */
     public function add_profile_section($user) {
@@ -170,11 +171,12 @@ class GW2_User_Dashboard {
             <tr>
                 <th><label for="gw2_last_login"><?php esc_html_e('Last Login', 'gw2-guild-login'); ?></label></th>
                 <td>
-                    <input type="text" name="gw2_last_login" id="gw2_last_login" value="<?php echo esc_attr($last_login ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($last_login)) : __('Never', 'gw2-guild-login')); ?>" class="regular-text" disabled />
+                    <input type="text" name="gw2_last_login" id="gw2_last_login" value="<?php echo esc_attr($last_login ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($last_login)) : esc_html__('Never', 'gw2-guild-login')); ?>" class="regular-text" disabled />
                 </td>
             </tr>
             <?php if (current_user_can('manage_options') && !empty($gw2_api_key)) : ?>
             <tr>
+                <th><label for="gw2_api_key"><?php esc_html_e('API Key', 'gw2-guild-login'); ?></label></th>
                 <th><label><?php esc_html_e('API Key', 'gw2-guild-login'); ?></label></th>
                 <td>
                     <div class="gw2-api-key-wrapper">
@@ -193,7 +195,7 @@ class GW2_User_Dashboard {
     /**
      * Save profile fields.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      * @param int $user_id User ID.
      */
     public function save_profile_fields($user_id) {
@@ -208,7 +210,7 @@ class GW2_User_Dashboard {
     /**
      * Handle AJAX requests.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      */
     public function handle_ajax_request() {
         check_ajax_referer('gw2-dashboard-nonce', 'nonce');
@@ -235,7 +237,7 @@ class GW2_User_Dashboard {
     /**
      * Revoke all sessions except the current one.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      * @param int $user_id User ID.
      */
     private function revoke_other_sessions($user_id) {
@@ -249,7 +251,7 @@ class GW2_User_Dashboard {
     /**
      * Refresh user data from GW2 API.
      *
-     * @since 2.4.0
+     * @since 2.4.1
      * @param int $user_id User ID.
      */
     private function refresh_user_data($user_id) {

@@ -1,5 +1,4 @@
 # Dependency directories
-/vendor/
 /node_modules/
 
 # Environment files

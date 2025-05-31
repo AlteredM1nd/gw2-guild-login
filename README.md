@@ -1,6 +1,6 @@
 # GW2 Guild Login
 
-A secure WordPress plugin that allows users to log in using their Guild Wars 2 API key, with guild membership verification, user role management, and enhanced security features.
+A secure, modern WordPress plugin enabling users to log in using their Guild Wars 2 API key. Features robust guild membership verification, role management, advanced 2FA (with backup codes), and industry-leading security and coding standards compliance.
 
 ## Table of Contents
 - [Features](#features)
@@ -17,10 +17,14 @@ A secure WordPress plugin that allows users to log in using their Guild Wars 2 A
 
 ### 🔒 Authentication & Security
 - **GW2 API Login**: Secure authentication using Guild Wars 2 API keys
-- **Two-Factor Authentication**: Optional TOTP-based 2FA with support for authenticator apps
-- **Secure Session Management**: Custom session handler with security headers
+- **Two-Factor Authentication (2FA)**: TOTP-based 2FA with authenticator app support and secure backup codes
+- **Admin 2FA Controls**: Enforce or recommend 2FA for users; regenerate backup codes via AJAX
+- **Secure Session Management**: Custom session handler with security headers, session revocation, and device/session listing
 - **Rate Limiting**: Protection against brute force attacks
 - **API Key Encryption**: All keys are encrypted before storage
+- **Input Sanitization & Output Escaping**: All user input/output is sanitized and escaped per WordPress security best practices
+- **Nonce & Capability Checks**: Nonce verification and capability checks on all sensitive actions
+- **I18n & Accessibility**: All user-facing strings are translation-ready and properly escaped
 
 ### 👥 Guild Integration
 - **Guild Membership Verification**: Restrict access to specific guilds
@@ -30,20 +34,24 @@ A secure WordPress plugin that allows users to log in using their Guild Wars 2 A
 
 ### 🛠️ User Management
 - **Auto-Registration**: Automatically create accounts for new GW2 players
-- **User Dashboard**: View account details, guild memberships, and active sessions
-- **Session Control**: Monitor and manage active login sessions
+- **User Dashboard**: Modern dashboard for viewing account details, guild memberships, and active sessions
+- **Session Control**: Monitor, revoke, and manage active login sessions and devices
 - **Customizable User Roles**: Fine-grained permission control
+- **Profile Integration**: Add GW2 account info and 2FA settings to user profile pages
 
 ### 🎨 Frontend Features
 - **Shortcode Support**: Easy integration with any page or post
+- **Restrict Content by Guild Rank**: Use shortcodes to restrict content to specific guild ranks or display custom messages
 - **Responsive Design**: Works on all devices
 - **Customizable Templates**: Override default templates in your theme
 - **AJAX Forms**: Smooth form handling without page reloads
 
 ## Requirements
 
-- WordPress 5.6 or higher
-- PHP 7.4 or higher
+- WordPress 5.8 or higher (latest recommended)
+- PHP 7.4 or higher (8.0+ recommended)
+- Composer (for development)
+- Node.js 14+ (for asset building)
 - A Guild Wars 2 account with API key generation access
 - (Optional) A guild ID for guild-specific features
 
@@ -55,13 +63,17 @@ A secure WordPress plugin that allows users to log in using their Guild Wars 2 A
    - Or install via FTP to `/wp-content/plugins/`
 
 2. **Basic Configuration**
-   - Go to **Settings > GW2 Guild Login**
+   - Go to **Settings > GW2 Guild Login** (or **GW2 Guild** in the admin menu)
    - Enter your Guild ID (optional)
-   - Configure default user roles and permissions
-   - Set up 2FA if desired
+   - Configure user roles, permissions, and 2FA enforcement
+   - Set up 2FA for your admin account via your user profile
 
 3. **Add Login Form**
    Use the shortcode `[gw2_login]` in any post or page to display the login form.
+
+4. **Enable 2FA and Backup Codes**
+   - Users can enable 2FA and manage backup codes from their profile or dashboard
+   - Admins can regenerate backup codes via AJAX
 
 ## Configuration
 
@@ -81,21 +93,16 @@ A secure WordPress plugin that allows users to log in using their Guild Wars 2 A
 ### Shortcodes
 
 #### Login Form
-```
-[gw2_login]
-```
+```[gw2_login]```
 
 #### Restrict Content by Rank
-```
-[gw2_restricted rank="Officer"]
-This content is only visible to guild officers.
-[/gw2_restricted]
-```
+```[gw2_restricted rank="Officer"]Only officers see this.[/gw2_restricted]```
+
+#### Custom Access Denied Message
+```[gw2_restricted rank="Member" message="Members only!"]Content[/gw2_restricted]```
 
 #### Login/Logout Links
-```
-[gw2_loginout]
-```
+```[gw2_loginout]```
 
 ## Finding Your Guild ID
 
@@ -117,7 +124,7 @@ This content is only visible to guild officers.
 - **Guild Not Found**: Verify the Guild ID is correct and your API key has guild access
 - **Login Failures**: Check your server's PHP version and error logs
 
-For detailed documentation, please see the [Complete Usage Guide](docs/USAGE.md).
+For detailed documentation, see the [Complete Usage Guide](docs/USAGE.md), [2FA Guide](docs/TWO_FACTOR_AUTH.md), and [Security Policy](SECURITY.md).
 
 ## Development
 
@@ -138,7 +145,7 @@ npm run build
 
 ## Contributing
 
-Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) before submitting pull requests.
+Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) before submitting pull requests. Please follow our PHPDoc, I18n, and coding standards.
 
 ## License
 

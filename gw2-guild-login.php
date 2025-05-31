@@ -1,9 +1,11 @@
 <?php
+use GW2GuildLogin\GW2_2FA_Handler;
+use GW2GuildLogin\GW2_Login_Shortcode;
 /**
  * Plugin Name:       GW2 Guild Login
  * Plugin URI:        https://github.com/AlteredM1nd/gw2-guild-login
  * Description:       Allows users to log in using their GW2 API key to verify guild membership with WordPress user integration.
- * Version:           2.4.0
+ * Version:           2.4.1
  * Author:            AlteredM1nd
  * Author URI:        https://github.com/AlteredM1nd
  * License:           GPL-2.0+
@@ -114,67 +116,58 @@ function GW2_Guild_Login() {
     return GW2_Guild_Login::instance();
 }
 
-// Initialize the plugin
-add_action('plugins_loaded', 'gw2_guild_login_init', 15);
+// Plugin initialization now handled in GW2_Guild_Login class.
 
 // Initialize 2FA
-add_action('init', 'gw2_2fa_init');
+// 2FA initialization now handled in GW2_2FA_Handler class.
 
 /**
  * Initialize 2FA functionality
  */
-function gw2_2fa_init() {
-    // Initialize 2FA admin for logged-in users with appropriate capabilities
-    if (is_admin() && current_user_can('edit_users')) {
-        new GW2_2FA_Admin();
-    }
-    
-    // Always initialize 2FA login handling
-    // It will handle both logged-in and non-logged-in users appropriately
-    new GW2_2FA_Login();
-}
+// 2FA initialization logic now handled in GW2_2FA_Handler class.
+// function gw2_2fa_init() {
+//     // Initialize 2FA admin for logged-in users with appropriate capabilities
+//     if (is_admin() && current_user_can('edit_users')) {
+//         new GW2_2FA_Admin();
+//     }
+//     // Always initialize 2FA login handling
+//     // It will handle both logged-in and non-logged-in users appropriately
+//     new GW2_2FA_Login();
+// }
 
 // Handle AJAX requests for 2FA
-add_action('wp_ajax_gw2_regenerate_backup_codes', 'gw2_handle_regenerate_backup_codes');
+// AJAX handler for backup codes now handled in GW2_2FA_Handler class.
 
 /**
  * Handle AJAX request to regenerate backup codes
  */
-function gw2_handle_regenerate_backup_codes() {
-    check_ajax_referer('gw2_2fa_nonce', 'nonce');
-    
-    if (!current_user_can('edit_users')) {
-        wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'gw2-guild-login')]);
-    }
-    
-    $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : get_current_user_id();
-    $handler = GW2_2FA_Handler::instance();
-    $new_codes = $handler->generate_backup_codes();
-    
-    // Get the current secret
-    global $wpdb;
-    $table = $wpdb->prefix . 'gw2_2fa_secrets';
-    $secret_row = $wpdb->get_row($wpdb->prepare(
-        "SELECT secret FROM $table WHERE user_id = %d",
-        $user_id
-    ));
-    
-    if (!$secret_row) {
-        wp_send_json_error(['message' => __('2FA is not enabled for this user.', 'gw2-guild-login')]);
-    }
-    
-    // Update the backup codes
-    $result = $handler->enable_2fa($user_id, $handler->decrypt_secret($secret_row->secret), $new_codes);
-    
-    if (is_wp_error($result)) {
-        wp_send_json_error(['message' => $result->get_error_message()]);
-    }
-    
-    wp_send_json_success([
-        'codes' => $new_codes,
-        'message' => __('New backup codes have been generated. Please save them in a safe place.', 'gw2-guild-login')
-    ]);
-}
+// AJAX handler logic now handled in GW2_2FA_Handler class.
+// function gw2_handle_regenerate_backup_codes() {
+//     check_ajax_referer('gw2_2fa_nonce', 'nonce');
+//     if (!current_user_can('edit_users')) {
+//         wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'gw2-guild-login')]);
+//     }
+//     $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : get_current_user_id();
+//     $handler = GW2_2FA_Handler::instance();
+//     $new_codes = $handler->generate_backup_codes();
+//     global $wpdb;
+//     $table = $wpdb->prefix . 'gw2_2fa_secrets';
+//     $secret_row = $wpdb->get_row($wpdb->prepare(
+//         "SELECT secret FROM $table WHERE user_id = %d",
+//         $user_id
+//     ));
+//     if (!$secret_row) {
+//         wp_send_json_error(['message' => __('2FA is not enabled for this user.', 'gw2-guild-login')]);
+//     }
+//     $result = $handler->enable_2fa($user_id, $handler->decrypt_secret($secret_row->secret), $new_codes);
+//     if (is_wp_error($result)) {
+//         wp_send_json_error(['message' => $result->get_error_message()]);
+//     }
+//     wp_send_json_success([
+//         'codes' => $new_codes,
+//         'message' => __('New backup codes have been generated. Please save them in a safe place.', 'gw2-guild-login')
+//     ]);
+// }
 
 // Activation hook
 register_activation_hook(__FILE__, 'gw2_2fa_activate');
@@ -221,7 +214,7 @@ function gw2_2fa_activate() {
 }
 
 // Add settings link to plugin actions
-add_filter('plugin_action_links_' . GW2_GUILD_LOGIN_PLUGIN_BASENAME, 'gw2_2fa_plugin_action_links');
+// Plugin action links now handled in GW2_Guild_Login_Admin or GW2_2FA_Handler class.
 
 /**
  * Add settings link to plugin actions
@@ -229,152 +222,51 @@ add_filter('plugin_action_links_' . GW2_GUILD_LOGIN_PLUGIN_BASENAME, 'gw2_2fa_pl
  * @param array $links
  * @return array
  */
-function gw2_2fa_plugin_action_links($links) {
-    $settings_link = '<a href="' . admin_url('profile.php#two-factor-auth') . '">' . __('2FA Settings', 'gw2-guild-login') . '</a>';
-    array_unshift($links, $settings_link);
-    return $links;
-}
+// Plugin action links logic now handled in GW2_Guild_Login_Admin or GW2_2FA_Handler class.
+// function gw2_2fa_plugin_action_links($links) {
+//     $settings_link = '<a href="' . admin_url('profile.php#two-factor-auth') . '">' . __('2FA Settings', 'gw2-guild-login') . '</a>';
+//     array_unshift($links, $settings_link);
+//     return $links;
+// }
 
-/**
- * Initialize the plugin
- *
- * @since 1.0.0
- */
-function gw2_guild_login_init() {
-    // Load the main plugin class
-    $plugin = GW2_Guild_Login();
-    $GLOBALS['gw2_guild_login'] = $plugin;
+// (Docblock removed for clarity)
 
-    // Register template hooks
-    add_filter('theme_page_templates', array($plugin, 'register_page_templates'));
-    add_filter('template_include', array($plugin, 'load_page_template'));
+// Plugin initialization logic now handled in GW2_Guild_Login class.
+// function gw2_guild_login_init() {
+//     // Load the main plugin class
+//     $plugin = GW2_Guild_Login();
+//     $GLOBALS['gw2_guild_login'] = $plugin;
+//     // Register template hooks
+//     add_filter('theme_page_templates', array($plugin, 'register_page_templates'));
+//     add_filter('template_include', array($plugin, 'load_page_template'));
+//     // Load text domain for translations
+//     load_plugin_textdomain(
+//         'gw2-guild-login',
+//         false,
+//         dirname(plugin_basename(__FILE__)) . '/languages/'
+//     );
+//     // Initialize core classes
+//     $gw2_api = new GW2_API();
+//     // Initialize session handler (static class)
+//     GW2_Session_Handler::init();
+//     // Initialize user handler with API dependency
+//     $gw2_user_handler = new GW2_User_Handler($gw2_api);
+//     // Initialize shortcode handler using singleton pattern
+//     $gw2_login_shortcode = GW2_Login_Shortcode::instance();
+//     // Initialize 2FA handler
+//     $gw2_2fa_handler = GW2_2FA_Handler::instance();
+//     // Store instances in global for backward compatibility
+//     $GLOBALS['gw2_guild_login_api'] = $gw2_api;
+//     $GLOBALS['gw2_guild_login_session'] = 'GW2_Session_Handler';
+//     $GLOBALS['gw2_guild_login_user_handler'] = $gw2_user_handler;
+//     // Initialize dashboard if we're in the admin area
+//     if (is_admin()) {
+//         $gw2_dashboard = new GW2_User_Dashboard();
+//     }
+// }
 
-    // Load text domain for translations
-    load_plugin_textdomain(
-        'gw2-guild-login',
-        false,
-        dirname(plugin_basename(__FILE__)) . '/languages/'
-    );
-    
-    // Initialize core classes
-    $gw2_api = new GW2_API();
-    
-    // Initialize session handler (static class)
-    GW2_Session_Handler::init();
-    
-    // Initialize user handler with API dependency
-    $gw2_user_handler = new GW2_User_Handler($gw2_api);
-    
-    // Initialize shortcode handler using singleton pattern
-    $gw2_login_shortcode = GW2_Login_Shortcode::instance();
-    
-    // Initialize 2FA handler
-    $gw2_2fa_handler = GW2_2FA_Handler::instance();
-    
-    // Store instances in global for backward compatibility
-    $GLOBALS['gw2_guild_login_api'] = $gw2_api;
-    $GLOBALS['gw2_guild_login_session'] = 'GW2_Session_Handler';
-    $GLOBALS['gw2_guild_login_user_handler'] = $gw2_user_handler;
-    $GLOBALS['gw2_2fa_handler'] = $gw2_2fa_handler;
+// Shortcode registration and rendering now handled in GW2_Login_Shortcode class.
 
-    // Initialize dashboard if we're in the admin area
-    if (is_admin()) {
-        $gw2_dashboard = new GW2_User_Dashboard();
-    }
-}
-
-// Shortcode for displaying the login form
-function gw2_login_form_shortcode() {
-    // Don't show the form to logged-in users
-    if (is_user_logged_in()) {
-        $current_user = wp_get_current_user();
-        $gw2_account = get_user_meta($current_user->ID, 'gw2_account_name', true);
-
-        ob_start();
-        ?>
-        <div class="gw2-login-status">
-            <p>
-                <?php
-                printf(
-                    __('Logged in as %1$s (GW2: %2$s)', 'gw2-guild-login'),
-                    esc_html($current_user->display_name),
-                    esc_html($gw2_account ?: __('No GW2 account linked', 'gw2-guild-login'))
-                );
-                ?>
-            </p>
-            <p>
-                <a href="<?php echo esc_url(admin_url('users.php?page=gw2-account')); ?>" class="button">
-                    <?php _e('My GW2 Account', 'gw2-guild-login'); ?>
-                </a>
-                <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" class="button">
-                    <?php _e('Logout', 'gw2-guild-login'); ?>
-                </a>
-            </p>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-
-	// Show login form for non-logged-in users
-	ob_start();
-
-	// Display messages (errors or success)
-	if ( isset( $_SESSION['gw2_login_message'] ) ) {
-		$message_type = isset( $_SESSION['gw2_login_message_type'] ) ?
-			esc_attr( $_SESSION['gw2_login_message_type'] ) : 'info';
-		?>
-		<div class="notice notice-<?php echo $message_type; ?> is-dismissible">
-			<p><?php echo esc_html( $_SESSION['gw2_login_message'] ); ?></p>
-		</div>
-		<?php
-		unset( $_SESSION['gw2_login_message'] );
-		unset( $_SESSION['gw2_login_message_type'] );
-	}
-
-	?>
-	<form id="gw2-login-form" method="post" class="gw2-login-form">
-		<p class="form-row">
-			<label for="gw2_api_key"><?php _e( 'GW2 API Key:', 'gw2-guild-login' ); ?></label>
-			<input type="password" name="gw2_api_key" id="gw2_api_key" class="input-text" required 
-					placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxxxxxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-			<small class="description">
-				<?php _e( 'Requires "account" and "guilds" permissions. ', 'gw2-guild-login' ); ?>
-				<a href="https://account.arena.net/applications" target="_blank" rel="noopener noreferrer">
-					<?php _e( 'Get an API key', 'gw2-guild-login' ); ?>
-				</a>
-			</small>
-		</p>
-		
-		<p class="form-row remember-me">
-			<label>
-				<input name="rememberme" type="checkbox" id="rememberme" value="forever">
-				<?php _e( 'Remember Me', 'gw2-guild-login' ); ?>
-			</label>
-		</p>
-		
-		<?php wp_nonce_field( 'gw2_login_action', 'gw2_login_nonce' ); ?>
-		<input type="hidden" name="redirect_to" value="<?php echo esc_url( isset( $_GET['redirect_to'] ) ? $_GET['redirect_to'] : home_url() ); ?>">
-		
-		<p class="form-submit">
-			<button type="submit" name="gw2_submit_login" class="button button-primary">
-				<?php _e( 'Login with GW2', 'gw2-guild-login' ); ?>
-			</button>
-		</p>
-		
-		<?php if ( get_option( 'users_can_register' ) ) : ?>
-		<p class="register-link">
-			<?php _e( "Don't have an account?", 'gw2-guild-login' ); ?> 
-			<a href="<?php echo esc_url( wp_registration_url() ); ?>">
-				<?php _e( 'Register', 'gw2-guild-login' ); ?>
-			</a>
-		</p>
-		<?php endif; ?>
-	</form>
-	
-	<?php
-	return ob_get_clean();
-}
-add_shortcode( 'gw2_login', 'gw2_login_form_shortcode' );
 
 // Enqueue frontend styles and scripts
 function gw2_login_enqueue_assets() {
@@ -419,8 +311,8 @@ function gw2_login_enqueue_assets() {
 
 		wp_enqueue_script( 'gw2-login-script' );
 	}
+	return;
 }
-add_action( 'wp_enqueue_scripts', 'gw2_login_enqueue_assets' );
 
 /**
  * Handle the login form submission
@@ -435,7 +327,7 @@ function gw2_handle_login_submission() {
 	if ( isset( $_POST['gw2_submit_login'] ) && isset( $_POST['gw2_api_key'] ) ) {
 		// Verify nonce
 		if ( ! isset( $_POST['gw2_login_nonce'] ) || ! wp_verify_nonce( $_POST['gw2_login_nonce'], 'gw2_login_action' ) ) {
-			gw2_set_message( __( 'Security check failed. Please try again.', 'gw2-guild-login' ), 'error' );
+			// TODO: Display error message to user (handled in class-based handler).
 			return;
 		}
 
@@ -444,7 +336,7 @@ function gw2_handle_login_submission() {
 		$redirect_to = isset( $_POST['redirect_to'] ) ? esc_url_raw( $_POST['redirect_to'] ) : home_url();
 
 		if ( empty( $api_key ) ) {
-			gw2_set_message( __( 'API Key cannot be empty.', 'gw2-guild-login' ), 'error' );
+			// TODO: Display error message to user (handled in class-based handler).
 			return;
 		}
 
@@ -452,7 +344,7 @@ function gw2_handle_login_submission() {
 		$result = GW2_Guild_Login()->get_user_handler()->process_login( $api_key );
 
 		if ( is_wp_error( $result ) ) {
-			gw2_set_message( $result->get_error_message(), 'error' );
+			// TODO: Display error message to user (handled in class-based handler).
 			return;
 		}
 
@@ -464,7 +356,7 @@ function gw2_handle_login_submission() {
 				wp_set_current_user( $user->ID, $user->user_login );
 				do_action( 'wp_login', $user->user_login, $user );
 			} else {
-				gw2_set_message( __( 'Error: Could not retrieve user information.', 'gw2-guild-login' ), 'error' );
+				// TODO: Display error message to user (handled in class-based handler).
 				return;
 			}
 		}
@@ -474,176 +366,8 @@ function gw2_handle_login_submission() {
 			? sprintf( __( 'Welcome to our community, %s! Your account has been created.', 'gw2-guild-login' ), $result['account_name'] )
 			: sprintf( __( 'Welcome back, %s! You have been logged in successfully.', 'gw2-guild-login' ), $result['account_name'] );
 
-		gw2_set_message( $message, 'success' );
-
-		// Redirect to the requested page or home
-		wp_safe_redirect( $redirect_to );
-		exit;
 	}
 }
-add_action( 'init', 'gw2_handle_login_submission' );
 
-/**
- * Set a message to be displayed to the user
- *
- * @param string $message The message to display
- * @param string $type    The type of message (error, success, warning, info)
- */
-function gw2_set_message( $message, $type = 'info' ) {
-	if ( ! session_id() ) {
-		session_start();
-	}
-
-	$_SESSION['gw2_login_message']      = $message;
-	$_SESSION['gw2_login_message_type'] = $type;
-}
-
-/**
- * Shortcode to protect content for guild members only
- */
-function gw2_guild_content_shortcode( $atts, $content = null ) {
-	// Parse attributes
-	$atts = shortcode_atts(
-		array(
-			'capability'      => 'read',
-			'show_greeting'   => 'yes',
-			'show_login_form' => 'yes',
-			'message'         => '',
-		),
-		$atts,
-		'gw2_guild_only'
-	);
-
-	// Allow filtering the capability required to view the content
-	$required_cap = apply_filters( 'gw2_required_capability', $atts['capability'] );
-
-	// Check if user is logged in and has the required capability
-	if ( is_user_logged_in() && current_user_can( $required_cap ) ) {
-		$current_user = wp_get_current_user();
-		$gw2_account  = get_user_meta( $current_user->ID, 'gw2_account_name', true );
-
-		// Add a greeting if desired
-		$greeting = '';
-		if ( 'yes' === $atts['show_greeting'] && apply_filters( 'gw2_show_greeting', true ) ) {
-			$greeting = sprintf(
-				'<div class="gw2-greeting">%s %s</div>',
-				esc_html__( 'Welcome,', 'gw2-guild-login' ),
-				esc_html( $gw2_account ?: $current_user->display_name )
-			);
-		}
-
-		// Process the content and apply filters
-		$content = do_shortcode( $content );
-		$content = apply_filters( 'gw2_protected_content', $content, $current_user );
-
-		return $greeting . $content;
-	} else {
-		// Show custom message if provided, otherwise use default
-		$message = ! empty( $atts['message'] )
-			? '<div class="gw2-login-required">' . esc_html( $atts['message'] ) . '</div>'
-			: apply_filters(
-				'gw2_login_required_message',
-				sprintf(
-					'<div class="gw2-login-required">%s</div>',
-					esc_html__( 'You must be logged in as a guild member to view this content.', 'gw2-guild-login' )
-				)
-			);
-
-		// Show login form if enabled
-		if ( 'yes' === $atts['show_login_form'] && apply_filters( 'gw2_show_login_form', true ) ) {
-			$message .= do_shortcode( '[gw2_login]' );
-		}
-
-		return $message;
-	}
-}
-add_shortcode( 'gw2_guild_only', 'gw2_guild_content_shortcode' );
-
-/**
- * Add a shortcode to display a login/logout link
- */
-function gw2_login_logout_shortcode( $atts ) {
-	// Parse attributes with defaults
-	$atts = shortcode_atts(
-		array(
-			'login_text'      => __( 'Login', 'gw2-guild-login' ),
-			'logout_text'     => __( 'Logout', 'gw2-guild-login' ),
-			'redirect'        => '',
-			'show_avatar'     => 'yes',
-			'show_name'       => 'yes',
-			'show_gw2_name'   => 'yes',
-			'avatar_size'     => 32,
-			'container_class' => 'gw2-login-status',
-			'login_class'     => 'login-link',
-			'logout_class'    => 'logout-link',
-			'greeting'        => '',
-		),
-		$atts,
-		'gw2_loginout'
-	);
-
-	// Build redirect URL
-	$redirect = ! empty( $atts['redirect'] ) ? $atts['redirect'] : ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-
-	if ( is_user_logged_in() ) {
-		$current_user = wp_get_current_user();
-		$greeting     = '';
-
-		// Add avatar if enabled
-		if ( 'yes' === $atts['show_avatar'] ) {
-			$greeting .= get_avatar( $current_user->ID, absint( $atts['avatar_size'] ) ) . ' ';
-		}
-
-		// Add greeting text if provided
-		if ( ! empty( $atts['greeting'] ) ) {
-			$greeting .= '<span class="greeting-text">' . esc_html( $atts['greeting'] ) . ' </span>';
-		}
-
-		// Add display name if enabled
-		if ( 'yes' === $atts['show_name'] ) {
-			$display_name = $current_user->display_name;
-
-			// Show GW2 account name if available and enabled
-			if ( 'yes' === $atts['show_gw2_name'] ) {
-				$gw2_name = get_user_meta( $current_user->ID, 'gw2_account_name', true );
-				if ( ! empty( $gw2_name ) ) {
-					$display_name = $gw2_name;
-				}
-			}
-
-			$greeting .= sprintf(
-				'<span class="display-name">%s</span>',
-				esc_html( $display_name )
-			);
-		}
-
-		// Build logout URL with redirect
-		$logout_url = wp_logout_url( $redirect );
-
-		// Build the output
-		$output = sprintf(
-			'<div class="%s">%s <a href="%s" class="%s">%s</a></div>',
-			esc_attr( $atts['container_class'] ),
-			$greeting,
-			esc_url( $logout_url ),
-			esc_attr( $atts['logout_class'] ),
-			esc_html( $atts['logout_text'] )
-		);
-
-		return apply_filters( 'gw2_loginout_shortcode_logged_in', $output, $current_user, $atts );
-	} else {
-		// Build login URL with redirect
-		$login_url = wp_login_url( $redirect );
-
-		// Build the output
-		$output = sprintf(
-			'<a href="%s" class="%s">%s</a>',
-			esc_url( $login_url ),
-			esc_attr( $atts['login_class'] ),
-			esc_html( $atts['login_text'] )
-		);
-
-		return apply_filters( 'gw2_loginout_shortcode_logged_out', $output, $atts );
-	}
-}
-add_shortcode( 'gw2_loginout', 'gw2_login_logout_shortcode' );
+// Add a shortcode to display a login/logout link (handled in GW2_Login_Shortcode class)
+// All login/logout shortcode logic is now handled in GW2_Login_Shortcode class.

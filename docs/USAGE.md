@@ -147,8 +147,8 @@ A comprehensive guide to installing, configuring, and customizing the GW2 Guild 
 ## Installation
 
 ### Prerequisites
-- WordPress 5.6 or higher
-- PHP 7.4 or higher
+- WordPress 5.8 or higher (latest recommended)
+- PHP 7.4 or higher (8.0+ recommended)
 - A Guild Wars 2 account with API key generation access
 - MySQL 5.7+ or MariaDB 10.3+
 - SSL certificate (highly recommended for security)
@@ -684,17 +684,22 @@ ANALYZE TABLE wp_gw2gl_login_logs;
 
 ## Security Best Practices
 
+_Last audited: 2025-05-31_
+
 ### API Security
 - Always use HTTPS
 - Rotate API keys quarterly
 - Implement rate limiting
 - Validate all API responses
+- All API and user input is sanitized and output is escaped per WordPress standards
 
 ### Data Protection
-- Encrypt sensitive data at rest
-- Regular security audits
+- Encrypt sensitive data at rest (API keys, 2FA secrets)
+- All user/admin-facing strings are translation-ready and escaped (I18n compliance)
+- Regular security audits and static analysis using PHPStan
 - GDPR compliance features
 - Data export/erase functionality
+- See [SECURITY.md](../SECURITY.md) and [TWO_FACTOR_AUTH.md](TWO_FACTOR_AUTH.md) for full details
 
 ## Frequently Asked Questions
 
@@ -749,6 +754,13 @@ add_filter('gw2gl_login_redirect', function($redirect, $user_id) {
 
 ## Version History
 
+### 2.4.1 (2025-05-31)
+- Fully object-oriented main plugin file, all procedural code removed.
+- Shortcodes, AJAX, and hooks now registered via classes.
+- PHPUnit test autoloading fixed.
+- Syntax errors and legacy code blocks removed.
+- Codebase now adheres to WP and OOP best practices.
+
 [View complete changelog](CHANGELOG.md)
 
 ## Getting Help
@@ -759,21 +771,24 @@ add_filter('gw2gl_login_redirect', function($redirect, $user_id) {
 ### Reporting Security Issues
 Please report security vulnerabilities to gw2-guild-login@protonmail.com
 
-## Contributing
+## Contributing & Developer Notes
 
-We welcome contributions! Here's how you can help:
+We welcome contributions! Please:
+- Follow WordPress coding standards and PHPDoc documentation
+- Ensure all user/admin-facing strings are translation-ready and escaped
+- Use proper input sanitization, output escaping, and nonce/capability checks
+- Maintain naming consistency for all classes, functions, and variables
+- Run static analysis (PHPStan) before submitting PRs
 
-1. Report bugs and submit feature requests
-2. Submit pull requests
-3. Improve documentation
-4. Help test new releases
+See our [Contributing Guidelines](../CONTRIBUTING.md) for more details.
 
-See our [Contributing Guidelines](CONTRIBUTING.md) for more details.
-
-## Known Issues
-
-- See [GitHub Issues](https://github.com/AlteredM1nd/gw2-guild-login/issues) for current issues
+## Documentation & Further Reading
+- [Changelog](../CHANGELOG.md)
+- [Security Policy](../SECURITY.md)
+- [2FA Guide](TWO_FACTOR_AUTH.md)
+- [Contributing](../CONTRIBUTING.md)
+- [GitHub Issues](https://github.com/AlteredM1nd/gw2-guild-login/issues)
 
 ---
 
-*GW2 Guild Login v2.4.0 | [Changelog](CHANGELOG.md) | [License](LICENSE) | [Contribute](CONTRIBUTING.md)*
+*GW2 Guild Login v2.4.1 | [Changelog](../CHANGELOG.md) | [License](../LICENSE) | [Contribute](../CONTRIBUTING.md)*

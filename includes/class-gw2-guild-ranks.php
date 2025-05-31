@@ -1,6 +1,12 @@
 <?php
 /**
- * Handles Guild Rank based access control
+ * GW2_Guild_Ranks
+ *
+ * Handles Guild Rank-based access control for the GW2 Guild Login plugin.
+ * Provides methods for restricting content, managing rank settings, and integrating with the GW2 API.
+ *
+ * @package GW2_Guild_Login
+ * @since 2.4.0
  */
 class GW2_Guild_Ranks {
     /** @var self|null Singleton instance */
@@ -70,8 +76,8 @@ class GW2_Guild_Ranks {
      */
     public function add_admin_menu() {
         add_options_page(
-            'GW2 Guild Settings',
-            'GW2 Guild',
+            __('GW2 Guild Settings', 'gw2-guild-login'),
+            __('GW2 Guild', 'gw2-guild-login'),
             'manage_options',
             'gw2-guild-settings',
             array($this, 'render_settings_page')
@@ -98,35 +104,35 @@ class GW2_Guild_Ranks {
         
         ?>
         <div class="wrap">
-            <h1>GW2 Guild Settings</h1>
+            <h1><?php esc_html_e('GW2 Guild Settings', 'gw2-guild-login'); ?></h1>
             <?php settings_errors('gw2_messages'); ?>
             <form method="post">
                 <?php wp_nonce_field('gw2_guild_settings'); ?>
                 <table class="form-table">
                     <tr>
-                        <th><label for="gw2_guild_id">Guild ID</label></th>
+                        <th><label for="gw2_guild_id"><?php esc_html_e('Guild ID', 'gw2-guild-login'); ?></label></th>
                         <td>
                             <input type="text" id="gw2_guild_id" name="gw2_guild_id" 
                                    value="<?php echo esc_attr($guild_id); ?>" class="regular-text">
-                            <p class="description">Your guild's UUID (found in guild panel URL)</p>
+                            <p class="description"><?php esc_html_e("Your guild's UUID (found in guild panel URL)", 'gw2-guild-login'); ?></p>
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="gw2_api_key">API Key</label></th>
+                        <th><label for="gw2_api_key"><?php esc_html_e('API Key', 'gw2-guild-login'); ?></label></th>
                         <td>
                             <input type="password" id="gw2_api_key" name="gw2_api_key" 
                                    value="<?php echo esc_attr($api_key); ?>" class="regular-text">
-                            <p class="description">GW2 API key with 'guild' permission</p>
+                            <p class="description"><?php esc_html_e("GW2 API key with 'guild' permission", 'gw2-guild-login'); ?></p>
                         </td>
                     </tr>
                 </table>
-                <?php submit_button('Save Settings'); ?>
+                <?php submit_button(esc_html__('Save Settings', 'gw2-guild-login')); ?>
             </form>
             
-            <h2>Shortcode Usage</h2>
-            <p>Use the following shortcode to restrict content by guild rank:</p>
+            <h2><?php esc_html_e('Shortcode Usage', 'gw2-guild-login'); ?></h2>
+            <p><?php esc_html_e('Use the following shortcode to restrict content by guild rank:', 'gw2-guild-login'); ?></p>
             <pre><code>[gw2_restricted rank="Officer"]This content is only visible to officers.[/gw2_restricted]</code></pre>
-            <p>You can customize the access denied message:</p>
+            <p><?php esc_html_e('You can customize the access denied message:', 'gw2-guild-login'); ?></p>
             <pre><code>[gw2_restricted rank="Member" message="Members only! Join our guild to see this content."]...[/gw2_restricted]</code></pre>
         </div>
         <?php
@@ -181,7 +187,7 @@ class GW2_Guild_Ranks {
             $data = $this->fetch_guild_data($guild_id);
             
             if (is_wp_error($data)) {
-                error_log('GW2 Guild Ranks: ' . $data->get_error_message());
+                
                 return false;
             }
             
@@ -204,16 +210,16 @@ class GW2_Guild_Ranks {
     public function restricted_content_shortcode($atts, $content = null) {
         $atts = shortcode_atts(array(
             'rank' => '',
-            'message' => 'You do not have permission to view this content.'
+            'message' => esc_html__('You do not have permission to view this content.', 'gw2-guild-login')
         ), $atts);
         
         if (empty($atts['rank'])) {
-            return '<div class="gw2-error">Error: No rank specified in shortcode.</div>';
+            return '<div class="gw2-error">' . esc_html__('Error: No rank specified in shortcode.', 'gw2-guild-login') . '</div>';
         }
         
         $user_id = get_current_user_id();
         if (!$user_id) {
-            return '<div class="gw2-login-required">Please log in to view this content.</div>';
+            return '<div class="gw2-login-required">' . esc_html__('Please log in to view this content.', 'gw2-guild-login') . '</div>';
         }
         
         if ($this->check_rank_access($user_id, $atts['rank'])) {

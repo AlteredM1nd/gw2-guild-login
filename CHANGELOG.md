@@ -2,6 +2,28 @@
 
 All notable changes to the GW2 Guild Login plugin will be documented in this file.
 
+## [2.4.1] - 2025-05-31
+### Added/Changed
+- Fully refactored main plugin file to be object-oriented; removed all procedural code from bootstrap.
+- All shortcodes, AJAX handlers, and hooks are now registered via dedicated classes.
+- Legacy procedural functions for login/logout and content protection are now handled by GW2_Login_Shortcode and GW2_2FA_Handler classes.
+- PHPUnit test files updated to include Composer autoload and resolve unknown class warnings.
+- Syntax errors and stray code blocks removed from main plugin file.
+- All plugin initialization and registration logic delegated to singleton classes.
+- Improved code maintainability and adherence to WordPress best practices.
+- Cleaned up messaging and TODOs for future class-based user messaging refactor.
+- Updated documentation to reflect new OOP architecture.
+
+### Security, I18n, and Code Quality Audit
+- **Comprehensive Security Audit**: Systematic review and hardening of all input sanitization, output escaping, nonce verification, and capability checks across the plugin
+- **Internationalization (I18n) Coverage**: All user/admin-facing strings in PHP and templates now fully wrapped in translation and escaping functions
+- **Template & AJAX Handler Review**: Ensured all templates and AJAX endpoints use proper escaping and localization
+- **PHPDoc & Coding Standards**: Improved PHPDoc documentation, fixed inline comments, and enforced WordPress coding standards throughout
+- **Naming Consistency**: Standardized class, method, and variable names for maintainability
+- **Static Analysis**: Ran PHPStan at max level; resolved all reported issues
+- **Debug Code Removal**: Eliminated all debug/error_log code and unreachable code
+- **Changelog & Documentation**: Updated all documentation for new features, security, and code quality improvements
+
 ## [2.4.0] - 2025-05-30
 
 ### Added

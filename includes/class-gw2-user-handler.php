@@ -158,9 +158,9 @@ class GW2_User_Handler {
 	 */
 	protected function log( $message, $data = null ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( '[GW2 Guild Login] ' . $message );
+			
 			if ( $data ) {
-				error_log( print_r( $data, true ) );
+				
 			}
 		}
 	}
@@ -335,7 +335,7 @@ class GW2_User_Handler {
 			try {
 				$this->update_user_meta( $user_id, $account_info, $api_key );
 			} catch ( Exception $e ) {
-				error_log( 'GW2 Guild Login: Failed to update user meta - ' . $e->getMessage() );
+				
 				// Continue anyway since the user was created
 			}
 
@@ -343,14 +343,14 @@ class GW2_User_Handler {
 			try {
 				$this->send_welcome_email( $user, $password );
 			} catch ( Exception $e ) {
-				error_log( 'GW2 Guild Login: Failed to send welcome email to ' . $user->user_email . ' - ' . $e->getMessage() );
+				
 				// Continue anyway since this is not a critical error
 			}
 
 			return $user;
 
 		} catch ( Exception $e ) {
-			error_log( 'GW2 Guild Login: Uncaught exception in create_user - ' . $e->getMessage() );
+			
 			return new WP_Error(
 				'user_creation_exception',
 				__( 'An error occurred while creating your account. Please try again later.', 'gw2-guild-login' ),

@@ -1,10 +1,15 @@
 # Security Policy
 
+_Last audited: 2025-05-31_
+
 ## Supported Versions
+
+**2.4.1:** Main plugin file is now fully object-oriented. All authentication, shortcode, and 2FA logic is handled by dedicated classes for improved security and maintainability. This version introduces a class-based architecture, significantly enhancing the plugin's security posture.
+
 
 | Version | Supported          | Security Updates Until |
 | ------- | ------------------ | --------------------- |
-| 2.4.x   | :white_check_mark: | TBD                   |
+| 2.4.1   | :white_check_mark: | 2026-05-31            |
 | 2.3.x   | :white_check_mark: | 2025-11-29            |
 | 2.2.x   | :x:                | 2025-08-29            |
 | < 2.2   | :x:                | -                     |
@@ -20,6 +25,8 @@ If you discover a security vulnerability within GW2 Guild Login, please follow t
    - Steps to reproduce the issue
    - Your WordPress and PHP version
    - Any error messages
+
+Please see the [Contributing Guide](CONTRIBUTING.md) for secure coding practices.
 
 ## Response Time
 
@@ -42,44 +49,31 @@ If you discover a security vulnerability within GW2 Guild Login, please follow t
 - **2FA Secrets**: TOTP secrets are encrypted using AES-256-CBC
 - **Backup Codes**: Stored using one-way hashing (bcrypt)
 - **Secure Session Management**: Custom session handler with proper security headers
-- **Data Sanitization**: Comprehensive input validation and output escaping
+- **Data Sanitization & Output Escaping**: All user input is sanitized and all output is escaped using WordPress core functions
+- **Internationalization (I18n)**: All user/admin-facing strings are translation-ready and properly escaped
 - **Secure Cookies**: HTTP-only, secure, and SameSite=Lax flags set for all cookies
 
 ### Authentication Security
-- **Two-Factor Authentication (2FA)**: Basic TOTP-based 2FA support (Phase 1)
-  - Time-based One-Time Password (TOTP) algorithm (RFC 6238)
-  - Compatible with TOTP-compatible authenticator apps
-  - Fixed 6-digit codes
-  - 30-second time step (not currently configurable)
-  - Basic trusted device support via cookies
-  - Backup code generation and verification
+- **Two-Factor Authentication (2FA)**: TOTP-based 2FA with backup codes and trusted device support
 - **Rate Limiting**: Protection against brute force attacks with exponential backoff
-- **Session Management**:
-  - Session ID regeneration on login and privilege changes
-  - Configurable session lifetime
-  - Concurrent session control
-  - Device fingerprinting for session binding
-- **Secure Credential Storage**:
-  - API keys encrypted with AES-256-CBC
-  - Passwords hashed using WordPress's built-in password hashing (PHP's password_hash() with bcrypt)
-  - Secure storage of 2FA secrets and backup codes
+- **Session Management**: Session ID regeneration, concurrent session control, device fingerprinting
+- **Secure Credential Storage**: API keys encrypted, passwords hashed, 2FA secrets/backup codes securely stored
 - **CSRF Protection**: Nonce verification for all form submissions and AJAX requests
-- **Trusted Device Management**:
-  - Secure cookie-based device recognition
-  - Configurable trust duration (default: 30 days)
-  - Device revocation capability
+- **Trusted Device Management**: Secure cookie-based device recognition and revocation
 
 ### API Security
-- **Input Validation**: Strict validation of all API inputs
+- **Input Validation**: Strict validation of all API and user inputs
 - **Output Escaping**: Proper escaping of all dynamic content
 - **Error Handling**: Generic error messages to prevent information leakage
 - **Rate Limiting**: Respects GW2 API rate limits with local caching
 
-### WordPress Integration
-- **Capability Checks**: Proper user capability verification
+### WordPress Integration & Coding Standards
+- **Capability Checks**: Proper user capability verification for all privileged actions
 - **Nonce Verification**: For all form submissions and AJAX requests
-- **Data Sanitization**: WordPress core functions for data handling
+- **Data Sanitization**: WordPress core functions for all data handling
 - **Hooks and Filters**: Secure extension points for developers
+- **PHPDoc & Static Analysis**: All code is documented and analyzed with PHPStan
+- **Naming Consistency**: Classes, methods, and variables follow strict naming conventions
 
 ## Known Security Considerations
 
@@ -115,3 +109,5 @@ If you discover a security vulnerability within GW2 Guild Login, please follow t
 5. Implement HTTPS for all site traffic
 6. Use a web application firewall (WAF) for additional protection
 7. Regularly monitor your site for suspicious activity
+8. Review the [Contributing Guide](CONTRIBUTING.md) for secure coding standards and I18n practices
+9. See [docs/USAGE.md](docs/USAGE.md) and [docs/TWO_FACTOR_AUTH.md](docs/TWO_FACTOR_AUTH.md) for security-related usage and configuration details

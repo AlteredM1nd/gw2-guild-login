@@ -1,8 +1,17 @@
-# Two-Factor Authentication (2FA) - Phase 1
+# Two-Factor Authentication (2FA)
+
+_Last audited: 2025-05-31_
 
 ## Overview
 
-GW2 Guild Login 2.4.0 introduces the first phase of Two-Factor Authentication (2FA) to provide an additional layer of security for user accounts. This initial implementation includes basic TOTP support and will be enhanced in future updates.
+GW2 Guild Login 2.4.1 provides robust Two-Factor Authentication (2FA) for user accounts, with a modern UI, backup codes, AJAX admin controls, and comprehensive I18n and output escaping for all user-facing strings. All 2FA features follow the latest WordPress security best practices.
+
+#### 2.4.1 Update
+- All 2FA logic and AJAX is now handled by dedicated classes (OOP).
+- Main plugin file is now a clean bootstrap with no procedural code.
+- Security and extensibility improved.
+
+For a summary of recent security and I18n improvements, see [SECURITY.md](../SECURITY.md).
 
 ## Table of Contents
 
@@ -18,13 +27,14 @@ GW2 Guild Login 2.4.0 introduces the first phase of Two-Factor Authentication (2
 
 ## Current Features (Phase 1)
 
-- **Basic TOTP Support**: Implements the Time-based One-Time Password algorithm (RFC 6238)
-  - Fixed 6-digit codes
-  - 30-second time step
+- **TOTP Support**: Implements the Time-based One-Time Password algorithm (RFC 6238)
+  - Fixed 6-digit codes, 30-second time step
   - Compatible with any TOTP-compatible authenticator app
-- **Backup Codes**: Generates one-time use backup codes for account recovery
-- **Basic Trusted Devices**: Simple cookie-based device remembering (30 days)
-- **Admin Controls**: Basic enable/disable functionality for user accounts
+- **Backup Codes**: Secure, one-time use backup codes (hashed in storage)
+- **Trusted Devices**: Cookie-based device remembering (30 days, configurable)
+- **Admin Controls**: Enable/disable 2FA for users, regenerate backup codes via AJAX
+- **Modern UI/UX**: User-friendly profile integration and dashboard
+- **I18n & Output Escaping**: All strings are translation-ready and properly escaped
 
 ## Planned Features
 
@@ -88,10 +98,8 @@ Backup codes are automatically generated when you enable 2FA. These one-time use
 
 If you've used most of your backup codes or suspect they've been compromised:
 
-1. Go to your Profile page
-2. Scroll to the "Two-Factor Authentication" section
-3. Click "Generate New Backup Codes"
-4. Save the new codes (this will invalidate all previous codes)
+- Users: Go to your Profile or Dashboard, scroll to the "Two-Factor Authentication" section, and click "Generate New Backup Codes". Codes are securely regenerated via AJAX and old codes are invalidated.
+- Admins: You can trigger backup code regeneration for users via the admin dashboard (requires proper capability).
 
 ## Trusted Devices (Basic Implementation)
 
@@ -115,20 +123,21 @@ If you need to disable 2FA for your account:
 If you've lost access to your authenticator app but have your backup codes:
 
 1. Log in using one of your backup codes
-2. Go to your Profile page
-3. Disable 2FA
-4. Set up 2FA again with a new device
+2. Go to your Profile or Dashboard
+3. Set up 2FA again with a new device
 
 ### I Lost My Backup Codes
 
 If you've lost your backup codes but still have access to your authenticator app:
 
 1. Log in using your authenticator app
-2. Go to your Profile page
-3. Generate new backup codes
+2. Go to your Profile or Dashboard
+3. Generate new backup codes (regeneration is secure and old codes are invalidated)
 4. Save the new codes in a secure location
 
-If you've lost both your authenticator device and backup codes, please contact your site administrator for assistance.
+### All 2FA/Backup Access Lost
+
+If you've lost both your authenticator and backup codes, contact your site administrator for recovery (admins can reset 2FA for users with proper capability).
 
 ### QR Code Won't Scan
 
@@ -143,41 +152,27 @@ If you're having trouble scanning the QR code:
 
 ### Hooks and Filters
 
+All 2FA actions and filters are fully documented and follow WordPress coding standards. All hook parameters are sanitized and escaped as needed.
+
 #### Actions
 
 - `gw2_2fa_before_enable` - Fires before 2FA is enabled for a user
-  - Parameters: `$user_id`
-
 - `gw2_2fa_after_enable` - Fires after 2FA is enabled for a user
-  - Parameters: `$user_id`
-
 - `gw2_2fa_before_disable` - Fires before 2FA is disabled for a user
-  - Parameters: `$user_id`
-
 - `gw2_2fa_after_disable` - Fires after 2FA is disabled for a user
-  - Parameters: `$user_id`
 
 #### Filters
 
-- `gw2_2fa_issuer_name` - Filter the issuer name shown in authenticator apps
-  - Parameters: `$issuer_name` (string)
-  - Default: `get_bloginfo('name')`
+- `gw2_2fa_issuer_name` - Filter the issuer name shown in authenticator apps (default: blog name)
+- `gw2_2fa_code_length` - Filter the length of 2FA codes (default: 6)
+- `gw2_2fa_time_step` - Filter the time step for TOTP codes (default: 30)
+- `gw2_2fa_trust_period` - Filter trust duration for devices (default: 30 days)
 
-- `gw2_2fa_code_length` - Filter the length of 2FA codes
-  - Parameters: `$length` (int)
-  - Default: `6`
+### Extending 2FA
 
-- `gw2_2fa_time_step` - Filter the time step for TOTP codes (in seconds)
-  - Parameters: `$time_step` (int)
-  - Default: `30`
+You can extend the 2FA system to add new authentication methods (e.g., SMS, email) using documented hooks. See the planned API in this file for future releases.
 
-- `gw2_2fa_trust_period` - Filter how long to remember trusted devices (in days)
-  - Parameters: `$days` (int)
-  - Default: `30`
-
-### Customizing the 2FA Experience (Phase 1)
-
-*Note: In this initial release, many customization options are not yet implemented. The following filters are planned for future updates and are included here for reference.*
+For secure coding guidelines, see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 #### Planned Customization Options
 

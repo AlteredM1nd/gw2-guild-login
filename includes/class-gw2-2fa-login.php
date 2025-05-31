@@ -1,4 +1,5 @@
 <?php
+use GW2GuildLogin\GW2_2FA_Handler;
 /**
  * Handles 2FA during the login process
  */
@@ -96,7 +97,7 @@ class GW2_2FA_Login {
         // Verify the code
         if (!$this->handler->verify_totp($secret, $code)) {
             // Check backup codes
-            $backup_codes = get_user_meta($user->ID, 'gw2_2fa_backup_codes', true);
+            $backup_codes = $this->handler->get_backup_codes_for_user($user->ID);
             if (empty($backup_codes) || !in_array($code, $backup_codes)) {
                 return new WP_Error(
                     '2fa_invalid_code',
@@ -106,7 +107,7 @@ class GW2_2FA_Login {
             
             // Remove used backup code
             $backup_codes = array_values(array_diff($backup_codes, [$code]));
-            update_user_meta($user->ID, 'gw2_2fa_backup_codes', $backup_codes);
+            $this->handler->set_backup_codes_for_user($user->ID, $backup_codes);
             
             // If this was the last backup code, generate new ones
             if (empty($backup_codes)) {
@@ -125,6 +126,13 @@ class GW2_2FA_Login {
      * Handle 2FA verification form submission
      */
     public function handle_2fa_verification() {
+        // Nonce verification for 2FA form
+        if (!isset($_POST['_2fa_nonce']) || !wp_verify_nonce($_POST['_2fa_nonce'], '2fa_verify')) {
+            return new WP_Error(
+                '2fa_nonce_invalid',
+                __('<strong>Error</strong>: Security verification failed. Please try again.', 'gw2-guild-login')
+            );
+        }
         if (empty($_POST['log']) || empty($_POST['pwd'])) {
             wp_safe_redirect(wp_login_url());
             exit;

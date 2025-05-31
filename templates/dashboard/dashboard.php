@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Get user data
+// Get user data.
 $user = wp_get_current_user();
 $gw2_account_id = get_user_meta($user->ID, 'gw2_account_id', true);
 $gw2_account_name = get_user_meta($user->ID, 'gw2_account_name', true);
@@ -20,12 +20,12 @@ $gw2_created = get_user_meta($user->ID, 'gw2_created', true);
 $gw2_guilds = get_user_meta($user->ID, 'gw2_guilds', true);
 $last_login = get_user_meta($user->ID, 'gw2_last_login', true);
 
-// Get user sessions
+// Get user sessions.
 $sessions = WP_Session_Tokens::get_instance($user->ID);
 $all_sessions = $sessions->get_all();
 $current_session = wp_get_session_token();
 
-// Get browser info
+// Get browser info.
 $browser = array(
     'Chrome' => 'Chrome',
     'Firefox' => 'Firefox',
@@ -36,7 +36,7 @@ $browser = array(
     'Edge' => 'Microsoft Edge'
 );
 
-// Get current session info
+// Get current session info.
 $current_ip = '';
 $current_ua = '';
 $current_browser = __('Unknown', 'gw2-guild-login');
@@ -45,7 +45,7 @@ if (isset($all_sessions[$current_session])) {
     $current_ip = $all_sessions[$current_session]['ip'];
     $current_ua = $all_sessions[$current_session]['ua'];
     
-    // Detect browser
+    // Detect browser.
     foreach ($browser as $key => $value) {
         if (stripos($current_ua, $key) !== false) {
             $current_browser = $value;
@@ -73,19 +73,19 @@ if (isset($all_sessions[$current_session])) {
                         <h3><?php echo esc_html($user->display_name); ?></h3>
                         <p class="gw2-account-id">
                             <strong><?php echo esc_html__('Account ID:', 'gw2-guild-login'); ?></strong> 
-                            <?php echo esc_html($gw2_account_id ?: __('Not connected', 'gw2-guild-login')); ?>
+                            <?php echo esc_html($gw2_account_id ?: esc_html__('Not connected', 'gw2-guild-login')); ?>
                         </p>
                         <p class="gw2-account-world">
                             <strong><?php echo esc_html__('World:', 'gw2-guild-login'); ?></strong> 
-                            <?php echo esc_html($gw2_world ?: __('Unknown', 'gw2-guild-login')); ?>
+                            <?php echo esc_html($gw2_world ?: esc_html__('Unknown', 'gw2-guild-login')); ?>
                         </p>
                         <p class="gw2-account-created">
                             <strong><?php echo esc_html__('Created:', 'gw2-guild-login'); ?></strong> 
-                            <?php echo $gw2_created ? esc_html(date_i18n(get_option('date_format'), strtotime($gw2_created))) : __('Unknown', 'gw2-guild-login'); ?>
+                            <?php echo $gw2_created ? esc_html(date_i18n(get_option('date_format'), strtotime($gw2_created))) : esc_html__('Unknown', 'gw2-guild-login'); ?>
                         </p>
                         <p class="gw2-account-last-login">
                             <strong><?php echo esc_html__('Last Login:', 'gw2-guild-login'); ?></strong> 
-                            <?php echo $last_login ? esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($last_login))) : __('Never', 'gw2-guild-login'); ?>
+                            <?php echo $last_login ? esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($last_login))) : esc_html__('Never', 'gw2-guild-login'); ?>
                         </p>
                         <p class="gw2-account-current-session">
                             <strong><?php echo esc_html__('Current Session:', 'gw2-guild-login'); ?></strong> 
