@@ -1,9 +1,40 @@
 /**
  * GW2 Guild Login - Dashboard Styles
- *
+ * Modernized with CSS variables and dark mode
  * @package GW2_Guild_Login
  * @since 2.4.0
  */
+:root {
+    --gw2-primary: #1976d2;
+    --gw2-primary-dark: #12509e;
+    --gw2-accent: #26c6da;
+    --gw2-bg: #f7f9fb;
+    --gw2-surface: #fff;
+    --gw2-text: #23282d;
+    --gw2-muted: #72777c;
+    --gw2-border: #e0e4ea;
+    --gw2-radius: 14px;
+    --gw2-shadow: 0 2px 20px rgba(25, 118, 210, 0.10);
+    --gw2-error: #e74c3c;
+    --gw2-success: #43a047;
+    --gw2-transition: 0.22s cubic-bezier(.4,0,.2,1);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --gw2-bg: #181c22;
+        --gw2-surface: #23272f;
+        --gw2-text: #f7f9fb;
+        --gw2-muted: #b0b8c1;
+        --gw2-border: #2c313a;
+        --gw2-shadow: 0 2px 24px rgba(25, 118, 210, 0.18);
+    }
+}
+body {
+    background: var(--gw2-bg);
+    color: var(--gw2-text);
+    transition: background var(--gw2-transition), color var(--gw2-transition);
+}
+
 
 /* Base Styles */
 .gw2-dashboard {
@@ -188,7 +219,20 @@
 
 .gw2-account-actions .button,
 .gw2-session-actions .button {
-    margin-right: 8px;
+    background: var(--gw2-primary);
+    color: #fff;
+    border-radius: var(--gw2-radius);
+    border: none;
+    padding: 0.85em 1.5em;
+    font-size: 1em;
+    transition: background var(--gw2-transition), box-shadow var(--gw2-transition);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+.gw2-account-actions .button:hover, .gw2-session-actions .button:hover,
+.gw2-account-actions .button:focus, .gw2-session-actions .button:focus {
+    background: var(--gw2-primary-dark);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.14);
 }
 
 .gw2-account-actions .dashicons,
@@ -227,6 +271,46 @@
 }
 
 /* Responsive */
+@media screen and (max-width: 600px) {
+    .gw2-dashboard {
+        padding: 8px;
+    }
+    .gw2-dashboard h1 {
+        font-size: 1.3em;
+        margin-bottom: 18px;
+    }
+    .gw2-dashboard h2 {
+        font-size: 1.1em;
+        padding-bottom: 5px;
+    }
+    .gw2-dashboard-grid {
+        gap: 10px;
+    }
+    .gw2-card {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .gw2-card-content {
+        padding: 5px 0;
+    }
+    .gw2-account-details p, .gw2-guild-rank, .gw2-guild-joined {
+        font-size: 12px;
+    }
+    .gw2-sessions th, .gw2-sessions td {
+        font-size: 12px;
+        padding: 6px 4px;
+    }
+    .gw2-account-actions .button, .gw2-session-actions .button {
+        min-height: 44px;
+        font-size: 1em;
+        padding: 0.7em 0.5em;
+    }
+    .gw2-sessions table {
+        min-width: 350px;
+        font-size: 12px;
+    }
+}
+
 @media screen and (max-width: 782px) {
     .gw2-dashboard-grid {
         grid-template-columns: 1fr;

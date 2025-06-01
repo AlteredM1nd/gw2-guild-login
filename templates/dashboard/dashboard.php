@@ -55,7 +55,18 @@ if (isset($all_sessions[$current_session])) {
 }
 ?>
 
-<div class="wrap gw2-dashboard">
+<?php
+$gw2gl_settings = get_option('gw2gl_settings', array());
+$gw2gl_logo = !empty($gw2gl_settings['appearance_logo']) ? $gw2gl_settings['appearance_logo'] : '';
+$gw2gl_welcome = !empty($gw2gl_settings['appearance_welcome_text']) ? $gw2gl_settings['appearance_welcome_text'] : '';
+?>
+<div class="wrap gw2-dashboard" role="main" aria-label="GW2 User Dashboard">
+    <?php if ( $gw2gl_logo ) : ?>
+        <div class="gw2-login-logo"><img src="<?php echo esc_url($gw2gl_logo); ?>" alt="<?php esc_attr_e('Site Logo', 'gw2-guild-login'); ?>" class="gw2-admin-custom-logo" /></div>
+    <?php endif; ?>
+    <?php if ( $gw2gl_welcome ) : ?>
+        <div class="gw2-login-welcome-text"><?php echo wp_kses_post($gw2gl_welcome); ?></div>
+    <?php endif; ?>
     <h1><?php echo esc_html__('Guild Wars 2 Account', 'gw2-guild-login'); ?></h1>
     
     <?php do_action('gw2_dashboard_before_content'); ?>
@@ -94,8 +105,8 @@ if (isset($all_sessions[$current_session])) {
                     </div>
                 </div>
                 <div class="gw2-account-actions">
-                    <button type="button" class="button button-primary" id="refresh-account-data">
-                        <span class="dashicons dashicons-update"></span>
+                    <button type="button" class="button button-primary" id="refresh-account-data" aria-label="Refresh account data">
+                        <span class="dashicons dashicons-update" aria-hidden="true"></span><span class="screen-reader-text"><?php echo esc_html__('Refresh', 'gw2-guild-login'); ?></span>
                         <?php echo esc_html__('Refresh Data', 'gw2-guild-login'); ?>
                     </button>
                 </div>
@@ -189,8 +200,8 @@ if (isset($all_sessions[$current_session])) {
                 </table>
                 
                 <div class="gw2-session-actions">
-                    <button type="button" class="button button-secondary" id="revoke-other-sessions">
-                        <span class="dashicons dashicons-dismiss"></span>
+                    <button type="button" class="button button-secondary" id="revoke-other-sessions" aria-label="Revoke all other sessions">
+                        <span class="dashicons dashicons-dismiss" aria-hidden="true"></span><span class="screen-reader-text"><?php echo esc_html__('Revoke', 'gw2-guild-login'); ?></span>
                         <?php echo esc_html__('Revoke All Other Sessions', 'gw2-guild-login'); ?>
                     </button>
                 </div>

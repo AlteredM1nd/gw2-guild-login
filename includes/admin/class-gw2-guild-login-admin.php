@@ -44,6 +44,9 @@ class GW2_Guild_Login_Admin {
 			$this->version,
 			'all'
 		);
+		// Enqueue WordPress color picker for appearance settings
+		wp_enqueue_style('wp-color-picker');
+		wp_enqueue_media();
 	}
 
 	/**
@@ -118,6 +121,74 @@ class GW2_Guild_Login_Admin {
 			'gw2-guild-login'
 		);
 
+		// Appearance & Branding Section
+		add_settings_section(
+			'gw2gl_appearance_section',
+			__( 'Appearance & Branding', 'gw2-guild-login' ),
+			array( $this, 'appearance_section_callback' ),
+			'gw2-guild-login'
+		);
+
+		add_settings_field(
+			'appearance_primary_color',
+			__( 'Primary Color', 'gw2-guild-login' ),
+			array( $this, 'color_picker_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_primary_color',
+				'default' => '#1976d2',
+				'description' => __( 'Choose the primary UI color.', 'gw2-guild-login' ),
+			)
+		);
+		add_settings_field(
+			'appearance_accent_color',
+			__( 'Accent Color', 'gw2-guild-login' ),
+			array( $this, 'color_picker_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_accent_color',
+				'default' => '#26c6da',
+				'description' => __( 'Choose the accent color.', 'gw2-guild-login' ),
+			)
+		);
+		add_settings_field(
+			'appearance_logo',
+			__( 'Custom Logo', 'gw2-guild-login' ),
+			array( $this, 'logo_upload_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_logo',
+				'description' => __( 'Upload a custom logo for the login/dashboard.', 'gw2-guild-login' ),
+			)
+		);
+		add_settings_field(
+			'appearance_welcome_text',
+			__( 'Custom Welcome Text', 'gw2-guild-login' ),
+			array( $this, 'textarea_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_welcome_text',
+				'description' => __( 'This text will appear at the top of the login and dashboard pages.', 'gw2-guild-login' ),
+			)
+		);
+		add_settings_field(
+			'appearance_force_dark',
+			__( 'Force Dark Mode', 'gw2-guild-login' ),
+			array( $this, 'checkbox_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_force_dark',
+				'label' => __( 'Always use dark mode (override user preference)', 'gw2-guild-login' ),
+				'description' => '',
+			)
+		);
+
+
 		add_settings_field(
 			'target_guild_id',
 			__( 'Target Guild ID', 'gw2-guild-login' ),
@@ -186,6 +257,13 @@ class GW2_Guild_Login_Admin {
 	 * @return array
 	 */
 	public function sanitize_settings( $input ) {
+		// Sanitize appearance fields
+		$input['appearance_primary_color'] = isset($input['appearance_primary_color']) ? sanitize_hex_color($input['appearance_primary_color']) : '';
+		$input['appearance_accent_color'] = isset($input['appearance_accent_color']) ? sanitize_hex_color($input['appearance_accent_color']) : '';
+		$input['appearance_logo'] = isset($input['appearance_logo']) ? esc_url_raw($input['appearance_logo']) : '';
+		$input['appearance_welcome_text'] = isset($input['appearance_welcome_text']) ? sanitize_textarea_field($input['appearance_welcome_text']) : '';
+		$input['appearance_force_dark'] = isset($input['appearance_force_dark']) ? 1 : 0;
+
 		$sanitized        = array();
 		$current_settings = get_option( 'gw2gl_settings', array() );
 
@@ -217,6 +295,18 @@ class GW2_Guild_Login_Admin {
 	 * Display the plugin settings page.
 	 */
 	public function display_plugin_settings_page() {
+		// Output admin appearance CSS variables based on settings
+		$settings = get_option('gw2gl_settings', array());
+		$primary = !empty($settings['appearance_primary_color']) ? $settings['appearance_primary_color'] : '#1976d2';
+		$accent = !empty($settings['appearance_accent_color']) ? $settings['appearance_accent_color'] : '#26c6da';
+		$logo = !empty($settings['appearance_logo']) ? $settings['appearance_logo'] : '';
+		$force_dark = !empty($settings['appearance_force_dark']);
+		$custom_css = ":root { --gw2-admin-primary: $primary; --gw2-admin-accent: $accent; }";
+		if ( $force_dark ) {
+			$custom_css .= " body { background: #181c22 !important; color: #f7f9fb !important; }";
+		}
+		echo '<style>'.$custom_css.'</style>';
+
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
@@ -263,10 +353,91 @@ class GW2_Guild_Login_Admin {
 	}
 
 	/**
+	 * Appearance section callback.
+	 */
+	public function appearance_section_callback() {
+		echo '<p>' . __( 'Customize the look and feel of the login and dashboard pages.', 'gw2-guild-login' ) . '</p>';
+	}
+
+	/**
 	 * API section callback.
 	 */
 	public function api_section_callback() {
 		echo '<p>' . __( 'Configure API-related settings.', 'gw2-guild-login' ) . '</p>';
+	}
+
+	/**
+	 * Color picker field callback.
+	 * @param array $args
+	 */
+	public function color_picker_field_callback( $args ) {
+		$id = $args['id'];
+		$value = isset( $this->settings[$id] ) ? $this->settings[$id] : ( isset($args['default']) ? $args['default'] : '' );
+		$description = isset( $args['description'] ) ? $args['description'] : '';
+		echo '<input type="text" class="gw2gl-color-picker" id="gw2gl_settings['.esc_attr($id).']" name="gw2gl_settings['.esc_attr($id).']" value="'.esc_attr($value).'" data-default-color="'.esc_attr($args['default']).'" />';
+		if ( $description ) {
+			echo '<p class="description">'.esc_html($description).'</p>';
+		}
+		echo '<script>jQuery(function($){$(".gw2gl-color-picker").wpColorPicker();});</script>';
+	}
+
+	/**
+	 * Logo upload field callback.
+	 * @param array $args
+	 */
+	public function logo_upload_field_callback( $args ) {
+		$id = $args['id'];
+		$value = isset( $this->settings[$id] ) ? $this->settings[$id] : '';
+		$description = isset( $args['description'] ) ? $args['description'] : '';
+		echo '<div class="gw2gl-logo-upload">';
+		echo '<input type="text" id="gw2gl_settings['.esc_attr($id).']" name="gw2gl_settings['.esc_attr($id).']" value="'.esc_attr($value).'" class="regular-text gw2gl-logo-url" /> ';
+		echo '<button class="button gw2gl-upload-logo">'.__('Upload Logo', 'gw2-guild-login').'</button>';
+		if ( $value ) {
+			echo '<div><img src="'.esc_url($value).'" alt="Logo Preview" class="gw2-admin-custom-logo" /></div>';
+		}
+		echo '</div>';
+		if ( $description ) {
+			echo '<p class="description">'.esc_html($description).'</p>';
+		}
+		// Add JS for media uploader
+		$select_logo = esc_js(__('Select Logo','gw2-guild-login'));
+		$use_logo = esc_js(__('Use this logo','gw2-guild-login'));
+		echo <<<EOT
+<script>
+jQuery(function($){
+	$(".gw2gl-upload-logo").on("click", function(e){
+		e.preventDefault();
+		var button = $(this);
+		var custom_uploader = wp.media({
+			title: "$select_logo",
+			button: { text: "$use_logo" },
+			multiple: false
+		}).on("select", function(){
+			var attachment = custom_uploader.state().get("selection").first().toJSON();
+			button.prev(".gw2gl-logo-url").val(attachment.url);
+			button.parent().find("img").remove();
+			button.parent().append('<div><img src="'+attachment.url+'" alt="Logo Preview" class="gw2-admin-custom-logo" /></div>');
+		});
+		custom_uploader.open();
+	});
+});
+</script>
+EOT;
+
+	}
+
+	/**
+	 * Textarea field callback.
+	 * @param array $args
+	 */
+	public function textarea_field_callback( $args ) {
+		$id = $args['id'];
+		$value = isset( $this->settings[$id] ) ? $this->settings[$id] : '';
+		$description = isset( $args['description'] ) ? $args['description'] : '';
+		echo '<textarea id="gw2gl_settings['.esc_attr($id).']" name="gw2gl_settings['.esc_attr($id).']" rows="3" class="large-text">'.esc_textarea($value).'</textarea>';
+		if ( $description ) {
+			echo '<p class="description">'.esc_html($description).'</p>';
+		}
 	}
 
 	/**

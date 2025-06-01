@@ -49,38 +49,51 @@ class GW2_Login_Shortcode {
             return $this->render_user_status();
         }
 
+        $settings = get_option('gw2gl_settings', array());
+        $logo = !empty($settings['appearance_logo']) ? $settings['appearance_logo'] : '';
+        $welcome = !empty($settings['appearance_welcome_text']) ? $settings['appearance_welcome_text'] : '';
+
         ob_start();
         ?>
+        <div class="gw2-login-branding">
+            <?php if ( $logo ) : ?>
+                <div class="gw2-login-logo"><img src="<?php echo esc_url($logo); ?>" alt="<?php esc_attr_e('Site Logo', 'gw2-guild-login'); ?>" class="gw2-admin-custom-logo" /></div>
+            <?php endif; ?>
+            <?php if ( $welcome ) : ?>
+                <div class="gw2-login-welcome-text"><?php echo wp_kses_post($welcome); ?></div>
+            <?php endif; ?>
+        </div>
         <div class="gw2-login-form-container">
             <?php $this->display_messages(); ?>
             <form id="gw2-login-form" method="post" class="gw2-login-form">
                 <?php wp_nonce_field( 'gw2_login_action', 'gw2_login_nonce' ); ?>
                 
                 <div class="form-group">
-                    <label for="gw2_api_key">
-                        <?php esc_html_e( 'GW2 API Key:', 'gw2-guild-login' ); ?>
-                    </label>
-                    <input type="password" 
-                           name="gw2_api_key" 
-                           id="gw2_api_key" 
-                           class="form-control" 
-                           required 
-                           placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxxxxxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                           autocomplete="off">
-                    <small class="form-text text-muted">
-                        <?php 
-                        echo wp_kses(
-                            sprintf(
-                                /* translators: %s: Link to API key generation */
-                                __( 'Requires "account" and "guilds" permissions. %s', 'gw2-guild-login' ),
-                                '<a href="https://account.arena.net/applications" target="_blank" rel="noopener noreferrer">' . 
-                                esc_html__( 'Get an API key', 'gw2-guild-login' ) . '</a>'
-                            ),
-                            array( 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) )
-                        );
-                        ?>
-                    </small>
-                </div>
+    <label for="gw2_api_key">
+        <?php esc_html_e( 'GW2 API Key:', 'gw2-guild-login' ); ?>
+    </label>
+    <input type="password" 
+           name="gw2_api_key" 
+           id="gw2_api_key" 
+           class="form-control" 
+           required 
+           aria-describedby="gw2_api_key_help"
+           placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxxxxxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+           autocomplete="off">
+    <small id="gw2_api_key_help" class="form-text text-muted">
+        <?php 
+        echo wp_kses(
+            sprintf(
+                /* translators: %s: Link to API key generation */
+                __( 'Requires "account" and "guilds" permissions. %s', 'gw2-guild-login' ),
+                '<a href="https://account.arena.net/applications" target="_blank" rel="noopener noreferrer">' . 
+                esc_html__( 'Get an API key', 'gw2-guild-login' ) . '</a>'
+            ),
+            array( 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) )
+        );
+        ?>
+    </small>
+</div>
                 
                 <div class="form-group form-check">
                     <input type="checkbox" 
@@ -98,12 +111,13 @@ class GW2_Login_Shortcode {
                        value="<?php echo esc_url( $this->get_redirect_url() ); ?>">
                 
                 <div class="form-submit">
-                    <button type="submit" 
-                            name="gw2_submit_login" 
-                            class="btn btn-primary">
-                        <?php esc_html_e( 'Login with GW2', 'gw2-guild-login' ); ?>
-                    </button>
-                </div>
+    <button type="submit" 
+            name="gw2_submit_login" 
+            class="btn btn-primary">
+        <?php esc_html_e( 'Login with GW2', 'gw2-guild-login' ); ?>
+        <span class="screen-reader-text"><?php esc_html_e('Submit Guild Wars 2 login form', 'gw2-guild-login'); ?></span>
+    </button>
+</div>
                 
                 <?php if ( get_option( 'users_can_register' ) ) : ?>
                 <div class="register-link mt-3">
@@ -134,9 +148,21 @@ class GW2_Login_Shortcode {
     protected function render_user_status() {
         $current_user = wp_get_current_user();
         $gw2_account  = get_user_meta( $current_user->ID, 'gw2_account_name', true );
+
+        $settings = get_option('gw2gl_settings', array());
+        $logo = !empty($settings['appearance_logo']) ? $settings['appearance_logo'] : '';
+        $welcome = !empty($settings['appearance_welcome_text']) ? $settings['appearance_welcome_text'] : '';
         
         ob_start();
         ?>
+        <div class="gw2-login-branding">
+            <?php if ( $logo ) : ?>
+                <div class="gw2-login-logo"><img src="<?php echo esc_url($logo); ?>" alt="<?php esc_attr_e('Site Logo', 'gw2-guild-login'); ?>" class="gw2-admin-custom-logo" /></div>
+            <?php endif; ?>
+            <?php if ( $welcome ) : ?>
+                <div class="gw2-login-welcome-text"><?php echo wp_kses_post($welcome); ?></div>
+            <?php endif; ?>
+        </div>
         <div class="gw2-login-status">
             <p class="mb-2">
                 <?php
@@ -169,27 +195,37 @@ class GW2_Login_Shortcode {
                 : 'info';
             
             $allowed_html = array(
-                'div' => array( 'class' => array() ),
+                'div' => array( 'class' => array(), 'role' => array(), 'aria-live' => array() ),
                 'p' => array(),
-                'button' => array( 'type' => array(), 'class' => array(), 'data-dismiss' => array() ),
-                'span' => array( 'aria-hidden' => array() ),
+                'button' => array( 'type' => array(), 'class' => array(), 'data-dismiss' => array(), 'aria-label' => array() ),
+                'span' => array( 'aria-hidden' => array(), 'class' => array() ),
                 'strong' => array(),
-                'a' => array( 'href' => array(), 'class' => array() ),
             );
-            
-            echo wp_kses(
-                sprintf(
-                    '<div class="alert alert-%1$s alert-dismissible fade show" role="alert">
-                        %2$s
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="%3$s"></button>
-                    </div>',
-                    esc_attr( $message_type ),
-                    wp_kses( $_SESSION['gw2_login_message'], 'post' ),
-                    esc_attr__( 'Close', 'gw2-guild-login' )
-                ),
-                $allowed_html
+
+            // Choose icon and color class based on message type
+            $icon_class = 'dashicons-info';
+            $color_class = 'gw2-msg-info';
+            if ( $message_type === 'error' ) {
+                $icon_class = 'dashicons-warning';
+                $color_class = 'gw2-msg-error';
+            } elseif ( $message_type === 'success' ) {
+                $icon_class = 'dashicons-yes';
+                $color_class = 'gw2-msg-success';
+            }
+
+            echo sprintf(
+                '<div class="gw2-login-message alert alert-%1$s %4$s mb-3" aria-live="polite" role="status">
+                    <span class="dashicons %2$s" aria-hidden="true"></span>
+                    <span class="gw2-message-text">%3$s</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="%5$s"></button>
+                </div>',
+                esc_attr( $message_type ),
+                esc_attr( $icon_class ),
+                wp_kses( $_SESSION['gw2_login_message'], 'post' ),
+                esc_attr( $color_class ),
+                esc_attr__( 'Close', 'gw2-guild-login' )
             );
-            
+
             // Clear the message after displaying it
             unset( $_SESSION['gw2_login_message'] );
             unset( $_SESSION['gw2_login_message_type'] );

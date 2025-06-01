@@ -36,6 +36,7 @@ A comprehensive guide to installing, configuring, and customizing the GW2 Guild 
     - [Guild Roster](#guild-roster)
     - [Reports](#reports)
     - [Tools](#tools)
+    - [Appearance & Branding](#appearance--branding)
   - [Admin Bar Integration](#admin-bar-integration)
 - [Page Templates](#page-templates)
   - [Available Templates](#available-templates)
@@ -312,6 +313,14 @@ The plugin adds a comprehensive admin interface for managing all aspects of your
   - Reset settings
   - Debug information
 
+#### 7. Appearance & Branding
+- **Primary & Accent Colors:** Choose custom colors for login and dashboard UI elements using color pickers.
+- **Custom Logo Upload:** Upload a logo to display at the top of the login and dashboard pages.
+- **Welcome Text:** Add a custom welcome or help message for users, shown below the logo.
+- **Force Dark Mode:** Optionally override user/device preference to always use a dark theme.
+
+All changes are previewed live in the admin and instantly reflected on the login and dashboard pages for users.
+
 ### Admin Bar Integration
 Quick access to common functions:
 - View guild status
@@ -329,6 +338,7 @@ The plugin provides several page templates that can be used to create custom lay
    - Displays the login form
    - Automatically redirects logged-in users
    - Customizable login redirects
+   - **If a custom logo or welcome text is set in Appearance & Branding, these will appear at the top of the page.**
 
 2. **Member Dashboard** (`gw2-dashboard.php`)
    - User profile overview

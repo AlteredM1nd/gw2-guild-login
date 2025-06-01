@@ -2,6 +2,27 @@
 
 All notable changes to the GW2 Guild Login plugin will be documented in this file.
 
+## [2.5.0] - 2025-06-01
+### Added/Changed
+- **Admin Appearance Customization**: New "Appearance & Branding" section in settings
+  - Primary and accent color pickers (with live preview)
+  - Custom logo upload (shown on login and dashboard)
+  - Custom welcome/help text (shown on login and dashboard)
+  - Force dark mode toggle (override user preference)
+- **Frontend Support**
+  - Login and dashboard pages now display the selected logo and welcome text
+  - Styles automatically update based on admin color/dark mode settings
+- **Modernized Admin UI**
+  - New admin CSS with CSS variables and dark mode support
+  - Smoother transitions, improved accessibility, and mobile/tablet polish
+- **Accessibility & UX**
+  - Improved ARIA attributes, screen reader text, and keyboard navigation
+  - Floating labels and better focus states for form fields
+- **Bugfixes & Code Quality**
+  - Fixed all CSS syntax and lint errors
+  - Refactored JS output for media uploader to avoid linter confusion
+  - General code cleanup and documentation improvements
+
 ## [2.4.1] - 2025-05-31
 ### Added/Changed
 - Fully refactored main plugin file to be object-oriented; removed all procedural code from bootstrap.

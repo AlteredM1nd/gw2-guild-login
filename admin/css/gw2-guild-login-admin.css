@@ -1,0 +1,102 @@
+/*
+ * GW2 Guild Login Admin - Appearance and Customization Styles
+ * (Created for admin UI appearance settings)
+ */
+:root {
+    --gw2-admin-primary: #1976d2;
+    --gw2-admin-accent: #26c6da;
+    --gw2-admin-bg: #f7f9fb;
+    --gw2-admin-surface: #fff;
+    --gw2-admin-text: #23282d;
+    --gw2-admin-border: #e0e4ea;
+    --gw2-admin-radius: 12px;
+    --gw2-admin-shadow: 0 2px 16px rgba(25, 118, 210, 0.08);
+    --gw2-admin-transition: 0.2s cubic-bezier(.4,0,.2,1);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --gw2-admin-bg: #181c22;
+        --gw2-admin-surface: #23272f;
+        --gw2-admin-text: #f7f9fb;
+        --gw2-admin-border: #2c313a;
+        --gw2-admin-shadow: 0 2px 18px rgba(25, 118, 210, 0.16);
+    }
+}
+.gw2-admin-settings {
+    background: var(--gw2-admin-bg);
+    color: var(--gw2-admin-text);
+    border-radius: var(--gw2-admin-radius);
+    box-shadow: var(--gw2-admin-shadow);
+    padding: 2em;
+    margin: 2em auto;
+    max-width: 700px;
+    transition: background var(--gw2-admin-transition), color var(--gw2-admin-transition);
+}
+.gw2-admin-settings h1 {
+    color: var(--gw2-admin-primary);
+    font-size: 2em;
+    margin-bottom: 1em;
+}
+.gw2-admin-settings label {
+    font-weight: 500;
+    color: var(--gw2-admin-text);
+    margin-bottom: 0.5em;
+    display: block;
+}
+.gw2-admin-settings input[type="text"],
+.gw2-admin-settings input[type="number"],
+.gw2-admin-settings select {
+    width: 100%;
+    padding: 0.7em 1em;
+    border: 1.5px solid var(--gw2-admin-border);
+    border-radius: var(--gw2-admin-radius);
+    background: var(--gw2-admin-surface);
+    color: var(--gw2-admin-text);
+    margin-bottom: 1em;
+    transition: border-color var(--gw2-admin-transition), box-shadow var(--gw2-admin-transition);
+}
+.gw2-admin-settings input[type="text"]:focus,
+.gw2-admin-settings input[type="number"]:focus,
+.gw2-admin-settings select:focus {
+    border-color: var(--gw2-admin-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--gw2-admin-accent);
+}
+.gw2-admin-settings .form-table th {
+    color: var(--gw2-admin-text);
+    font-weight: 500;
+}
+.gw2-admin-settings .form-table td {
+    color: var(--gw2-admin-text);
+}
+.gw2-admin-settings .button-primary {
+    background: var(--gw2-admin-primary);
+    color: #fff;
+    border-radius: var(--gw2-admin-radius);
+    border: none;
+    padding: 0.85em 1.5em;
+    font-size: 1em;
+    transition: background var(--gw2-admin-transition), box-shadow var(--gw2-admin-transition);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+.gw2-admin-settings .button-primary:hover,
+.gw2-admin-settings .button-primary:focus {
+    background: #12509e;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.14);
+}
+.gw2-admin-settings .gw2-admin-custom-logo {
+    max-width: 120px;
+    margin-bottom: 1em;
+    border-radius: var(--gw2-admin-radius);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.gw2-admin-settings .gw2-admin-color-picker {
+    margin-bottom: 1em;
+}
+.gw2-admin-settings .gw2-admin-section-title {
+    font-size: 1.2em;
+    color: var(--gw2-admin-primary);
+    margin-top: 2em;
+    margin-bottom: 1em;
+}

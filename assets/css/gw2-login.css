@@ -1,6 +1,38 @@
 /**
  * GW2 Guild Login - Frontend Styles
+ * Modernized with CSS variables and dark mode
  */
+:root {
+    --gw2-primary: #1976d2;
+    --gw2-primary-dark: #12509e;
+    --gw2-accent: #26c6da;
+    --gw2-bg: #f7f9fb;
+    --gw2-surface: #fff;
+    --gw2-text: #23282d;
+    --gw2-muted: #72777c;
+    --gw2-border: #e0e4ea;
+    --gw2-radius: 12px;
+    --gw2-shadow: 0 2px 16px rgba(25, 118, 210, 0.08);
+    --gw2-error: #e74c3c;
+    --gw2-success: #43a047;
+    --gw2-transition: 0.2s cubic-bezier(.4,0,.2,1);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --gw2-bg: #181c22;
+        --gw2-surface: #23272f;
+        --gw2-text: #f7f9fb;
+        --gw2-muted: #b0b8c1;
+        --gw2-border: #2c313a;
+        --gw2-shadow: 0 2px 18px rgba(25, 118, 210, 0.16);
+    }
+}
+body {
+    background: var(--gw2-bg);
+    color: var(--gw2-text);
+    transition: background var(--gw2-transition), color var(--gw2-transition);
+}
+
 
 /* Container Styles */
 .gw2-login-form-container {
@@ -75,14 +107,19 @@
 
 .gw2-login-form .btn-primary {
     color: #fff;
-    background-color: #e74c3c;
-    border-color: #e74c3c;
+    background-color: var(--gw2-primary);
+    border-color: var(--gw2-primary);
+    border-radius: var(--gw2-radius);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+    transition: background var(--gw2-transition), box-shadow var(--gw2-transition);
+}
+.gw2-login-form .btn-primary:hover, .gw2-login-form .btn-primary:focus {
+    background-color: var(--gw2-primary-dark);
+    border-color: var(--gw2-primary-dark);
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.14);
 }
 
-.gw2-login-form .btn-primary:hover {
-    background-color: #c0392b;
-    border-color: #c0392b;
-}
+
 
 /* Form Submit */
 .gw2-login-form .form-submit {
@@ -117,9 +154,51 @@
     position: relative;
     padding: 1em 1.5em;
     margin-bottom: 1.5em;
-    border: 1px solid transparent;
-    border-radius: 4px;
+    border: 1.5px solid transparent;
+    border-radius: var(--gw2-radius);
+    background: var(--gw2-bg);
+    color: var(--gw2-text);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.06);
+    transition: background var(--gw2-transition), color var(--gw2-transition), border-color var(--gw2-transition);
 }
+.alert-success {
+    color: var(--gw2-success);
+    background: #eafaf1;
+    border-color: #b6e6c7;
+}
+.alert-danger, .alert-error {
+    color: var(--gw2-error);
+    background: #faeaea;
+    border-color: #f5c6cb;
+}
+.alert-info {
+    color: var(--gw2-primary);
+    background: #e3f2fd;
+    border-color: #90caf9;
+}
+@media (prefers-color-scheme: dark) {
+    .alert {
+        background: #23272f;
+        color: #f7f9fb;
+    }
+    .alert-success {
+        background: #143a2b;
+        color: #43a047;
+        border-color: #2e7d32;
+    }
+    .alert-danger, .alert-error {
+        background: #3a1818;
+        color: #e74c3c;
+        border-color: #a93226;
+    }
+    .alert-info {
+        background: #182a3a;
+        color: #26c6da;
+        border-color: #1976d2;
+    }
+}
+
+
 
 .alert-dismissible {
     padding-right: 3em;
@@ -151,6 +230,29 @@
 }
 
 /* Responsive Adjustments */
+@media (max-width: 600px) {
+    .gw2-login-form-container {
+        margin: 1em;
+        padding: 1em;
+    }
+    .gw2-login-form .btn {
+        width: 100%;
+        min-height: 44px;
+        font-size: 1em;
+        padding: 1em 0.5em;
+    }
+    .gw2-login-form label {
+        font-size: 1em;
+    }
+    .gw2-login-form .form-control {
+        font-size: 0.95em;
+        padding: 0.7em 0.8em;
+    }
+    .gw2-login-form .register-link {
+        font-size: 0.95em;
+    }
+}
+
 @media (max-width: 480px) {
     .gw2-login-form-container {
         margin: 1em;

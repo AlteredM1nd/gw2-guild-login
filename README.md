@@ -24,7 +24,7 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 - **API Key Encryption**: All keys are encrypted before storage
 - **Input Sanitization & Output Escaping**: All user input/output is sanitized and escaped per WordPress security best practices
 - **Nonce & Capability Checks**: Nonce verification and capability checks on all sensitive actions
-- **I18n & Accessibility**: All user-facing strings are translation-ready and properly escaped
+- **I18n & Accessibility**: All user/admin-facing strings are translation-ready and properly escaped
 
 ### 👥 Guild Integration
 - **Guild Membership Verification**: Restrict access to specific guilds
@@ -45,6 +45,7 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 - **Responsive Design**: Works on all devices
 - **Customizable Templates**: Override default templates in your theme
 - **AJAX Forms**: Smooth form handling without page reloads
+- **Appearance & Branding**: Customizable login/dashboard logo, welcome text, primary/accent colors, and dark mode
 
 ## Requirements
 
@@ -65,7 +66,7 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 2. **Basic Configuration**
    - Go to **Settings > GW2 Guild Login** (or **GW2 Guild** in the admin menu)
    - Enter your Guild ID (optional)
-   - Configure user roles, permissions, and 2FA enforcement
+   - Configure user roles, permissions, 2FA enforcement, and appearance settings (logo, colors, welcome text, dark mode)
    - Set up 2FA for your admin account via your user profile
 
 3. **Add Login Form**
@@ -83,6 +84,12 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 - **Enable 2FA**: Require two-factor authentication for all users
 - **Session Length**: Control how long login sessions remain active
 
+### Appearance & Branding
+- **Primary/Accent Colors**: Choose your own color theme for login and dashboard
+- **Custom Logo**: Upload a logo to display on login and dashboard
+- **Welcome Text**: Show a custom message to users
+- **Force Dark Mode**: Override user/device preference with a dark theme
+
 ### Security Settings
 - **API Key Permissions**: Recommended: `account`, `guilds`, `characters`
 - **Rate Limiting**: Configure login attempt limits
@@ -94,6 +101,7 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 
 #### Login Form
 ```[gw2_login]```
+> **Note:** The login and dashboard pages will display your custom logo and welcome text if set in Appearance & Branding settings.
 
 #### Restrict Content by Rank
 ```[gw2_restricted rank="Officer"]Only officers see this.[/gw2_restricted]```
