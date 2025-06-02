@@ -1,6 +1,6 @@
 # Contributing to GW2 Guild Login
 
-Thank you for your interest in contributing to GW2 Guild Login! We appreciate your time and effort in helping improve this plugin.
+Thank you for your interest in contributing to GW2 Guild Login 2.6.0! We appreciate your time and effort in helping improve this plugin.
 
 ## How to Contribute
 
@@ -15,7 +15,7 @@ Thank you for your interest in contributing to GW2 Guild Login! We appreciate yo
 - Follow [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/)
 - Write meaningful commit messages
 - Document your code with PHPDoc blocks
-- Add or update tests when applicable
+- Add or update tests when applicable (especially for caching, multi-guild logic, and new features)
 - Use proper input sanitization and output escaping for all user data
 - Always check nonces and user capabilities for privileged actions
 - Ensure all user/admin-facing strings are wrapped in translation functions and properly escaped (see I18n section below)

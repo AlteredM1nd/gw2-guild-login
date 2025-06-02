@@ -6,7 +6,7 @@
  * Manages user data display, session management, AJAX actions, and profile integration.
  *
  * @package GW2_Guild_Login
- * @since 2.4.1
+ * @since 2.6.0
  */
 
 // Exit if accessed directly.
@@ -14,11 +14,39 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+add_action('wp_dashboard_setup', function() {
+    wp_add_dashboard_widget('gw2gl_stats', __('GW2 Guild Login Security', 'gw2-guild-login'), function() {
+        global $wpdb;
+        // Count encrypted API keys
+        $encrypted_count = $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = 'gw2_api_key' AND meta_value != ''");
+        // Last cache flush
+        $last_cache_flush = get_option('gw2gl_last_cache_flush');
+        // Failed attempts (last 24h)
+        $failed_attempts = 0;
+        $option_names = $wpdb->get_col($wpdb->prepare("SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s", 'gw2gl_failed_attempts_%'));
+        foreach ($option_names as $opt) {
+            $data = get_option($opt);
+            if (is_array($data) && isset($data['time']) && $data['time'] > (time() - 86400)) {
+                $failed_attempts += (int)$data['count'];
+            } elseif (is_numeric($data) && $data > 0) {
+                $failed_attempts += (int)$data;
+            }
+        }
+        echo '<p><strong>Encrypted API Keys:</strong> ' . esc_html($encrypted_count) . '</p>';
+        $encryption_status = defined('SECURE_AUTH_KEY') && strlen(SECURE_AUTH_KEY) >= 64
+            ? '<span style="color:green">✔ Active</span>'
+            : '<span style="color:red">✖ Insecure</span>';
+        echo '<p><strong>Encryption Status:</strong> ' . $encryption_status . '</p>';
+        echo '<p><strong>Last Cache Flush:</strong> ' . ($last_cache_flush ? esc_html(date('Y-m-d H:i', $last_cache_flush)) : esc_html__('Never', 'gw2-guild-login')) . '</p>';
+        echo '<p><strong>Failed Logins (24h):</strong> ' . esc_html($failed_attempts) . '</p>';
+    });
+});
+
 class GW2_User_Dashboard {
     /**
      * Instance of this class.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      * @var GW2_User_Dashboard
      */
     private static $instance = null;
@@ -26,7 +54,7 @@ class GW2_User_Dashboard {
     /**
      * Get the singleton instance of this class.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      * @return GW2_User_Dashboard
      */
     public static function get_instance() {
@@ -39,7 +67,7 @@ class GW2_User_Dashboard {
     /**
      * Constructor.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      */
     private function __construct() {
         add_action('init', array($this, 'init'));
@@ -51,7 +79,7 @@ class GW2_User_Dashboard {
     /**
      * Initialize the dashboard.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      */
     public function init() {
         // Add user profile fields
@@ -66,7 +94,7 @@ class GW2_User_Dashboard {
     /**
      * Add dashboard menu item.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      */
     public function add_dashboard_menu() {
         add_users_page(
@@ -81,7 +109,7 @@ class GW2_User_Dashboard {
     /**
      * Enqueue dashboard scripts and styles.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      * @param string $hook Current admin page.
      */
     public function enqueue_scripts($hook) {
@@ -118,17 +146,23 @@ class GW2_User_Dashboard {
     /**
      * Render the dashboard page.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      */
     public function render_dashboard_page() {
         if (!is_user_logged_in()) {
             wp_die(esc_html__('You must be logged in to view this page.', 'gw2-guild-login'));
         }
 
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Unauthorized access', 'gw2gl'));
+        }
+
         $user_id = get_current_user_id();
         $user = get_userdata($user_id);
         $gw2_account_id = get_user_meta($user_id, 'gw2_account_id', true);
-        $gw2_api_key = get_user_meta($user_id, 'gw2_api_key', true);
+        // Use GW2_User_Handler to decrypt API key
+        $user_handler = class_exists('GW2_User_Handler') ? new GW2_User_Handler(null) : null;
+        $gw2_api_key = $user_handler ? $user_handler->decrypt_api_key($user_id) : '';
         $last_login = get_user_meta($user_id, 'gw2_last_login', true);
 
         // Get user sessions
@@ -151,12 +185,14 @@ class GW2_User_Dashboard {
     /**
      * Add GW2 account section to user profile.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      * @param WP_User $user User object.
      */
     public function add_profile_section($user) {
         $gw2_account_id = get_user_meta($user->ID, 'gw2_account_id', true);
-        $gw2_api_key = get_user_meta($user->ID, 'gw2_api_key', true);
+        // Use GW2_User_Handler to decrypt API key
+        $user_handler = class_exists('GW2_User_Handler') ? new GW2_User_Handler(null) : null;
+        $gw2_api_key = $user_handler ? $user_handler->decrypt_api_key($user->ID) : '';
         $last_login = get_user_meta($user->ID, 'gw2_last_login', true);
         ?>
         <h2><?php esc_html_e('Guild Wars 2 Account', 'gw2-guild-login'); ?></h2>
@@ -180,7 +216,7 @@ class GW2_User_Dashboard {
                 <th><label><?php esc_html_e('API Key', 'gw2-guild-login'); ?></label></th>
                 <td>
                     <div class="gw2-api-key-wrapper">
-                        <input type="password" value="<?php echo esc_attr($gw2_api_key); ?>" class="regular-text" id="gw2_api_key" readonly />
+                        <input type="password" value="<?php echo esc_attr($gw2_api_key); ?>" class="regular-text" id="gw2_api_key" readonly autocomplete="off" />
                         <button type="button" class="button button-secondary" id="toggle-api-key"><?php esc_html_e('Show', 'gw2-guild-login'); ?></button>
                         <button type="button" class="button button-secondary" id="copy-api-key"><?php esc_html_e('Copy', 'gw2-guild-login'); ?></button>
                     </div>
@@ -195,7 +231,7 @@ class GW2_User_Dashboard {
     /**
      * Save profile fields.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      * @param int $user_id User ID.
      */
     public function save_profile_fields($user_id) {
@@ -210,13 +246,16 @@ class GW2_User_Dashboard {
     /**
      * Handle AJAX requests.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      */
     public function handle_ajax_request() {
         check_ajax_referer('gw2-dashboard-nonce', 'nonce');
 
         if (!is_user_logged_in()) {
-            wp_send_json_error(__('You must be logged in to perform this action.', 'gw2-guild-login'));
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    error_log( '[GW2 Guild Login] Unauthorized AJAX attempt by non-logged-in user.' );
+}
+wp_send_json_error(__('You must be logged in to perform this action.', 'gw2-guild-login'));
         }
 
         $action = isset($_POST['action_type']) ? sanitize_text_field($_POST['action_type']) : '';
@@ -230,14 +269,17 @@ class GW2_User_Dashboard {
                 $this->refresh_user_data($user_id);
                 break;
             default:
-                wp_send_json_error(__('Invalid action.', 'gw2-guild-login'));
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    error_log( '[GW2 Guild Login] Invalid AJAX action: ' . $action . ' by user ' . $user_id );
+}
+wp_send_json_error(__('An unexpected error occurred. Please try again later.', 'gw2-guild-login'));
         }
     }
 
     /**
      * Revoke all sessions except the current one.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      * @param int $user_id User ID.
      */
     private function revoke_other_sessions($user_id) {
@@ -251,14 +293,19 @@ class GW2_User_Dashboard {
     /**
      * Refresh user data from GW2 API.
      *
-     * @since 2.4.1
+     * @since 2.6.0
      * @param int $user_id User ID.
      */
     private function refresh_user_data($user_id) {
-        $api_key = get_user_meta($user_id, 'gw2_api_key', true);
+        // Use GW2_User_Handler to decrypt API key
+        $user_handler = class_exists('GW2_User_Handler') ? new GW2_User_Handler(null) : null;
+        $api_key = $user_handler ? $user_handler->decrypt_api_key($user_id) : '';
         
         if (empty($api_key)) {
-            wp_send_json_error(__('No API key found.', 'gw2-guild-login'));
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    error_log( '[GW2 Guild Login] No API key found for user ' . $user_id );
+}
+wp_send_json_error(__('No API key found.', 'gw2-guild-login'));
         }
 
         // Use existing GW2 API class to refresh data
@@ -267,7 +314,10 @@ class GW2_User_Dashboard {
             $account_data = $gw2_api->get_account_data($api_key);
             
             if (is_wp_error($account_data)) {
-                wp_send_json_error($account_data->get_error_message());
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    error_log( '[GW2 Guild Login] GW2 API error for user ' . $user_id . ': ' . $account_data->get_error_message() );
+}
+wp_send_json_error(__('Failed to fetch account data from GW2 API. Please try again later.', 'gw2-guild-login'));
             }
             
             // Update user meta with fresh data
@@ -283,7 +333,10 @@ class GW2_User_Dashboard {
             wp_send_json_success(__('Account data refreshed successfully.', 'gw2-guild-login'));
         }
         
-        wp_send_json_error(__('Failed to refresh account data.', 'gw2-guild-login'));
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    error_log( '[GW2 Guild Login] Failed to refresh account data for user ' . $user_id );
+}
+wp_send_json_error(__('An unexpected error occurred while refreshing your account data. Please try again later.', 'gw2-guild-login'));
     }
 }
 

@@ -12,6 +12,29 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 // Set up WordPress test environment if needed
 // (Assumes WP test suite is installed for integration tests)
 
+// Polyfill set_transient/get_transient/delete_transient for non-WordPress environments
+if (!function_exists('set_transient')) {
+    /**
+     * Simple in-memory cache for PHPUnit tests.
+     */
+    global $gw2gl_test_transients;
+    $gw2gl_test_transients = array();
+    function set_transient($key, $value, $expiration = 0) {
+        global $gw2gl_test_transients;
+        $gw2gl_test_transients[$key] = $value;
+        return true;
+    }
+    function get_transient($key) {
+        global $gw2gl_test_transients;
+        return isset($gw2gl_test_transients[$key]) ? $gw2gl_test_transients[$key] : false;
+    }
+    function delete_transient($key) {
+        global $gw2gl_test_transients;
+        unset($gw2gl_test_transients[$key]);
+        return true;
+    }
+}
+
 // Polyfill wp_rand for non-WordPress environments
 if (!function_exists('wp_rand')) {
     function wp_rand($min = 0, $max = null) {

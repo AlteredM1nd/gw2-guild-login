@@ -1,4 +1,6 @@
-# GW2 Guild Login - Complete Usage Guide
+# GW2 Guild Login Usage Guide
+
+**Important:** As of v2.6.0, PHP 8.0 or higher is required to use this plugin.
 
 A comprehensive guide to installing, configuring, and customizing the GW2 Guild Login plugin for WordPress.
 
@@ -101,6 +103,30 @@ A comprehensive guide to installing, configuring, and customizing the GW2 Guild 
 - [Contributing](#contributing)
 - [Known Issues](#known-issues)
 
+## Security Features
+
+- Admin dashboard now shows encryption status ("✔ Active" or "✖ Insecure").
+- User-specific cache keys prevent collisions and ensure reliable invalidation.
+- Password/API key recovery available via the /gw2-recovery/ page.
+
+
+- **Brute-force Protection:** Login attempts are rate-limited and repeated failures result in a temporary lockout (5 attempts in 15 minutes = 10 minute block).
+- **Automatic Cache Invalidation:** User API cache is auto-cleared on login, logout, API key update, and guild membership changes.
+- **Improved Debug Logging:** Security and cache events are logged in debug mode for easier troubleshooting.
+
+## Password Reset (Magic Link)
+
+If you lose access to your GW2 login (e.g., lost API key or session), you can request a password reset using a magic link:
+
+- Go to the password reset page or use the [gw2gl_password_reset] shortcode on any page.
+- Enter your email address. If your account exists, you will receive a one-time-use magic link valid for 1 hour.
+- Clicking the link will automatically log you in and allow you to set a new API key.
+
+**Security Notes:**
+- Magic links expire after 1 hour and can only be used once.
+- No passwords are stored or required—API key is your credential.
+- Admins can customize the reset page by placing the [gw2gl_password_reset] shortcode anywhere.
+
 ## Quick Start Guide
 
 ### For Administrators
@@ -199,7 +225,8 @@ A comprehensive guide to installing, configuring, and customizing the GW2 Guild 
 ### Basic Settings
 
 #### Guild Configuration
-- **Guild ID**: 
+- **Guild IDs**: You may now enter multiple Guild IDs as a comma-separated list (e.g., `Guild1ID,Guild2ID,Guild3ID`). The plugin will accept users who are a member of any of the listed guilds.
+
   - Enter your Guild Wars 2 Guild ID (e.g., `F1A2B3C4-D5E6-7890-1A2B-3C4D5E6F7G8H`)
   - Leave empty to allow any GW2 account
   - Find your Guild ID using the [GW2 API](https://api.guildwars2.com/v2/guild/search?name=Your%20Guild%20Name)
@@ -231,7 +258,10 @@ A comprehensive guide to installing, configuring, and customizing the GW2 Guild 
 #### Rate Limiting
 - **Login Attempts**: 5 per 15 minutes (prevents brute force attacks)
 - **API Request Limit**: 300 requests per minute (GW2 API limit is 600)
-- **Cache Expiration**: 1 hour for guild data (reduces API calls)
+- **Cache Expiration**: 1 hour for guild data (reduces API calls, configurable in settings)
+- **Cache Clearing Utility**: Admins and developers can clear API cache for specific endpoints and API keys using the provided utility or developer hooks.
+- **Developer Filter**: Use the `gw2gl_disable_api_cache` filter to disable caching for debugging or development.
+
 
 #### Email Notifications
 - **New User Registration**: Notify admin when new users register
@@ -378,12 +408,7 @@ The plugin provides several page templates that can be used to create custom lay
 Display the GW2 login form with optional parameters:
 
 ```
-[gw2_login 
-    redirect="/members-area/" 
-    show_logo="yes"
-    button_text="Login with GW2"
-    class="custom-login-form"
-]
+[gw2_login]
 ```
 
 **Parameters:**
@@ -391,6 +416,9 @@ Display the GW2 login form with optional parameters:
 - `show_logo`: Display GW2 logo (yes/no, default: yes)
 - `button_text`: Customize the login button text
 - `class`: Add custom CSS classes to the form
+
+**New in v2.6.0:**
+- The login button is more customizable and can be placed anywhere using the `[gw2_login]` shortcode.
 
 ### Login/Logout Links
 Show dynamic login/logout links:
@@ -552,13 +580,13 @@ define('GW2GL_DEBUG', true);
 
 ### Common Error Messages
 
-| Error Message | Possible Cause | Solution |
-|--------------|----------------|-----------|
-| Invalid API Key | Key revoked or incorrect | Generate new key |
-| Guild Not Found | Wrong guild ID | Verify ID via API |
-| Rate Limited | Too many requests | Wait 1 minute |
-| SSL Error | Outdated certificates | Update OpenSSL |
-| 500 Error | Plugin conflict | Disable other plugins |
+| Error Code | Description | Solution |
+|------------|-------------|-----------|
+| GW2-1001 | Invalid API Key | [See API Key Setup](#api-settings) |
+| GW2-1002 | Guild Not Found | [Verify Guild ID](#guild-configuration) |
+| GW2-1003 | Rate Limited | [Adjust Rate Limiting](#rate-limiting) |
+| GW2-1004 | Authentication Failed | [Check API Permissions](#api-settings) |
+| GW2-1005 | Session Expired | [Adjust Session Settings](#session-management) |
 
 ## Advanced Usage
 
@@ -681,7 +709,9 @@ Configure webhooks for these events:
 ## Performance Optimization
 
 ### Caching Strategy
-- API responses cached for 1 hour by default
+- API responses are now cached robustly for 1 hour by default (configurable in admin settings)
+- You can clear the cache for specific endpoints and API keys using the provided utility or developer hooks
+- Developers can use the `gw2gl_disable_api_cache` filter to temporarily disable caching
 - User sessions stored in WordPress transients
 - Guild roster cached separately for faster loading
 
@@ -697,6 +727,7 @@ ANALYZE TABLE wp_gw2gl_login_logs;
 _Last audited: 2025-05-31_
 
 ### API Security
+- **API Key Encryption (v2.6.0):** All user API keys are encrypted at rest using AES-256-CBC. On upgrade, a one-time migration will re-encrypt any legacy or plaintext keys. Admins are notified if their encryption key is missing or weak. Migration is tracked with a persistent flag to avoid repeated runs.
 - Always use HTTPS
 - Rotate API keys quarterly
 - Implement rate limiting
@@ -713,16 +744,25 @@ _Last audited: 2025-05-31_
 
 ## Frequently Asked Questions
 
+### Why do I see an admin warning about encryption?
+If your encryption key is missing or too short (less than 32 characters), the plugin will show an admin notice. Set a strong key in `wp-config.php` to ensure secure API key storage.
+
+### How does the API key migration work?
+On upgrade to v2.6.0, the plugin will scan all users and re-encrypt any legacy or plaintext API keys. This only runs once per site and is tracked with a persistent flag.
+
 ### How do I reset a user's 2FA?
 ```bash
 wp gw2-guild-login reset-2fa --user=username
 ```
 
 ### Can I use multiple guild IDs?
-Yes, separate them with commas in the Guild ID field:
+Yes! As of v2.6.0, you can enter multiple Guild IDs in the Guild ID field, separated by commas. Users will be considered a member if they belong to any of the specified guilds.
+
+Example:
 ```
 Guild1ID,Guild2ID,Guild3ID
 ```
+
 
 ### How do I migrate users from another system?
 1. Export user data to CSV
@@ -762,17 +802,6 @@ add_filter('gw2gl_login_redirect', function($redirect, $user_id) {
 | GW2-1004 | Authentication Failed | [Check API Permissions](#api-settings) |
 | GW2-1005 | Session Expired | [Adjust Session Settings](#session-management) |
 
-## Version History
-
-### 2.4.1 (2025-05-31)
-- Fully object-oriented main plugin file, all procedural code removed.
-- Shortcodes, AJAX, and hooks now registered via classes.
-- PHPUnit test autoloading fixed.
-- Syntax errors and legacy code blocks removed.
-- Codebase now adheres to WP and OOP best practices.
-
-[View complete changelog](CHANGELOG.md)
-
 ## Getting Help
 
 ### Support Channels
@@ -798,7 +827,3 @@ See our [Contributing Guidelines](../CONTRIBUTING.md) for more details.
 - [2FA Guide](TWO_FACTOR_AUTH.md)
 - [Contributing](../CONTRIBUTING.md)
 - [GitHub Issues](https://github.com/AlteredM1nd/gw2-guild-login/issues)
-
----
-
-*GW2 Guild Login v2.4.1 | [Changelog](../CHANGELOG.md) | [License](../LICENSE) | [Contribute](../CONTRIBUTING.md)*

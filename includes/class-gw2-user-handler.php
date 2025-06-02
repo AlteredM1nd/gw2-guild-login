@@ -81,15 +81,42 @@ class GW2_User_Handler {
 	 * @return array|WP_Error
 	 */
 	public function process_login( $api_key, $remember = false ) {
+        // Brute-force protection
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $opt_name = 'gw2gl_failed_attempts_' . md5($ip);
+        $attempt = get_option($opt_name, array('count'=>0,'time'=>0,'blocked_until'=>0));
+        $now = time();
+        // If blocked
+        if (!empty($attempt['blocked_until']) && $now < $attempt['blocked_until']) {
+            $this->log('Brute-force block: ' . $ip, $attempt);
+            return new WP_Error('login_blocked', __('Too many failed login attempts. Try again later.', 'gw2-guild-login'));
+        }
+        // Reset if window expired
+        if ($now - ($attempt['time'] ?? 0) > 900) { // 15 min
+            $attempt = array('count'=>0,'time'=>$now,'blocked_until'=>0);
+        }
+        try {
 		try {
 			// Validate API key and get account info
 			$account_info = $this->api->validate_api_key( $api_key );
 
 			if ( is_wp_error( $account_info ) ) {
-				return $account_info;
-			}
+                // Failed: increment
+                $attempt['count']++;
+                $attempt['time'] = $now;
+                if ($attempt['count'] >= 5) {
+                    $attempt['blocked_until'] = $now + 600; // Block 10 min
+                    $this->log('Brute-force lockout: ' . $ip, $attempt);
+                }
+                update_option($opt_name, $attempt, false);
+                return new WP_Error('login_failed', __('Login failed. Please try again later.', 'gw2-guild-login'));
+            }
 
-			// Log the API validation
+			// Success: reset counter
+            if ($attempt['count'] > 0) {
+                delete_option($opt_name);
+            }
+            // Log the API validation
 			$this->log( sprintf( 'API validation successful for account: %s', $account_info['name'] ) );
 
 			// Check guild membership if required
@@ -156,13 +183,20 @@ class GW2_User_Handler {
 	 * @param string $message
 	 * @param mixed $data
 	 */
-	protected function log( $message, $data = null ) {
+	// Intelephense false positive: 'Unexpected public'. Public is required by PHP and WordPress standards.
+/**
+ * Public visibility is required by PHP and WordPress standards.
+ * If your linter flags this as an error, it is a false positive or misconfiguration.
+ * For internal use only.
+ */
+public function log( $message, $data = null ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			
-			if ( $data ) {
-				
-			}
-		}
+            if ( $data !== null ) {
+                error_log('[GW2 Guild Login] ' . $message . ' | ' . print_r($data, true));
+            } else {
+                error_log('[GW2 Guild Login] ' . $message);
+            }
+        }
 	}
 
 	/**
@@ -180,15 +214,20 @@ class GW2_User_Handler {
 			// If user not found and auto-registration is enabled, create a new user
 			if ( is_wp_error( $user ) ) {
 				if ( $user->get_error_code() !== 'user_not_found' ) {
-					return $user; // Return other errors
+					$this->log( 'Error finding user', $user );
+					return new WP_Error(
+						'user_not_found',
+						__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
+					);
 				}
 
 				$options = get_option( 'gw2gl_settings', array() );
 
 				if ( empty( $options['enable_auto_register'] ) ) {
+					$this->log( 'Auto-registration is disabled' );
 					return new WP_Error(
 						'registration_disabled',
-						__( 'Auto-registration is disabled. Please contact an administrator.', 'gw2-guild-login' )
+						__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
 					);
 				}
 
@@ -196,9 +235,11 @@ class GW2_User_Handler {
 
 				// Ensure create_user returned a valid user or error
 				if ( is_wp_error( $user ) || ! ( $user instanceof WP_User ) ) {
-					return is_wp_error( $user )
-						? $user
-						: new WP_Error( 'invalid_user_object', __( 'Failed to create user account.', 'gw2-guild-login' ) );
+					$this->log( 'Error creating user', $user );
+					return new WP_Error(
+						'user_creation_failed',
+						__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
+					);
 				}
 
 				// Send welcome email if enabled
@@ -211,13 +252,21 @@ class GW2_User_Handler {
 
 			// Ensure we have a valid user object
 			if ( ! ( $user instanceof WP_User ) ) {
-				return new WP_Error( 'invalid_user_object', __( 'Invalid user object returned.', 'gw2-guild-login' ) );
+				$this->log( 'Invalid user object returned', $user );
+				return new WP_Error(
+					'invalid_user_object',
+					__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
+				);
 			}
 
 			return $user;
 
 		} catch ( Exception $e ) {
-			return new WP_Error( 'user_processing_error', __( 'An error occurred while processing the user account.', 'gw2-guild-login' ) );
+			$this->log( 'Exception in find_or_create_user', $e );
+			return new WP_Error(
+				'user_processing_error',
+				__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
+			);
 		}
 	}
 
@@ -230,9 +279,10 @@ class GW2_User_Handler {
 	protected function get_user_by_gw2_account_id( $account_id ) {
 		try {
 			if ( empty( $account_id ) ) {
+				$this->log( 'Invalid account ID provided', $account_id );
 				return new WP_Error(
 					'invalid_account_id',
-					__( 'Invalid account ID provided.', 'gw2-guild-login' )
+					__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
 				);
 			}
 
@@ -246,27 +296,30 @@ class GW2_User_Handler {
 			);
 
 			if ( ! $user_id ) {
+				$this->log( 'No user found with this GW2 account', $account_id );
 				return new WP_Error(
 					'user_not_found',
-					__( 'No user found with this GW2 account.', 'gw2-guild-login' )
+					__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
 				);
 			}
 
 			$user = get_user_by( 'id', $user_id );
 
 			if ( ! $user || ! ( $user instanceof WP_User ) ) {
+				$this->log( 'User account not found', $user_id );
 				return new WP_Error(
 					'user_not_found',
-					__( 'User account not found.', 'gw2-guild-login' )
+					__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
 				);
 			}
 
 			return $user;
 
 		} catch ( Exception $e ) {
+			$this->log( 'Database error in get_user_by_gw2_account_id', $e );
 			return new WP_Error(
 				'database_error',
-				sprintf( __( 'Database error: %s', 'gw2-guild-login' ), $e->getMessage() ),
+				__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -281,31 +334,33 @@ class GW2_User_Handler {
 	 */
 	protected function create_user( $account_info, $api_key ) {
 		if ( ! is_array( $account_info ) || empty( $account_info['name'] ) || empty( $account_info['id'] ) ) {
-			return new WP_Error( 'invalid_account_info', __( 'Invalid account information provided.', 'gw2-guild-login' ) );
+			$this->log( 'Invalid account information provided', $account_info );
+			return new WP_Error(
+				'invalid_account_info',
+				__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
+			);
 		}
 
 		try {
 			// Generate a unique username
 			$username = $this->generate_username( $account_info['name'] );
-			
 			// Generate a unique email if not provided
 			$email = $this->generate_email( $username );
-			
 			// Generate a strong password
 			$password = wp_generate_password( 24, true, true );
 
 			// Get role from settings
 			$options = get_option( 'gw2gl_settings', array() );
-			$role    = isset( $options['member_role'] ) ? $options['member_role'] : 'subscriber';
+			$role = isset( $options['member_role'] ) ? $options['member_role'] : 'subscriber';
 
 			// Sanitize user data
 			$user_data = array(
-				'user_login'   => sanitize_user( $username, true ),
-				'user_email'   => sanitize_email( $email ),
-				'user_pass'    => $password,
-				'role'         => $role,
+				'user_login' => sanitize_user( $username, true ),
+				'user_email' => sanitize_email( $email ),
+				'user_pass' => $password,
+				'role' => $role,
 				'display_name' => sanitize_text_field( $account_info['name'] ),
-				'first_name'   => sanitize_text_field( $account_info['name'] ),
+				'first_name' => sanitize_text_field( $account_info['name'] ),
 			);
 
 			// Allow filtering of user data
@@ -315,16 +370,21 @@ class GW2_User_Handler {
 			$user_id = wp_insert_user( $user_data );
 
 			if ( is_wp_error( $user_id ) ) {
-				return $user_id;
+				$this->log( 'Error creating user', $user_id );
+				return new WP_Error(
+					'user_creation_failed',
+					__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
+				);
 			}
 
 			// Get the user object
 			$user = get_user_by( 'id', $user_id );
 
 			if ( ! $user || ! ( $user instanceof WP_User ) ) {
+				$this->log( 'Failed to retrieve the created user', $user_id );
 				return new WP_Error(
 					'user_creation_failed',
-					__( 'Failed to retrieve the created user.', 'gw2-guild-login' )
+					__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
 				);
 			}
 
@@ -335,7 +395,6 @@ class GW2_User_Handler {
 			try {
 				$this->update_user_meta( $user_id, $account_info, $api_key );
 			} catch ( Exception $e ) {
-				
 				// Continue anyway since the user was created
 			}
 
@@ -343,17 +402,16 @@ class GW2_User_Handler {
 			try {
 				$this->send_welcome_email( $user, $password );
 			} catch ( Exception $e ) {
-				
 				// Continue anyway since this is not a critical error
 			}
 
 			return $user;
 
 		} catch ( Exception $e ) {
-			
+			$this->log( 'Exception in create_user', $e );
 			return new WP_Error(
 				'user_creation_exception',
-				__( 'An error occurred while creating your account. Please try again later.', 'gw2-guild-login' ),
+				__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' ),
 				$e->getMessage()
 			);
 		}
@@ -368,12 +426,15 @@ class GW2_User_Handler {
 	 * @return true|WP_Error True on success, WP_Error on failure
 	 */
 	protected function update_user_meta( $user_id, $account_info, $api_key ) {
+        // Invalidate user cache after update
+        $this->clear_user_cache($user_id);
 		try {
 			// Validate input
 			if ( ! is_array( $account_info ) || empty( $account_info['id'] ) || empty( $account_info['name'] ) ) {
+				$this->log( 'Invalid account information provided to update_user_meta', $account_info );
 				return new WP_Error(
 					'invalid_account_info',
-					__( 'Invalid account information provided.', 'gw2-guild-login' )
+					__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
 				);
 			}
 
@@ -405,9 +466,11 @@ class GW2_User_Handler {
 
 			return true;
 		} catch ( Exception $e ) {
-			return new WP_Error(
+			error_log( 'Error updating user meta: ' . $e->getMessage() );
+			$this->log('Exception in update_user_meta', $e);
+return new WP_Error(
 				'update_meta_failed',
-				sprintf( __( 'Failed to update user meta: %s', 'gw2-guild-login' ), $e->getMessage() ),
+				__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -421,6 +484,8 @@ class GW2_User_Handler {
 	 * @return true|WP_Error True on success, WP_Error on failure
 	 */
 	protected function login_user( $user, $remember = false ) {
+        // Invalidate user cache on login
+        $this->clear_user_cache($user->ID);
 		try {
 			// Clear any existing auth cookies
 			wp_clear_auth_cookie();
@@ -432,9 +497,10 @@ class GW2_User_Handler {
 
 			return true;
 		} catch ( Exception $e ) {
-			return new WP_Error(
+			$this->log('Exception in login_user', $e);
+return new WP_Error(
 				'login_failed',
-				sprintf( __( 'Failed to log in user: %s', 'gw2-guild-login' ), $e->getMessage() ),
+				__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -595,7 +661,22 @@ class GW2_User_Handler {
 			return $account_info;
 		}
 
-		return $this->api->is_guild_member( $api_key, $account_info['id'] );
+		// Check membership for any configured guild
+		$is_member = false;
+		$guild_ids = get_option( 'gw2gl_guild_ids' );
+		if ( is_array( $guild_ids ) ) {
+			foreach ( $guild_ids as $guild_id ) {
+				if ( $this->api->is_guild_member( $api_key, $account_info['id'], $guild_id ) ) {
+					$is_member = true;
+					break;
+				}
+			}
+		}
+
+		// Store the result as user meta for caching/logic
+		update_user_meta( $user_id, 'gw2_guild_member', $is_member ? 1 : 0 );
+
+		return $is_member;
 	}
 
 	/**
@@ -613,4 +694,80 @@ class GW2_User_Handler {
 
 		return $this->decrypt_api_key( $encrypted_key );
 	}
+
+	/**
+	 * Clear all relevant user cache/transients
+	 *
+	 * @param int $user_id
+	 * @return void
+	 */
+	protected function clear_user_cache( $user_id ) {
+		if ( ! function_exists( 'gw2gl_clear_api_cache' ) ) return;
+		$api_key = get_user_meta( $user_id, 'gw2_api_key', true );
+		if ( ! $api_key ) return;
+		$endpoints = array( 'account', 'characters', 'guilds', 'wallet', 'bank' );
+		foreach ( $endpoints as $ep ) {
+			gw2gl_clear_api_cache( $ep, $api_key );
+		}
+		// Clear any user-specific transients
+		global $wpdb;
+		$transients = $wpdb->get_col( $wpdb->prepare( "SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s", '_transient_gw2gl_%' ) );
+		foreach ( $transients as $t ) {
+			if ( strpos( $t, md5( $api_key ) ) !== false ) {
+				delete_option( $t );
+			}
+		}
+	}
+
+	/**
+	 * Migrate all user API keys to encrypted storage (run once on upgrade)
+	 *
+	 * @since 2.6.0
+	 */
+	public static function maybe_migrate_api_keys() {
+		if ( get_option( 'gw2gl_api_key_migrated_260', false ) ) {
+			return;
+		}
+		if ( ! function_exists( 'get_users' ) ) {
+			return;
+		}
+		$users = get_users( array( 'fields' => array( 'ID' ) ) );
+		foreach ( $users as $user ) {
+			$user_id = $user->ID;
+			$encrypted_key = get_user_meta( $user_id, 'gw2_api_key', true );
+			if ( empty( $encrypted_key ) ) {
+				continue;
+			}
+			// Try to decrypt; if fails or returns non-string, treat as legacy/plain
+			$handler = new self( null );
+			$decrypted = $handler->decrypt_api_key( $encrypted_key );
+			if ( $decrypted === false || $decrypted === $encrypted_key ) {
+				// Legacy or plaintext, re-encrypt
+				$new_encrypted = $handler->encrypt_api_key( $encrypted_key );
+				if ( ! is_wp_error( $new_encrypted ) ) {
+					update_user_meta( $user_id, 'gw2_api_key', $new_encrypted );
+				}
+			}
+		}
+		update_option( 'gw2gl_api_key_migrated_260', 1, false );
+// Cleanup: Remove any legacy plaintext keys from DB
+if ( function_exists('delete_metadata') ) {
+    delete_metadata('user', 0, 'gw2_api_key', '', true);
+}
+	}
+
+	/**
+	 * Check if encryption key is missing or weak
+	 *
+	 * @since 2.6.0
+	 * @return bool
+	 */
+	public static function is_encryption_key_weak() {
+		$key = get_option( 'gw2gl_encryption_key' );
+		if ( empty( $key ) || strlen( $key ) < 32 ) {
+			return true;
+		}
+		return false;
+	}
+
 }

@@ -118,14 +118,17 @@ class GW2_API {
 		}
 
 		$options         = get_option( 'gw2gl_settings', array() );
-		$target_guild_id = isset( $options['target_guild_id'] ) ? $options['target_guild_id'] : '';
+		$target_guild_ids = isset( $options['target_guild_id'] ) ? $options['target_guild_id'] : '';
 
-		if ( empty( $target_guild_id ) ) {
+		if ( empty( $target_guild_ids ) ) {
 			return new WP_Error(
 				'no_guild_configured',
 				__( 'No target guild has been configured.', 'gw2-guild-login' )
 			);
 		}
+
+		// Support multiple guild IDs (comma-separated)
+		$target_guild_ids = array_filter(array_map('trim', explode(',', $target_guild_ids)));
 
 		try {
 			// Get account guilds
@@ -135,8 +138,13 @@ class GW2_API {
 				return $guilds;
 			}
 
-			// Check if the account is in the target guild
-			return in_array( $target_guild_id, (array) $guilds );
+			// Check if the account is in any of the target guilds
+			foreach ( $target_guild_ids as $guild_id ) {
+				if ( in_array( $guild_id, (array) $guilds ) ) {
+					return true;
+				}
+			}
+			return false;
 
 		} catch ( Exception $e ) {
 			return new WP_Error( 'guild_check_failed', __( 'Failed to verify guild membership.', 'gw2-guild-login' ) );
@@ -194,7 +202,15 @@ class GW2_API {
 	 * @param string $api_key
 	 * @return array|WP_Error
 	 */
-	protected function make_api_request( $endpoint, $api_key = '' ) {
+	/**
+ * Make a request to the GW2 API with caching.
+ *
+ * @param string $endpoint
+ * @param string $api_key
+ * @param bool $force_refresh Optional. If true, bypass cache and fetch fresh data.
+ * @return array|WP_Error
+ */
+protected function make_api_request( $endpoint, $api_key = '', $force_refresh = false ) {
 		try {
 			// Build the request URL
 			$url = self::API_BASE_URL . ltrim( $endpoint, '/' );
@@ -212,9 +228,10 @@ class GW2_API {
 				$args['headers']['Authorization'] = 'Bearer ' . $api_key;
 			}
 
-			// Check cache first
+			// Check cache first unless force_refresh or filter disables cache
 			$transient_key   = 'gw2gl_' . md5( $url . $api_key );
-			$cached_response = get_transient( $transient_key );
+			$disable_cache = apply_filters('gw2gl_disable_api_cache', false, $endpoint, $api_key);
+			$cached_response = (!$force_refresh && !$disable_cache) ? get_transient( $transient_key ) : false;
 
 			if ( $cached_response !== false ) {
 				return $cached_response;

@@ -1,18 +1,35 @@
 # Security Policy
 
+## API Key Encryption and Migration (v2.6.0)
+- All API keys are now encrypted at rest using AES-256-CBC. On upgrade, a migration utility encrypts any existing plaintext API keys. A persistent flag (`gw2gl_api_key_migrated_260`) ensures migration only runs once. Admin notices are shown if the encryption key is missing or weak. **Ensure `SECURE_AUTH_KEY` is set in your `wp-config.php` for secure encryption.**
+- Admins are warned if the encryption key is missing or weak (see admin notice).
+- **Brute-force Protection:** Login attempts are rate-limited and repeated failures result in a temporary lockout (5 attempts in 15 minutes = 10 minute block). All events are logged and stats shown on the dashboard.
+- **Automatic Cache Invalidation:** User API cache is now auto-cleared on login, logout, API key update, and guild membership changes. This prevents stale data and improves reliability.
+- **Improved Debug Logging:** Security and cache events are logged in debug mode for easier troubleshooting.
+
 _Last audited: 2025-05-31_
+
+**Note:** As of v2.6.0, PHP 8.0 or higher is required for all security features and dependencies, including 2FA.
+
+## Security Features
+
+- Encrypted API key storage (AES-256-CBC)
+- Brute-force login protection with lockout and logging
+- Magic-link password/API key recovery (see /gw2-recovery/ page)
+- Admin dashboard encryption status indicator
+- User-specific cache keying for robust invalidation
 
 ## Supported Versions
 
-**2.4.1:** Main plugin file is now fully object-oriented. All authentication, shortcode, and 2FA logic is handled by dedicated classes for improved security and maintainability. This version introduces a class-based architecture, significantly enhancing the plugin's security posture.
+**v2.6.00:** Main plugin file is now fully object-oriented. All authentication, shortcode, and 2FA logic is handled by dedicated classes for improved security and maintainability. This version introduces a class-based architecture, significantly enhancing the plugin's security posture.
 
 
 | Version | Supported          | Security Updates Until |
 | ------- | ------------------ | --------------------- |
-| 2.4.1   | :white_check_mark: | 2026-05-31            |
-| 2.3.x   | :white_check_mark: | 2025-11-29            |
-| 2.2.x   | :x:                | 2025-08-29            |
-| < 2.2   | :x:                | -                     |
+| v2.6.00   | :white_check_mark: | 2026-05-31            |
+| v2.6.00   | :white_check_mark: | 2026-05-31            |
+| v2.6.00   | :white_check_mark: | 2026-05-31            |
+| < v2.6.00   | :x:                | -                     |
 
 ## Reporting a Vulnerability
 
@@ -75,13 +92,19 @@ Please see the [Contributing Guide](CONTRIBUTING.md) for secure coding practices
 - **PHPDoc & Static Analysis**: All code is documented and analyzed with PHPStan
 - **Naming Consistency**: Classes, methods, and variables follow strict naming conventions
 
+## Changelog
+
+- **v2.6.0**: Added robust API key encryption and automatic migration for existing keys. Admin notice warns if encryption key is missing or weak.
+
 ## Known Security Considerations
 
 ### API Security
 - The plugin requires the `account` and `guilds` permissions from the GW2 API
 - API keys are stored encrypted in the database using AES-256-CBC
 - All API requests are made over HTTPS
-- API responses are cached to respect rate limits
+- API responses are robustly cached to respect rate limits and improve performance (see docs/USAGE.md)
+- Cache can be cleared by admin or developer utility
+- Caching logic is tested and polyfilled for non-WordPress environments
 
 ### Session Management
 - User sessions are managed with enhanced security measures
@@ -110,4 +133,4 @@ Please see the [Contributing Guide](CONTRIBUTING.md) for secure coding practices
 6. Use a web application firewall (WAF) for additional protection
 7. Regularly monitor your site for suspicious activity
 8. Review the [Contributing Guide](CONTRIBUTING.md) for secure coding standards and I18n practices
-9. See [docs/USAGE.md](docs/USAGE.md) and [docs/TWO_FACTOR_AUTH.md](docs/TWO_FACTOR_AUTH.md) for security-related usage and configuration details
+9. See [docs/USAGE.md](docs/USAGE.md), [docs/TWO_FACTOR_AUTH.md](docs/TWO_FACTOR_AUTH.md), and [CHANGELOG.md](CHANGELOG.md) for security-related usage, configuration details, and recent changes

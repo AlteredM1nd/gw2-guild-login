@@ -3,12 +3,39 @@
  * Main plugin class
  */
 class GW2_Guild_Login {
+
+	public function __construct() {
+		// Set up plugin paths - ensure we have at least the basic file path
+		$this->plugin_file = defined( 'GW2_GUILD_LOGIN_FILE' ) ? GW2_GUILD_LOGIN_FILE : dirname( dirname( __FILE__ ) ) . '/gw2-guild-login.php';
+		// Define constants before they're used
+		$this->define_constants();
+		// Now set up the rest of the paths
+		$this->plugin_dir = defined( 'GW2_GUILD_LOGIN_PLUGIN_DIR' ) ? GW2_GUILD_LOGIN_PLUGIN_DIR : plugin_dir_path( $this->plugin_file );
+		$this->plugin_url = defined( 'GW2_GUILD_LOGIN_PLUGIN_URL' ) ? GW2_GUILD_LOGIN_PLUGIN_URL : plugin_dir_url( $this->plugin_file );
+		// Initialize
+		$this->includes();
+		$this->init_hooks();
+		add_action('wp_logout', array($this, 'handle_logout_cache_invalidation'));
+	}
+
+	/**
+	 * Invalidate user cache on logout
+	 */
+	public function handle_logout_cache_invalidation() {
+		if (!is_user_logged_in()) return;
+		$user_id = get_current_user_id();
+		if (class_exists('GW2_User_Handler')) {
+			$user_handler = new GW2_User_Handler(null);
+			$user_handler->clear_user_cache($user_id);
+		}
+	}
+
 	/**
 	 * Plugin version
 	 *
 	 * @var string
 	 */
-	const VERSION = '2.4.1';
+	const VERSION = '2.6.0';
 
 	/**
 	 * The API handler instance
@@ -41,9 +68,10 @@ class GW2_Guild_Login {
 	);
 
 	/**
-	 * The single instance of the class
+	 * The instance of the class
 	 *
 	 * @var GW2_Guild_Login
+	 * @since 2.6.0
 	 */
 	protected static $instance = null;
 
@@ -78,27 +106,6 @@ class GW2_Guild_Login {
 			self::$instance = new self();
 		}
 		return self::$instance;
-	}
-
-
-
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		// Set up plugin paths - ensure we have at least the basic file path
-		$this->plugin_file = defined( 'GW2_GUILD_LOGIN_FILE' ) ? GW2_GUILD_LOGIN_FILE : dirname( dirname( __FILE__ ) ) . '/gw2-guild-login.php';
-		
-		// Define constants before they're used
-		$this->define_constants();
-		
-		// Now set up the rest of the paths
-		$this->plugin_dir = defined( 'GW2_GUILD_LOGIN_PLUGIN_DIR' ) ? GW2_GUILD_LOGIN_PLUGIN_DIR : plugin_dir_path( $this->plugin_file );
-		$this->plugin_url = defined( 'GW2_GUILD_LOGIN_PLUGIN_URL' ) ? GW2_GUILD_LOGIN_PLUGIN_URL : plugin_dir_url( $this->plugin_file );
-
-		// Initialize
-		$this->includes();
-		$this->init_hooks();
 	}
 
 	/**
@@ -375,6 +382,9 @@ class GW2_Guild_Login {
 		add_action( 'admin_menu', array( $this->admin, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this->admin, 'register_settings' ) );
 
+		// Run API key migration and show encryption key warning if needed
+		add_action( 'admin_init', array( __CLASS__, 'maybe_migrate_api_keys_and_warn' ) );
+
 		// Add plugin action links
 		add_filter( 'plugin_action_links_' . GW2_GUILD_LOGIN_PLUGIN_BASENAME, array( $this->admin, 'plugin_action_links' ) );
 	}
@@ -384,6 +394,22 @@ class GW2_Guild_Login {
 	 *
 	 * @return GW2_Guild_Login_Admin|null
 	 */
+	public static function maybe_migrate_api_keys_and_warn() {
+		// Migrate legacy API keys
+		if ( class_exists( 'GW2_User_Handler' ) ) {
+			GW2_User_Handler::maybe_migrate_api_keys();
+		}
+		// Warn if encryption key is missing/weak
+		if ( class_exists( 'GW2_User_Handler' ) && GW2_User_Handler::is_encryption_key_weak() ) {
+			add_action( 'admin_notices', function() {
+				printf(
+					'<div class="notice notice-error"><p>%s</p></div>',
+					esc_html__( 'GW2 Guild Login: Your encryption key is missing or too short. Please set a strong key (32+ chars) in wp-config.php for secure API key storage.', 'gw2-guild-login' )
+				);
+			} );
+		}
+	}
+
 	public function get_admin() {
 		return $this->admin;
 	}

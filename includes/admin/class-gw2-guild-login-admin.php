@@ -39,7 +39,7 @@ class GW2_Guild_Login_Admin {
 	public function enqueue_styles() {
 		wp_enqueue_style(
 			$this->plugin_name,
-			plugin_dir_url( __FILE__ ) . '../admin/css/gw2-guild-login-admin.css',
+			plugin_dir_url( __FILE__ ) . '2.6.0/admin/css/gw2-guild-login-admin.css',
 			array(),
 			$this->version,
 			'all'
@@ -55,7 +55,7 @@ class GW2_Guild_Login_Admin {
 	public function enqueue_scripts() {
 		wp_enqueue_script(
 			$this->plugin_name,
-			plugin_dir_url( __FILE__ ) . '../admin/js/gw2-guild-login-admin.js',
+			plugin_dir_url( __FILE__ ) . '2.6.0/admin/js/gw2-guild-login-admin.js',
 			array( 'jquery' ),
 			$this->version,
 			false
@@ -191,13 +191,13 @@ class GW2_Guild_Login_Admin {
 
 		add_settings_field(
 			'target_guild_id',
-			__( 'Target Guild ID', 'gw2-guild-login' ),
+			__( 'Target Guild IDs', 'gw2-guild-login' ),
 			array( $this, 'text_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_general_section',
 			array(
 				'id'          => 'target_guild_id',
-				'description' => __( 'Enter the Guild ID that users must be a member of to log in.', 'gw2-guild-login' ),
+				'description' => __( 'Enter one or more Guild IDs, separated by commas. Users must be a member of at least one to log in.', 'gw2-guild-login' ),
 			)
 		);
 
@@ -257,6 +257,12 @@ class GW2_Guild_Login_Admin {
 	 * @return array
 	 */
 	public function sanitize_settings( $input ) {
+		// Support multiple guild IDs as array
+		if ( isset( $input['target_guild_id'] ) ) {
+			$ids = array_filter(array_map('trim', explode(',', $input['target_guild_id'])));
+			$input['target_guild_id'] = implode(',', $ids); // Store as comma-separated
+		}
+
 		// Sanitize appearance fields
 		$input['appearance_primary_color'] = isset($input['appearance_primary_color']) ? sanitize_hex_color($input['appearance_primary_color']) : '';
 		$input['appearance_accent_color'] = isset($input['appearance_accent_color']) ? sanitize_hex_color($input['appearance_accent_color']) : '';

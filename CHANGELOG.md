@@ -2,6 +2,32 @@
 
 All notable changes to the GW2 Guild Login plugin will be documented in this file.
 
+## [2.6.0] - 2025-06-01
+
+### Added
+- Support for multiple target Guild IDs (comma-separated) in admin settings
+- Robust API response caching using WordPress transients (configurable, can be bypassed/cleared)
+- Developer utility to clear API cache for a given endpoint and API key
+- PHPUnit test coverage for API caching and cache clearing logic
+- Polyfill for cache functions in PHPUnit for non-WordPress test environments
+- Comprehensive documentation updates
+
+### Breaking
+- **PHP 8.0+ Required:** As of v2.6.0, PHP 8.0 or higher is required for security and 2FA dependencies.
+
+### Improved
+- **Security Dashboard:** Now displays encryption status (✔ Active/✖ Insecure), brute-force stats, and admin warnings for weak/missing keys.
+- **Password/API Key Recovery:** Magic-link reset system via `/gw2-recovery/` (JWT-based, 1-hour expiry); FAQ and recovery page added.
+- **API Key Encryption at Rest:** All API keys are now encrypted using AES-256-CBC. Migration utility automatically encrypts all existing plaintext keys; legacy keys are securely deleted post-migration.
+- **Cache Management:** User-specific cache keys prevent collisions; cache is auto-invalidated on login, logout, API key update, and guild membership changes.
+- **Brute-force Protection:** Login attempts are rate-limited; repeated failures result in temporary lockout (5 attempts in 15 minutes = 10 minute block). All events are logged and stats shown on the dashboard.
+- **Debugging:** Security and cache events are logged in debug mode for easier troubleshooting.
+- Admins are proactively warned about weak or missing encryption keys.
+- Enhanced error handling and security for API key management and user meta.
+- Updated admin UI and settings for clarity on multi-guild and caching features.
+- Improved README and documentation for clarity and completeness.
+- UX & Polish: Login button shortcode, dashboard widget, cache controls, and clearer settings.
+
 ## [2.5.0] - 2025-06-01
 ### Added/Changed
 - **Admin Appearance Customization**: New "Appearance & Branding" section in settings

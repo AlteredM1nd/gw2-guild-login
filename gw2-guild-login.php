@@ -5,7 +5,7 @@ use GW2GuildLogin\GW2_Login_Shortcode;
  * Plugin Name:       GW2 Guild Login
  * Plugin URI:        https://github.com/AlteredM1nd/gw2-guild-login
  * Description:       Allows users to log in using their GW2 API key to verify guild membership with WordPress user integration.
- * Version:           2.4.1
+ * Version:           2.6.0
  * Author:            AlteredM1nd
  * Author URI:        https://github.com/AlteredM1nd
  * License:           GPL-2.0+
@@ -78,6 +78,7 @@ require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-api.php';
 require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-session-handler.php';
 require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-user-handler.php';
 require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-user-dashboard.php';
+require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-password-reset.php'; // Magic link password reset
 
 // Load the core plugin class.
 require plugin_dir_path(__FILE__) . 'includes/class-gw2-guild-login.php';

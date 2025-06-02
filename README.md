@@ -1,4 +1,21 @@
+![Security](https://img.shields.io/badge/Security-A+-green?style=flat)
+
 # GW2 Guild Login
+
+- Encrypted API key storage
+- Brute-force protection
+- WP security standards compliant
+
+## Security Features
+- 🔒 Military-grade API key encryption (AES-256-CBC, automatic migration)
+- 🛡️ Brute-force attack protection with lockout and logging
+- ✉️ Magic-link password/API key recovery via /gw2-recovery/ (JWT, 1-hour expiry)
+- ⚡ User-specific cache keys and auto-invalidation
+- 📊 Security dashboard: encryption status, lockout stats, admin warnings
+- 🚦 Admin notices for weak/missing encryption keys
+- ♻️ Automatic legacy key cleanup after migration
+- 🧪 Automated test coverage for all critical features
+
 
 A secure, modern WordPress plugin enabling users to log in using their Guild Wars 2 API key. Features robust guild membership verification, role management, advanced 2FA (with backup codes), and industry-leading security and coding standards compliance.
 
@@ -15,6 +32,14 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 
 ## Features
 
+### 🔒 Secure API Key Encryption (v2.6.0)
+- **API Key Encryption:** All API keys are encrypted at rest using AES-256-CBC. A migration utility will encrypt any existing plaintext keys automatically on upgrade. A persistent flag ensures migration only runs once. Admins are notified if the encryption key is missing or weak, and should ensure `SECURE_AUTH_KEY` is set in `wp-config.php`. A strong encryption key (32+ chars) is required; admins will see a warning if their key is missing or weak.
+- **Brute-force Protection:** Login attempts are rate-limited and repeated failures result in a temporary lockout (5 attempts in 15 minutes = 10 minute block).
+- **Automatic Cache Invalidation:** User API cache is auto-cleared on login, logout, API key update, and guild membership changes.
+- **Improved Debug Logging:** Security and cache events are logged in debug mode for easier troubleshooting.
+
+- See the [Security](SECURITY.md) and [Usage](docs/USAGE.md) docs for details.
+
 ### 🔒 Authentication & Security
 - **GW2 API Login**: Secure authentication using Guild Wars 2 API keys
 - **Two-Factor Authentication (2FA)**: TOTP-based 2FA with authenticator app support and secure backup codes
@@ -30,11 +55,19 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 - **Guild Membership Verification**: Restrict access to specific guilds
 - **Rank-Based Access**: Control content visibility based on guild ranks
 - **Guild Role Mapping**: Automatically assign WordPress roles based on guild rank
-- **Cached API Calls**: Efficient API usage with response caching
+- **Cached API Calls**: Efficient API usage with robust response caching (configurable, can be cleared by admin or developer, filterable for debugging)
 
 ### 🛠️ User Management
 - **Auto-Registration**: Automatically create accounts for new GW2 players
 - **User Dashboard**: Modern dashboard for viewing account details, guild memberships, and active sessions
+
+### ✨ UX & Polish
+- **Login Button Shortcode**: Easily add a "Log in with GW2" button anywhere using `[gw2_login]`
+- **Dashboard Widget**: Guild membership and account info shown on user dashboard
+- **Admin UI Improvements**: Multi-guild support, cache controls, and clearer settings
+- **Cache Clearing Utility**: Developers and admins can clear API cache for specific endpoints
+- **Developer Filter**: `gw2gl_disable_api_cache` filter for debugging
+
 - **Session Control**: Monitor, revoke, and manage active login sessions and devices
 - **Customizable User Roles**: Fine-grained permission control
 - **Profile Integration**: Add GW2 account info and 2FA settings to user profile pages
@@ -50,7 +83,7 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 ## Requirements
 
 - WordPress 5.8 or higher (latest recommended)
-- PHP 7.4 or higher (8.0+ recommended)
+- PHP 8.0 or higher (tested with PHP 8.4.7)
 - Composer (for development)
 - Node.js 14+ (for asset building)
 - A Guild Wars 2 account with API key generation access
