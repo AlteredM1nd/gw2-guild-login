@@ -22,7 +22,12 @@ class GW2_User_Handler {
 	 *
 	 * @param GW2_API $api
 	 */
-	public function __construct( $api ) {
+    /**
+     * Constructor
+     *
+     * @param GW2_API|null $api
+     */
+    public function __construct($api) {
 		$this->api = $api;
 		$this->setup_encryption_key();
 	}
@@ -30,7 +35,12 @@ class GW2_User_Handler {
 	/**
 	 * Set up encryption key for API keys
 	 */
-	protected function setup_encryption_key() {
+    /**
+     * Set up encryption key for API keys
+     *
+     * @return void
+     */
+    protected function setup_encryption_key(): void {
 		// Use WP salts if available, otherwise generate a new one
 		$key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
 		if ( empty( $key ) && function_exists( 'wp_generate_password' ) ) {
@@ -45,7 +55,13 @@ class GW2_User_Handler {
 	 * @param string $data
 	 * @return string|false
 	 */
-	protected function encrypt( $data ) {
+    /**
+     * Encrypt sensitive data
+     *
+     * @param string $data
+     * @return string|false
+     */
+    protected function encrypt(string $data): string|false {
 		if ( empty( $this->encryption_key ) ) {
 			return false;
 		}
@@ -61,7 +77,13 @@ class GW2_User_Handler {
 	 * @param string $data
 	 * @return string|false
 	 */
-	protected function decrypt( $data ) {
+    /**
+     * Decrypt data
+     *
+     * @param string $data
+     * @return string|false
+     */
+    protected function decrypt(string $data): string|false {
 		if ( empty( $this->encryption_key ) ) {
 			return false;
 		}
@@ -80,12 +102,14 @@ class GW2_User_Handler {
 	 * @param bool $remember
 	 * @return array|WP_Error
 	 */
-	public function process_login( $api_key, $remember = false ) {
+	public function process_login( string $api_key, bool $remember = false ): array|WP_Error {
         // Brute-force protection
         $ip = isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown';
-        /** @var string $opt_name */
         $opt_name = 'gw2gl_failed_attempts_' . md5($ip);
         $attempt = get_option($opt_name, array('count'=>0,'time'=>0,'blocked_until'=>0));
+        if ( ! is_array( $attempt ) ) {
+            $attempt = array('count'=>0,'time'=>0,'blocked_until'=>0);
+        }
         $now = time();
         // If blocked
         $blocked_until = is_array($attempt) && isset($attempt['blocked_until']) && is_int($attempt['blocked_until']) ? $attempt['blocked_until'] : 0;
@@ -187,41 +211,6 @@ class GW2_User_Handler {
 				'account_name' => $account_name,
 				'is_new_user'  => $just_created,
 			);
-
-		} catch ( Exception $e ) {
-			$this->log( 'Unexpected error in process_login', $e );
-			return new WP_Error( 'login_error', __( 'An unexpected error occurred during login.', 'gw2-guild-login' ) );
-		}
-	}
-
-	/**
-	 * Log messages for debugging
-	 *
-	 * @param string $message
-	 * @param mixed $data
-	 */
-	// Intelephense false positive: 'Unexpected public'. Public is required by PHP and WordPress standards.
-/**
- * Public visibility is required by PHP and WordPress standards.
- * If your linter flags this as an error, it is a false positive or misconfiguration.
- * For internal use only.
- */
-public function log( $message, $data = null ) {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            if ( $data !== null ) {
-                error_log('[GW2 Guild Login] ' . $message . ' | ' . print_r($data, true));
-            } else {
-                error_log('[GW2 Guild Login] ' . $message);
-            }
-        }
-	}
-
-	/**
-	 * Find or create a WordPress user for the GW2 account
-				'user_processing_error',
-				__( 'An unexpected error occurred. Please try again later.', 'gw2-guild-login' )
-			);
-		}
 	}
 
 	/**
@@ -248,13 +237,14 @@ public function log( $message, $data = null ) {
 		return $this->decrypt_api_key( $encrypted_key );
 	}
 
-	/**
-	 * Clear all relevant user cache/transients
-	 *
-	 * @param int $user_id
-	 * @return void
-	 */
-	protected function clear_user_cache( $user_id ) {
+    /**
+     * Clear all relevant user cache/transients
+     *
+     * @param int $user_id
+     * @return void
+     */
+    // Internal cache clearing utility. Should remain protected unless needed externally.
+    protected function clear_user_cache(int $user_id): void {
         if ( ! function_exists( 'gw2gl_clear_api_cache' ) ) return;
         $api_key_mixed = get_user_meta( $user_id, 'gw2_api_key', true );
         $api_key = is_string($api_key_mixed) ? $api_key_mixed : '';
@@ -282,7 +272,13 @@ public function log( $message, $data = null ) {
 	 *
 	 * @since 2.6.0
 	 */
-	public static function maybe_migrate_api_keys(): void {
+    /**
+     * Migrate all user API keys to encrypted storage (run once on upgrade)
+     *
+     * @since 2.6.0
+     * @return void
+     */
+    public static function maybe_migrate_api_keys(): void {
 		if ( get_option( 'gw2gl_api_key_migrated_260', false ) ) {
 			return;
 		}
@@ -327,7 +323,13 @@ if ( function_exists('delete_metadata') ) {
 	 * @since 2.6.0
 	 * @return bool
 	 */
-	public static function is_encryption_key_weak() {
+    /**
+     * Check if encryption key is missing or weak
+     *
+     * @since 2.6.0
+     * @return bool
+     */
+    public static function is_encryption_key_weak(): bool {
         $key = get_option( 'gw2gl_encryption_key' );
         $key_str = is_string($key) ? $key : '';
         if ( $key_str === '' || strlen( $key_str ) < 32 ) {

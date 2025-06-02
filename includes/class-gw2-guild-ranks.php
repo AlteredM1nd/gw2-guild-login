@@ -26,13 +26,21 @@ class GW2_Guild_Ranks {
      * 
      * @return self
      */
-    public static function instance() {
+    /**
+     * Get the singleton instance
+     *
+     * @return self
+     */
+    public static function instance(): self {
         if (null === self::$instance) {
             self::$instance = new self();
         }
         return self::$instance;
     }
 
+    /**
+     * Constructor
+     */
     /**
      * Constructor
      */
@@ -53,7 +61,12 @@ class GW2_Guild_Ranks {
     /**
      * Plugin activation
      */
-    public function activate() {
+    /**
+     * Plugin activation
+     *
+     * @return void
+     */
+    public function activate(): void {
         global $wpdb;
         
         $sql = "CREATE TABLE {$this->table_ranks} (
@@ -74,7 +87,12 @@ class GW2_Guild_Ranks {
     /**
      * Add admin menu
      */
-    public function add_admin_menu() {
+    /**
+     * Add admin menu
+     *
+     * @return void
+     */
+    public function add_admin_menu(): void {
         add_options_page(
             __('GW2 Guild Settings', 'gw2-guild-login'),
             __('GW2 Guild', 'gw2-guild-login'),
@@ -87,7 +105,12 @@ class GW2_Guild_Ranks {
     /**
      * Render settings page
      */
-    public function render_settings_page() {
+    /**
+     * Render settings page
+     *
+     * @return void
+     */
+    public function render_settings_page(): void {
         if (!current_user_can('manage_options')) {
             return;
         }
@@ -141,7 +164,13 @@ class GW2_Guild_Ranks {
     /**
      * Fetch guild data from GW2 API
      */
-    private function fetch_guild_data($guild_id) {
+    /**
+     * Fetch guild data from GW2 API
+     *
+     * @param string $guild_id
+     * @return array|WP_Error
+     */
+    public function fetch_guild_data(string $guild_id): array|WP_Error {
         $api_key = get_option('gw2_api_key');
         $guild_id_safe = is_string($guild_id) ? $guild_id : '';
         $api_key_safe = is_string($api_key) ? $api_key : '';
@@ -175,7 +204,14 @@ class GW2_Guild_Ranks {
     /**
      * Check if user has required guild rank
      */
-    public function check_rank_access($user_id, $required_rank) {
+    /**
+     * Check if user has required guild rank
+     *
+     * @param int $user_id
+     * @param string $required_rank
+     * @return bool
+     */
+    public function check_rank_access(int $user_id, string $required_rank): bool {
         $guild_id = get_user_meta($user_id, 'gw2_guild_id', true);
         $account_name = get_user_meta($user_id, 'gw2_account_name', true);
         $required_rank_safe = is_string($required_rank) ? $required_rank : '';
@@ -208,7 +244,14 @@ class GW2_Guild_Ranks {
     /**
      * Restricted content shortcode
      */
-    public function restricted_content_shortcode($atts, $content = null) {
+    /**
+     * Restricted content shortcode
+     *
+     * @param array $atts
+     * @param string|null $content
+     * @return string
+     */
+    public function restricted_content_shortcode(array $atts, ?string $content = null): string {
         $atts = shortcode_atts(array(
             'rank' => '',
             'message' => esc_html__('You do not have permission to view this content.', 'gw2-guild-login')

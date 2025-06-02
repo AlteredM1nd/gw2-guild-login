@@ -41,7 +41,13 @@ class GW2_2FA_Admin {
      * 
      * @param WP_User $user
      */
-    public function add_2fa_profile_section($user) {
+    /**
+     * Add 2FA section to user profile
+     *
+     * @param WP_User $user
+     * @return void
+     */
+    public function add_2fa_profile_section(object $user): void {
         if (!is_object($user) || !isset($user->ID) || !is_int($user->ID) || !current_user_can('edit_user', $user->ID)) {
             return;
         }
@@ -138,7 +144,13 @@ class GW2_2FA_Admin {
      * 
      * @param int $user_id
      */
-    public function save_2fa_settings($user_id) {
+    /**
+     * Save 2FA settings
+     *
+     * @param int $user_id
+     * @return void
+     */
+    public function save_2fa_settings(int $user_id): void {
         if (!is_int($user_id) || $user_id <= 0) {
             return;
         }
@@ -195,7 +207,13 @@ class GW2_2FA_Admin {
     /**
      * Enqueue scripts and styles
      */
-    public function enqueue_scripts($hook) {
+    /**
+     * Enqueue scripts and styles
+     *
+     * @param string $hook
+     * @return void
+     */
+    public function enqueue_scripts(string $hook): void {
         $current_user_id = get_current_user_id();
         if ($hook !== 'profile.php' && $hook !== 'user-edit.php') {
             return;
@@ -232,7 +250,12 @@ class GW2_2FA_Admin {
     /**
      * AJAX handler for regenerating backup codes
      */
-    public function ajax_regenerate_backup_codes() {
+    /**
+     * AJAX handler for regenerating backup codes
+     *
+     * @return void
+     */
+    public function ajax_regenerate_backup_codes(): void {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'gw2_2fa_nonce')) {
             wp_send_json_error(['message' => __('Security verification failed.', 'gw2-guild-login')], 403);
