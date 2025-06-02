@@ -211,14 +211,19 @@ class GW2_User_Handler {
 				'account_name' => $account_name,
 				'is_new_user'  => $just_created,
 			);
-	}
+        } catch ( Exception $e ) {
+            $this->log( 'Unexpected error in process_login', $e );
+            return new WP_Error( 'login_error', __( 'An unexpected error occurred during login.', 'gw2-guild-login' ) );
+        }
+    }
 
 	/**
 	 * Get user by GW2 account ID
 	 *
 	 * @param string $account_id
 	 * @return WP_User|WP_Error
-
+	 */
+	public function get_user_by_account_id( string $account_id ): WP_User|WP_Error {
         // Use direct DB query for better performance
         global $wpdb;
         $user_id_mixed = $wpdb->get_var(
@@ -228,114 +233,13 @@ class GW2_User_Handler {
             )
         );
         $user_id = is_int($user_id_mixed) ? $user_id_mixed : (is_string($user_id_mixed) && ctype_digit($user_id_mixed) ? (int)$user_id_mixed : 0);
-		$encrypted_key = get_user_meta( $user_id, 'gw2_api_key', true );
+        $encrypted_key = get_user_meta( $user_id, 'gw2_api_key', true );
 
-		if ( empty( $encrypted_key ) ) {
-			return false;
-		}
-
-		return $this->decrypt_api_key( $encrypted_key );
-	}
-
-    /**
-     * Clear all relevant user cache/transients
-     *
-     * @param int $user_id
-     * @return void
-     */
-    // Internal cache clearing utility. Should remain protected unless needed externally.
-    protected function clear_user_cache(int $user_id): void {
-        if ( ! function_exists( 'gw2gl_clear_api_cache' ) ) return;
-        $api_key_mixed = get_user_meta( $user_id, 'gw2_api_key', true );
-        $api_key = is_string($api_key_mixed) ? $api_key_mixed : '';
-        if ( $api_key === '' ) return;
-        $endpoints = array( 'account', 'characters', 'guilds', 'wallet', 'bank' );
-        foreach ( $endpoints as $ep ) {
-            gw2gl_clear_api_cache( $ep, $api_key );
+        if ( empty( $encrypted_key ) ) {
+            return new WP_Error('user_not_found', __('No user found for the given GW2 account ID.', 'gw2-guild-login'));
         }
-        // Clear any user-specific transients
-        global $wpdb;
-        $transients = is_object($wpdb) && method_exists($wpdb, 'get_col') && method_exists($wpdb, 'prepare')
-            ? $wpdb->get_col( $wpdb->prepare( "SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s", '_transient_gw2gl_%' ) )
-            : array();
-        foreach ( $transients as $t ) {
-            $t_str = is_string($t) ? $t : '';
-            $api_key_hash = md5($api_key);
-            if ( $t_str !== '' && strpos( $t_str, $api_key_hash ) !== false ) {
-                delete_option( $t_str );
-            }
-        }
-    }
 
-	/**
-	 * Migrate all user API keys to encrypted storage (run once on upgrade)
-	 *
-	 * @since 2.6.0
-	 */
-    /**
-     * Migrate all user API keys to encrypted storage (run once on upgrade)
-     *
-     * @since 2.6.0
-     * @return void
-     */
-    public static function maybe_migrate_api_keys(): void {
-		if ( get_option( 'gw2gl_api_key_migrated_260', false ) ) {
-			return;
-		}
-		if ( ! function_exists( 'get_users' ) ) {
-			return;
-		}
-		$users = get_users( array( 'fields' => array( 'ID' ) ) );
-		foreach ( $users as $user_mixed ) {
-			// Strictly type $user_id
-			$user_id = ( is_object($user_mixed) && isset($user_mixed->ID) && is_int($user_mixed->ID) ) ? $user_mixed->ID : 0;
-			if ( $user_id === 0 ) {
-				continue;
-			}
-			$encrypted_key_mixed = get_user_meta( $user_id, 'gw2_api_key', true );
-			$encrypted_key = is_string($encrypted_key_mixed) ? $encrypted_key_mixed : '';
-			if ( $encrypted_key === '' ) {
-				continue;
-			}
-			// Try to decrypt; if fails or returns non-string, treat as legacy/plain
-			$handler = new self( null );
-			$decrypted_mixed = $handler->decrypt_api_key( $encrypted_key );
-			$decrypted = is_string($decrypted_mixed) ? $decrypted_mixed : '';
-			if ( $decrypted === '' || $decrypted === $encrypted_key ) {
-				// Legacy or plaintext, re-encrypt
-				$new_encrypted_mixed = $handler->encrypt_api_key( $encrypted_key );
-				$new_encrypted = is_string($new_encrypted_mixed) ? $new_encrypted_mixed : '';
-				if ( $new_encrypted !== '' && ! is_wp_error( $new_encrypted ) ) {
-					update_user_meta( $user_id, 'gw2_api_key', $new_encrypted );
-				}
-			}
-		}
-		update_option( 'gw2gl_api_key_migrated_260', 1, false );
-// Cleanup: Remove any legacy plaintext keys from DB
-if ( function_exists('delete_metadata') ) {
-    delete_metadata('user', 0, 'gw2_api_key', '', true);
-}
-	}
-
-	/**
-	 * Check if encryption key is missing or weak
-	 *
-	 * @since 2.6.0
-	 * @return bool
-	 */
-    /**
-     * Check if encryption key is missing or weak
-     *
-     * @since 2.6.0
-     * @return bool
-     */
-    public static function is_encryption_key_weak(): bool {
-        $key = get_option( 'gw2gl_encryption_key' );
-        $key_str = is_string($key) ? $key : '';
-        if ( $key_str === '' || strlen( $key_str ) < 32 ) {
-            return true;
-        }
-        return false;
+        return $this->decrypt_api_key( $encrypted_key );
     }
 
 }
