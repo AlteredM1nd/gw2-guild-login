@@ -33,6 +33,9 @@ jobs:
       - name: Run PHPUnit
         run: vendor/bin/phpunit --testdox
 
+      - name: Ensure PHPStan is executable
+        run: chmod +x vendor/bin/phpstan
+
       - name: Run PHPStan (max level)
         run: vendor/bin/phpstan analyse --level=max .
 
