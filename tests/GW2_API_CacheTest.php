@@ -12,13 +12,13 @@ class GW2_API_CacheTest extends TestCase {
         // Simulate a cached response
         $endpoint = 'test/endpoint';
         $api_key = 'dummy';
-        $url = GW2_API::API_BASE_URL . ltrim($endpoint, '/');
-        $transient_key = 'gw2gl_' . md5($url . $api_key);
+        $user_id = 1;
+        $cache_key = 'gw2gl_' . $user_id . '_' . md5($api_key . $endpoint);
         $value = ['foo' => 'bar'];
-        set_transient($transient_key, $value, 60);
-        $this->assertEquals($value, get_transient($transient_key));
+        set_transient($cache_key, $value, 60);
+        $this->assertEquals($value, get_transient($cache_key));
         // Clear cache
-        gw2gl_clear_api_cache($endpoint, $api_key);
-        $this->assertFalse(get_transient($transient_key));
+        gw2gl_clear_api_cache($endpoint, $api_key, $user_id);
+        $this->assertFalse(get_transient($cache_key));
     }
 }
