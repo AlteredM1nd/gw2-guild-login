@@ -147,11 +147,14 @@ class GW2_Login_Shortcode {
      */
     protected function render_user_status() {
         $current_user = wp_get_current_user();
-        $gw2_account  = get_user_meta( $current_user->ID, 'gw2_account_name', true );
+        $user_id = (is_object($current_user) && isset($current_user->ID) && is_int($current_user->ID)) ? $current_user->ID : 0;
+        $gw2_account_mixed = get_user_meta( $user_id, 'gw2_account_name', true );
+        $gw2_account = is_string($gw2_account_mixed) ? $gw2_account_mixed : '';
 
-        $settings = get_option('gw2gl_settings', array());
-        $logo = !empty($settings['appearance_logo']) ? $settings['appearance_logo'] : '';
-        $welcome = !empty($settings['appearance_welcome_text']) ? $settings['appearance_welcome_text'] : '';
+        $settings_mixed = get_option('gw2gl_settings', array());
+        $settings = is_array($settings_mixed) ? $settings_mixed : array();
+        $logo = isset($settings['appearance_logo']) && is_string($settings['appearance_logo']) ? $settings['appearance_logo'] : '';
+        $welcome = isset($settings['appearance_welcome_text']) && is_string($settings['appearance_welcome_text']) ? $settings['appearance_welcome_text'] : ''; // PHPStan: always string.
         
         ob_start();
         ?>
@@ -166,11 +169,12 @@ class GW2_Login_Shortcode {
         <div class="gw2-login-status">
             <p class="mb-2">
                 <?php
+                $display_name = (is_object($current_user) && isset($current_user->display_name) && is_string($current_user->display_name)) ? $current_user->display_name : '';
                 echo esc_html( sprintf(
                     /* translators: 1: Display name, 2: GW2 account name */
                     __( 'Logged in as %1$s (GW2: %2$s)', 'gw2-guild-login' ),
-                    $current_user->display_name,
-                    $gw2_account ?: __( 'No GW2 account linked', 'gw2-guild-login' )
+                    $display_name,
+                    $gw2_account !== '' ? $gw2_account : __( 'No GW2 account linked', 'gw2-guild-login' )
                 ) );
                 ?>
             </p>
@@ -189,8 +193,8 @@ class GW2_Login_Shortcode {
      * Display any messages to the user
      */
     protected function display_messages() {
-        if ( ! empty( $_SESSION['gw2_login_message'] ) ) {
-            $message_type = ! empty( $_SESSION['gw2_login_message_type'] ) 
+        if (isset($_SESSION['gw2_login_message']) && is_string($_SESSION['gw2_login_message']) && $_SESSION['gw2_login_message'] !== '') {
+            $message_type = (isset($_SESSION['gw2_login_message_type']) && is_string($_SESSION['gw2_login_message_type']) && $_SESSION['gw2_login_message_type'] !== '') 
                 ? sanitize_key( $_SESSION['gw2_login_message_type'] ) 
                 : 'info';
             
@@ -221,7 +225,7 @@ class GW2_Login_Shortcode {
                 </div>',
                 esc_attr( $message_type ),
                 esc_attr( $icon_class ),
-                wp_kses( $_SESSION['gw2_login_message'], 'post' ),
+                wp_kses( (is_string($_SESSION['gw2_login_message']) ? $_SESSION['gw2_login_message'] : ''), 'post' ),
                 esc_attr( $color_class ),
                 esc_attr__( 'Close', 'gw2-guild-login' )
             );
@@ -239,16 +243,14 @@ class GW2_Login_Shortcode {
      */
     protected function get_redirect_url() {
         $redirect_to = home_url( '/' );
-        
         // Check for redirect_to parameter
-        if ( ! empty( $_GET['redirect_to'] ) ) {
+        if (isset($_GET['redirect_to']) && is_string($_GET['redirect_to']) && $_GET['redirect_to'] !== '') {
             $redirect_to = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) );
         } 
         // Check for HTTP referrer
-        elseif ( ! empty( $_SERVER['HTTP_REFERER'] ) && strpos( $_SERVER['HTTP_REFERER'], home_url() ) === 0 ) {
+        elseif (isset($_SERVER['HTTP_REFERER']) && is_string($_SERVER['HTTP_REFERER']) && strpos( $_SERVER['HTTP_REFERER'], home_url() ) === 0 ) {
             $redirect_to = esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
         }
-        
         return apply_filters( 'gw2_login_redirect_url', $redirect_to );
     }
 
@@ -272,7 +274,7 @@ class GW2_Login_Shortcode {
         }
 
         // Get API key
-        $api_key = ! empty( $_POST['gw2_api_key'] ) ? sanitize_text_field( $_POST['gw2_api_key'] ) : '';
+        $api_key = (isset($_POST['gw2_api_key']) && is_string($_POST['gw2_api_key'])) ? sanitize_text_field( $_POST['gw2_api_key'] ) : ''; // PHPStan: always string.
         if ( empty( $api_key ) ) {
             $this->set_message(
                 __( 'Please enter your GW2 API key.', 'gw2-guild-login' ),
@@ -284,7 +286,7 @@ class GW2_Login_Shortcode {
         // Process login
         $gw2_login = \GW2_Guild_Login();
         // Sanitize rememberme value (even though used as boolean, for clarity and future-proofing)
-        $rememberme = ! empty( $_POST['rememberme'] ) ? sanitize_text_field( $_POST['rememberme'] ) : '';
+        $rememberme = (isset($_POST['rememberme']) && is_string($_POST['rememberme'])) ? sanitize_text_field( $_POST['rememberme'] ) : ''; // PHPStan: always string.
         $result = $gw2_login->get_user_handler()->process_login( 
             $api_key, 
             ! empty( $rememberme ) 
@@ -297,7 +299,7 @@ class GW2_Login_Shortcode {
         }
 
         // Login successful
-        $redirect_url = ! empty( $_POST['redirect_to'] ) 
+        $redirect_url = (isset($_POST['redirect_to']) && is_string($_POST['redirect_to']) && $_POST['redirect_to'] !== '') 
             ? esc_url_raw( wp_unslash( $_POST['redirect_to'] ) ) 
             : home_url( '/' );
             
@@ -327,6 +329,7 @@ class GW2_Login_Shortcode {
      * @return string
      */
     public function render_loginout_link( $atts ) {
+        $atts = is_array($atts) ? $atts : array();
         $atts = shortcode_atts(
             array(
                 'login_text'  => __( 'Login', 'gw2-guild-login' ),
@@ -365,16 +368,18 @@ class GW2_Login_Shortcode {
         if ( ! is_user_logged_in() ) {
             return $this->get_restricted_content_message( 'login_required' );
         }
-        $options = get_option( 'gw2gl_settings', array() );
-        $target_guild_id = isset($options['target_guild_id']) ? (string)$options['target_guild_id'] : '';
+        $options_mixed = get_option( 'gw2gl_settings', array() );
+        $options = is_array($options_mixed) ? $options_mixed : array();
+        $target_guild_id = isset($options['target_guild_id']) && is_string($options['target_guild_id']) ? $options['target_guild_id'] : '';
         // If no guild is set, show content to all logged-in users
         if ( $target_guild_id === '' ) {
             return do_shortcode( $content );
         }
         // Check if user is in the guild
         $user_id = get_current_user_id();
-        $is_member = get_user_meta( $user_id, 'gw2_guild_member', true );
-        if (is_string($is_member) && $is_member !== '') {
+        $is_member_mixed = get_user_meta( $user_id, 'gw2_guild_member', true );
+        $is_member = is_string($is_member_mixed) ? $is_member_mixed : '';
+        if ($is_member !== '') {
             return do_shortcode( $content );
         }
         return $this->get_restricted_content_message( 'guild_required' );
@@ -387,12 +392,13 @@ class GW2_Login_Shortcode {
      * @return string
      */
     protected function get_restricted_content_message( $type = 'guild_required' ) {
-        $options = get_option( 'gw2gl_settings', array() );
+        $options_mixed = get_option( 'gw2gl_settings', array() );
+        $options = is_array($options_mixed) ? $options_mixed : array();
         $message = '';
         
         if ( $type === 'login_required' ) {
             $login_url = wp_login_url( get_permalink() );
-            $message = isset( $options['login_required_message'] ) 
+            $message = isset( $options['login_required_message'] ) && is_string($options['login_required_message'])
                 ? $options['login_required_message']
                 : __( 'You must be logged in to view this content.', 'gw2-guild-login' );
                 
@@ -400,12 +406,12 @@ class GW2_Login_Shortcode {
                 $register_url = wp_registration_url();
                 $message .= ' <a href="' . esc_url( $login_url ) . '">' . __( 'Login', 'gw2-guild-login' ) . '</a>';
                 $message .= ' ' . __( 'or', 'gw2-guild-login' ) . ' ';
-                $message .= '<a href="' . esc_url( $register_url ) . '">' . __( 'Register', 'gw2-guild-login' ) . '</a>';
+                $message .= '<a href="' . esc_url( $register_url ) . '">' . __( 'Register', 'gw2-guild-login' ) . '</a>'; // PHPStan: message always string.
             } else {
                 $message .= ' <a href="' . esc_url( $login_url ) . '">' . __( 'Login', 'gw2-guild-login' ) . '</a>';
             }
         } else {
-            $message = isset( $options['guild_required_message'] ) 
+            $message = isset( $options['guild_required_message'] ) && is_string($options['guild_required_message'])
                 ? $options['guild_required_message']
                 : __( 'You must be a member of the guild to view this content.', 'gw2-guild-login' );
         }
@@ -419,7 +425,7 @@ class GW2_Login_Shortcode {
     public function enqueue_assets() {
         // Only load on pages with the shortcode
         global $post;
-        if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( $post->post_content, 'gw2_login' ) ) {
+        if (!isset($post) || !is_a($post, 'WP_Post') || !isset($post->post_content) || !is_string($post->post_content) || !has_shortcode($post->post_content, 'gw2_login')) {
             return;
         }
 

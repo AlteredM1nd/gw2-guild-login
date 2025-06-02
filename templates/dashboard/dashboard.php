@@ -18,8 +18,12 @@ $user = wp_get_current_user();
 if (!$user instanceof WP_User) {
     return;
 }
+// Guard for PHPStan: ensure all user properties are defined and correct type
+$user_id = (is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0;
+$user_display_name = (is_object($user) && isset($user->display_name) && is_string($user->display_name)) ? $user->display_name : '';
 /** @phpstan-ignore-next-line */
 $user_id = (is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0;
+// Guard all user meta for PHPStan
 $gw2_account_id_mixed = get_user_meta($user_id, 'gw2_account_id', true);
 $gw2_account_id = is_string($gw2_account_id_mixed) ? $gw2_account_id_mixed : '';
 $gw2_account_name_mixed = get_user_meta($user_id, 'gw2_account_name', true);
@@ -32,13 +36,22 @@ $gw2_guilds_mixed = get_user_meta($user_id, 'gw2_guilds', true);
 $gw2_guilds = is_array($gw2_guilds_mixed) ? $gw2_guilds_mixed : array();
 $last_login_mixed = get_user_meta($user_id, 'gw2_last_login', true);
 $last_login = is_int($last_login_mixed) ? $last_login_mixed : (is_string($last_login_mixed) && ctype_digit($last_login_mixed) ? (int)$last_login_mixed : 0);
+// Ensure all variables are initialized for PHPStan
+if (!isset($gw2_account_id)) { $gw2_account_id = ''; }
+if (!isset($gw2_account_name)) { $gw2_account_name = ''; }
+if (!isset($gw2_world)) { $gw2_world = ''; }
+if (!isset($gw2_created)) { $gw2_created = ''; }
+if (!isset($gw2_guilds)) { $gw2_guilds = array(); }
+if (!isset($last_login)) { $last_login = 0; }
 
 // Get user sessions.
 $sessions = WP_Session_Tokens::get_instance($user_id);
 $all_sessions_mixed = $sessions->get_all();
 $all_sessions = is_array($all_sessions_mixed) ? $all_sessions_mixed : array();
+if (!isset($all_sessions)) { $all_sessions = array(); }
 $current_session_mixed = wp_get_session_token();
 $current_session = is_string($current_session_mixed) ? $current_session_mixed : '';
+if (!isset($current_session)) { $current_session = ''; }
 
 // Get browser info.
 $browser = array(
@@ -200,10 +213,12 @@ $session_id = '';
 // Ensure variables are always defined for PHPStan
 $is_current = false;
 $session_id = '';
-foreach ($all_sessions as $session_id_raw => $session) {
-    $session_id = (string)$session_id_raw;
-    $is_current = ($session_id === $current_session);
-    ?>
+// Guard for PHPStan: ensure foreach is only run on array
+if (is_array($all_sessions)) {
+    foreach ($all_sessions as $session_id_raw => $session) {
+        $session_id = is_string($session_id_raw) ? $session_id_raw : '';
+        $is_current = ($session_id === $current_session);
+        ?>
     <tr>
         <td><?php echo esc_html((string)$session_id); ?></td>
         <!-- Add other session columns here as needed -->

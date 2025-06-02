@@ -34,7 +34,7 @@ class GW2_2FA_Login {
     public function add_2fa_field() {
         // Only show if user exists and 2FA is enabled
         $user = wp_get_current_user();
-        if ($user && $user->exists() && $this->handler->is_2fa_enabled($user->ID)) {
+        if (is_object($user) && method_exists($user, 'exists') && $user->exists() && isset($user->ID) && is_int($user->ID) && $this->handler->is_2fa_enabled($user->ID)) {
             ?>
             <p>
                 <label for="gw2-2fa-code"><?php _e('Authentication Code', 'gw2-guild-login'); ?><br>
@@ -69,20 +69,14 @@ class GW2_2FA_Login {
         }
 
         // Verify the 2FA code
-        if (!isset($_POST['gw2_2fa_code']) || $_POST['gw2_2fa_code'] === '') {
+        $code = isset($_POST['gw2_2fa_code']) ? sanitize_text_field($_POST['gw2_2fa_code']) : '';
+        if (!is_string($code) || $code === '') {
             return new WP_Error(
                 '2fa_required',
                 __('<strong>Error</strong>: Two-factor authentication code is required.', 'gw2-guild-login')
             );
         }
 
-        $code = sanitize_text_field($_POST['gw2_2fa_code']);
-        if ($code === '') {
-            return new WP_Error(
-                '2fa_required',
-                __('<strong>Error</strong>: Two-factor authentication code is required.', 'gw2-guild-login')
-            );
-        }
         // Get the user's 2FA secret
         global $wpdb;
         $table = $wpdb->prefix . 'gw2_2fa_secrets';
@@ -90,31 +84,33 @@ class GW2_2FA_Login {
             "SELECT secret FROM $table WHERE user_id = %d",
             $user->ID
         ));
-
-        if (!$secret_row || !isset($secret_row->secret) || $secret_row->secret === '') {
+        $secret_val = (is_object($secret_row) && isset($secret_row->secret) && is_string($secret_row->secret)) ? $secret_row->secret : '';
+        if ($secret_val === '') {
             return new WP_Error(
                 '2fa_error',
                 __('<strong>Error</strong>: Two-factor authentication is not properly configured for your account.', 'gw2-guild-login')
             );
         }
 
-        $secret = $this->handler->decrypt_secret($secret_row->secret);
-        if ($secret === '') {
+        $secret = $this->handler->decrypt_secret($secret_val);
+        if (!is_string($secret) || $secret === '') {
             return new WP_Error(
                 '2fa_error',
                 __('<strong>Error</strong>: Two-factor authentication is not properly configured for your account.', 'gw2-guild-login')
             );
         }
+
         // Verify the code
         if (!$this->handler->verify_totp($secret, $code)) {
             // Check backup codes
             $backup_codes = $this->handler->get_backup_codes_for_user($user->ID);
-            if (empty($backup_codes) || !in_array($code, $backup_codes, true)) {
+            if (!is_array($backup_codes) || empty($backup_codes) || !in_array($code, $backup_codes, true)) {
                 return new WP_Error(
                     '2fa_invalid_code',
                     __('<strong>Error</strong>: Invalid authentication code.', 'gw2-guild-login')
                 );
             }
+
             $backup_codes = array_values(array_diff($backup_codes, [$code]));
             $this->handler->set_backup_codes_for_user($user->ID, $backup_codes);
             if (empty($backup_codes)) {
@@ -144,6 +140,7 @@ class GW2_2FA_Login {
                 __('<strong>Error</strong>: Security verification failed. Please try again.', 'gw2-guild-login')
             );
         }
+
         if (empty($_POST['log']) || empty($_POST['pwd'])) {
             wp_safe_redirect(wp_login_url());
             exit;
@@ -151,8 +148,8 @@ class GW2_2FA_Login {
 
         $user = wp_authenticate_username_password(
             null,
-            sanitize_user($_POST['log']),
-            $_POST['pwd']
+            isset($_POST['log']) ? sanitize_user($_POST['log']) : '',
+            isset($_POST['pwd']) ? $_POST['pwd'] : ''
         );
 
         if (is_wp_error($user)) {
@@ -162,11 +159,11 @@ class GW2_2FA_Login {
 
         // If 2FA is not enabled, log the user in
         if (!$this->handler->is_2fa_enabled($user->ID)) {
-            wp_set_auth_cookie($user->ID, !empty($_POST['rememberme']));
+            wp_set_auth_cookie($user->ID, isset($_POST['rememberme']) && !empty($_POST['rememberme']));
             
             $redirect_to = apply_filters('login_redirect', 
-                isset($_POST['redirect_to']) ? $_POST['redirect_to'] : admin_url(),
-                isset($_POST['redirect_to']) ? $_POST['redirect_to'] : '',
+                isset($_POST['redirect_to']) && is_string($_POST['redirect_to']) ? $_POST['redirect_to'] : admin_url(),
+                isset($_POST['redirect_to']) && is_string($_POST['redirect_to']) ? $_POST['redirect_to'] : '',
                 $user
             );
             
@@ -179,11 +176,6 @@ class GW2_2FA_Login {
         exit;
     }
 
-    /**
-     * Display the 2FA verification form
-     * 
-     * @param WP_User $user
-     */
     /**
      * Display the 2FA verification form
      * 
@@ -212,10 +204,10 @@ class GW2_2FA_Login {
             
             <p class="submit">
                 <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e('Verify', 'gw2-guild-login'); ?>">
-                <input type="hidden" name="log" value="<?php echo esc_attr($user->user_login); ?>">
-                <input type="hidden" name="pwd" value="<?php echo esc_attr($_POST['pwd']); ?>">
-                <input type="hidden" name="rememberme" value="<?php echo !empty($_POST['rememberme']) ? '1' : '0'; ?>">
-                <input type="hidden" name="redirect_to" value="<?php echo esc_attr(isset($_POST['redirect_to']) ? $_POST['redirect_to'] : ''); ?>">
+                <input type="hidden" name="log" value="<?php echo esc_attr(isset($user->user_login) && is_string($user->user_login) ? $user->user_login : ''); ?>">
+                <input type="hidden" name="pwd" value="<?php echo esc_attr(isset($_POST['pwd']) && is_string($_POST['pwd']) ? $_POST['pwd'] : ''); ?>">
+                <input type="hidden" name="rememberme" value="<?php echo (isset($_POST['rememberme']) && !empty($_POST['rememberme'])) ? '1' : '0'; ?>">
+                <input type="hidden" name="redirect_to" value="<?php echo esc_attr(isset($_POST['redirect_to']) && is_string($_POST['redirect_to']) ? $_POST['redirect_to'] : ''); ?>">
                 <input type="hidden" name="testcookie" value="1">
                 <?php wp_nonce_field('2fa_verify', '_2fa_nonce'); ?>
             </p>

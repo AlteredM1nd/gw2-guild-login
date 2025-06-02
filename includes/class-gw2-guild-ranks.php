@@ -117,13 +117,20 @@ class GW2_Guild_Ranks {
         
         if (isset($_POST['gw2_guild_id'])) {
             check_admin_referer('gw2_guild_settings');
-            update_option('gw2_guild_id', sanitize_text_field($_POST['gw2_guild_id']));
-            update_option('gw2_api_key', sanitize_text_field($_POST['gw2_api_key']));
+            $guild_id_mixed = sanitize_text_field($_POST['gw2_guild_id']);
+            $api_key_mixed = sanitize_text_field($_POST['gw2_api_key']);
+            $guild_id = is_string($guild_id_mixed) ? $guild_id_mixed : '';
+            $api_key = is_string($api_key_mixed) ? $api_key_mixed : '';
+            update_option('gw2_guild_id', $guild_id);
+            update_option('gw2_api_key', $api_key);
             add_settings_error('gw2_messages', 'gw2_message', 'Settings Saved', 'updated');
         }
         
-        $guild_id = get_option('gw2_guild_id', '');
-        $api_key = get_option('gw2_api_key', '');
+        $guild_id_mixed = get_option('gw2_guild_id', '');
+        $api_key_mixed = get_option('gw2_api_key', '');
+        $guild_id = is_string($guild_id_mixed) ? $guild_id_mixed : '';
+        $api_key = is_string($api_key_mixed) ? $api_key_mixed : '';
+        // PHPStan: Ensure variables are always strings for safe output.
         
         ?>
         <div class="wrap">
@@ -164,16 +171,10 @@ class GW2_Guild_Ranks {
     /**
      * Fetch guild data from GW2 API
      */
-    /**
-     * Fetch guild data from GW2 API
-     *
-     * @param string $guild_id
-     * @return array|WP_Error
-     */
     public function fetch_guild_data(string $guild_id): array|WP_Error {
-        $api_key = get_option('gw2_api_key');
+        $api_key_mixed = get_option('gw2_api_key');
         $guild_id_safe = is_string($guild_id) ? $guild_id : '';
-        $api_key_safe = is_string($api_key) ? $api_key : '';
+        $api_key_safe = is_string($api_key_mixed) ? $api_key_mixed : '';
         if ($api_key_safe === '' || $guild_id_safe === '') {
             return new WP_Error('missing_api_key', 'GW2 API key is not configured');
         }
@@ -204,19 +205,12 @@ class GW2_Guild_Ranks {
     /**
      * Check if user has required guild rank
      */
-    /**
-     * Check if user has required guild rank
-     *
-     * @param int $user_id
-     * @param string $required_rank
-     * @return bool
-     */
     public function check_rank_access(int $user_id, string $required_rank): bool {
-        $guild_id = get_user_meta($user_id, 'gw2_guild_id', true);
-        $account_name = get_user_meta($user_id, 'gw2_account_name', true);
+        $guild_id_mixed = get_user_meta($user_id, 'gw2_guild_id', true);
+        $account_name_mixed = get_user_meta($user_id, 'gw2_account_name', true);
         $required_rank_safe = is_string($required_rank) ? $required_rank : '';
-        $guild_id_safe = is_string($guild_id) ? $guild_id : '';
-        $account_name_safe = is_string($account_name) ? $account_name : '';
+        $guild_id_safe = is_string($guild_id_mixed) ? $guild_id_mixed : '';
+        $account_name_safe = is_string($account_name_mixed) ? $account_name_mixed : '';
         if ($guild_id_safe === '' || $account_name_safe === '' || $required_rank_safe === '') {
             return false;
         }

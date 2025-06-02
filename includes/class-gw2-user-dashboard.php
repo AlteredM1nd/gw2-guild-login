@@ -13,7 +13,6 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-
 add_action('wp_dashboard_setup', function(): void {
     wp_add_dashboard_widget('gw2gl_stats', __('GW2 Guild Login Security', 'gw2-guild-login'), function(): void {
         global $wpdb;
@@ -48,23 +47,33 @@ add_action('wp_dashboard_setup', function(): void {
             : '<span style="color:red">✖ Insecure</span>';
         $last_cache_flush_str = $last_cache_flush_safe > 0 ? esc_html(date('Y-m-d H:i', $last_cache_flush_safe)) : esc_html__('Never', 'gw2-guild-login');
 
-        /** @var string $encrypted_count_str */
-$encrypted_count_str = is_numeric($encrypted_count) ? (string)(int)$encrypted_count : '0';
-$encryption_status_str = $encryption_status; // always string
-/** @var string $last_cache_flush_str_safe */
-$last_cache_flush_str_safe = is_string($last_cache_flush) ? $last_cache_flush : '';
-/** @var string $failed_attempts_str */
-$failed_attempts_str = is_numeric($failed_attempts) ? (string)(int)$failed_attempts : '0';
-/** @phpstan-ignore-next-line */
-$encrypted_count_raw = get_option('gw2_encrypted_count');
-/** @phpstan-ignore-next-line */
-$encrypted_count_str = is_int($encrypted_count_raw) ? (string)$encrypted_count_raw : '0';
-/** @phpstan-ignore-next-line */
-$encryption_status_raw = get_option('gw2_encryption_status');
-/** @phpstan-ignore-next-line */
-$encryption_status_str = is_string($encryption_status_raw) ? $encryption_status_raw : '';
-/** @phpstan-ignore-next-line */
-$last_cache_flush_raw = get_option('gw2_last_cache_flush');
+        $encrypted_count_str = is_numeric($encrypted_count) ? (string)(int)$encrypted_count : '0';
+        $encryption_status_str = $encryption_status; // always string
+        $last_cache_flush_str_safe = is_string($last_cache_flush) ? $last_cache_flush : '';
+        $failed_attempts_str = is_numeric($failed_attempts) ? (string)(int)$failed_attempts : '0';
+
+        $encrypted_count_raw = get_option('gw2_encrypted_count');
+        $encrypted_count_str = is_int($encrypted_count_raw) ? (string)$encrypted_count_raw : '0';
+
+        $encryption_status_raw = get_option('gw2_encryption_status');
+        $encryption_status_str = is_string($encryption_status_raw) ? $encryption_status_raw : '';
+
+        $last_cache_flush_raw = get_option('gw2_last_cache_flush');
+        $last_cache_flush_str = is_string($last_cache_flush_raw) ? $last_cache_flush_raw : '';
+
+        $failed_attempts_raw = get_option('gw2_failed_attempts');
+        $failed_attempts_str = is_int($failed_attempts_raw) ? (string)$failed_attempts_raw : '0';
+
+        // Initialize variables to safe defaults
+        $encrypted_count_str_safe = $encrypted_count_str;
+        $encryption_status_str_safe = $encryption_status_str;
+        $last_cache_flush_str_safe = $last_cache_flush_str;
+        $failed_attempts_str_safe = $failed_attempts_str;
+
+        echo '<p><strong>Encrypted API Keys:</strong> ' . esc_html($encrypted_count_str_safe) . '</p>';
+        echo '<p><strong>Encryption Status:</strong> ' . $encryption_status_str_safe . '</p>';
+        echo '<p><strong>Last Cache Flush:</strong> ' . esc_html($last_cache_flush_str_safe) . '</p>';
+        echo '<p><strong>Failed Logins (24h):</strong> ' . esc_html($failed_attempts_str_safe) . '</p>';
 /** @phpstan-ignore-next-line */
 $last_cache_flush_str = is_string($last_cache_flush_raw) ? $last_cache_flush_raw : '';
 /** @phpstan-ignore-next-line */

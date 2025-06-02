@@ -30,7 +30,8 @@ class GW2_Guild_Login_Admin {
 	public function __construct() {
 		$this->plugin_name = 'gw2-guild-login';
 		$this->version     = GW2_GUILD_LOGIN_VERSION;
-		$this->settings    = get_option( 'gw2gl_settings', array() );
+		$settings_mixed = get_option( 'gw2gl_settings', array() );
+        $this->settings = is_array($settings_mixed) ? $settings_mixed : array(); // PHPStan: always array.
 	}
 
 	/**
@@ -438,7 +439,7 @@ EOT;
 	 */
 	public function textarea_field_callback( $args ) {
 		$id = $args['id'];
-		$value = isset( $this->settings[$id] ) ? $this->settings[$id] : '';
+		$value = isset( $this->settings[$id] ) && is_string($this->settings[$id]) ? $this->settings[$id] : ''; // PHPStan: always string.
 		$description = isset( $args['description'] ) ? $args['description'] : '';
 		echo '<textarea id="gw2gl_settings['.esc_attr($id).']" name="gw2gl_settings['.esc_attr($id).']" rows="3" class="large-text">'.esc_textarea($value).'</textarea>';
 		if ( $description ) {
@@ -453,7 +454,7 @@ EOT;
 	 */
 	public function text_field_callback( $args ) {
 		$id          = $args['id'];
-		$value       = isset( $this->settings[ $id ] ) ? $this->settings[ $id ] : '';
+		$value       = isset( $this->settings[ $id ] ) && is_string($this->settings[ $id ]) ? $this->settings[ $id ] : ''; // PHPStan: always string.
 		$description = isset( $args['description'] ) ? $args['description'] : '';
 		?>
 		<input type="text" id="gw2gl_settings[<?php echo esc_attr( $id ); ?>]" 
@@ -472,7 +473,7 @@ EOT;
 	 */
 	public function number_field_callback( $args ) {
 		$id          = $args['id'];
-		$value       = isset( $this->settings[ $id ] ) ? $this->settings[ $id ] : '';
+		$value       = isset( $this->settings[ $id ] ) && (is_string($this->settings[ $id ]) || is_numeric($this->settings[ $id ])) ? $this->settings[ $id ] : ''; // PHPStan: always string or numeric.
 		$min         = isset( $args['min'] ) ? $args['min'] : 0;
 		$step        = isset( $args['step'] ) ? $args['step'] : 1;
 		$description = isset( $args['description'] ) ? $args['description'] : '';
@@ -497,7 +498,7 @@ EOT;
 	public function checkbox_field_callback( $args ) {
 		$id          = $args['id'];
 		$label       = isset( $args['label'] ) ? $args['label'] : '';
-		$checked     = isset( $this->settings[ $id ] ) ? (bool) $this->settings[ $id ] : false;
+		$checked     = isset( $this->settings[ $id ] ) && ($this->settings[ $id ] === '1' || $this->settings[ $id ] === 1 || $this->settings[ $id ] === true) ? true : false; // PHPStan: always bool.
 		$description = isset( $args['description'] ) ? $args['description'] : '';
 		?>
 		<label>
@@ -520,7 +521,7 @@ EOT;
 	public function select_field_callback( $args ) {
 		$id          = $args['id'];
 		$options     = isset( $args['options'] ) ? $args['options'] : array();
-		$selected    = isset( $this->settings[ $id ] ) ? $this->settings[ $id ] : '';
+		$selected    = isset( $this->settings[ $id ] ) && is_string($this->settings[ $id ]) ? $this->settings[ $id ] : ''; // PHPStan: always string.
 		$description = isset( $args['description'] ) ? $args['description'] : '';
 		?>
 		<select id="gw2gl_settings[<?php echo esc_attr( $id ); ?>]" 

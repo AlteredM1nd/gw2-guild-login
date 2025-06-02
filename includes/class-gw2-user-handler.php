@@ -104,21 +104,19 @@ class GW2_User_Handler {
 	 */
 	public function process_login( string $api_key, bool $remember = false ): array|WP_Error {
         // Brute-force protection
-        $ip = isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown';
-        $opt_name = 'gw2gl_failed_attempts_' . md5($ip);
-        $attempt = get_option($opt_name, array('count'=>0,'time'=>0,'blocked_until'=>0));
-        if ( ! is_array( $attempt ) ) {
-            $attempt = array('count'=>0,'time'=>0,'blocked_until'=>0);
-        }
+        $ip = (isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : 'unknown'; // PHPStan: always string.
+        $opt_name = 'gw2gl_failed_attempts_' . (is_string($ip) ? md5($ip) : ''); // PHPStan: $ip always string, but guard for safety.
+        $attempt_mixed = get_option($opt_name, array('count'=>0,'time'=>0,'blocked_until'=>0));
+        $attempt = is_array($attempt_mixed) ? $attempt_mixed : array('count'=>0,'time'=>0,'blocked_until'=>0); // PHPStan: always array.
         $now = time();
         // If blocked
-        $blocked_until = is_array($attempt) && isset($attempt['blocked_until']) && is_int($attempt['blocked_until']) ? $attempt['blocked_until'] : 0;
+        $blocked_until = (isset($attempt['blocked_until']) && is_int($attempt['blocked_until'])) ? $attempt['blocked_until'] : 0;
         if ($blocked_until > 0 && $now < $blocked_until) {
             $this->log('Brute-force block: ' . $ip, $attempt);
             return new WP_Error('login_blocked', __('Too many failed login attempts. Try again later.', 'gw2-guild-login'));
         }
         // Reset if window expired
-        $attempt_time = is_array($attempt) && isset($attempt['time']) && is_int($attempt['time']) ? $attempt['time'] : 0;
+        $attempt_time = (isset($attempt['time']) && is_int($attempt['time'])) ? $attempt['time'] : 0;
         if ($now - $attempt_time > 900) { // 15 min
             $attempt = array('count'=>0,'time'=>$now,'blocked_until'=>0);
         }
@@ -128,7 +126,7 @@ class GW2_User_Handler {
 
             if ( is_wp_error( $account_info ) ) {
                 // Failed: increment
-                $attempt_count = is_array($attempt) && isset($attempt['count']) && is_int($attempt['count']) ? $attempt['count'] : 0;
+                $attempt_count = (isset($attempt['count']) && is_int($attempt['count'])) ? $attempt['count'] : 0;
                 $attempt_count++;
                 $attempt['count'] = $attempt_count;
                 $attempt['time'] = $now;
@@ -149,8 +147,9 @@ class GW2_User_Handler {
             $this->log( sprintf( 'API validation successful for account: %s', $account_name ) );
 
             // Check guild membership if required
-            $options = get_option( 'gw2gl_settings', array() );
-            $target_guild_id = is_array($options) && isset($options['target_guild_id']) ? $options['target_guild_id'] : '';
+            $options_mixed = get_option( 'gw2gl_settings', array() );
+            $options = is_array($options_mixed) ? $options_mixed : array();
+            $target_guild_id = isset($options['target_guild_id']) && is_string($options['target_guild_id']) ? $options['target_guild_id'] : '';
             if ( ! empty( $target_guild_id ) && is_array($account_info) && isset($account_info['id']) ) {
                 $account_id = is_string($account_info['id']) ? $account_info['id'] : '';
                 $is_member = $this->api->is_guild_member( $api_key, $account_id );
@@ -162,68 +161,68 @@ class GW2_User_Handler {
                 if ( ! $is_member ) {
                     $error = new WP_Error(
                         'not_guild_member',
-						__( 'Your account is not a member of the required guild.', 'gw2-guild-login' )
-					);
-					$this->log( 'Guild membership check failed', $error );
-					return $error;
-				}
-			}
+                        __( 'Your account is not a member of the required guild.', 'gw2-guild-login' )
+                    );
+                    $this->log( 'Guild membership check failed', $error );
+                    return $error;
+                }
+            }
 
-			// Find or create user
-			$account_id = (is_array($account_info) && isset($account_info['id']) && is_string($account_info['id'])) ? $account_info['id'] : '';
-			$user = $this->find_or_create_user( $account_info, $api_key );
+            // Find or create user
+            $account_id = (is_array($account_info) && isset($account_info['id']) && is_string($account_info['id'])) ? $account_info['id'] : '';
+            $user = $this->find_or_create_user( $account_info, $api_key );
 
-			if ( is_wp_error( $user ) ) {
-				$this->log( 'Failed to find or create user', $user );
-				return $user;
-			}
+            if ( is_wp_error( $user ) ) {
+                $this->log( 'Failed to find or create user', $user );
+                return $user;
+            }
 
-			// Log the user in
-			/** @phpstan-ignore-next-line */
-			$login_result = $this->login_user( $user, $remember );
+            // Log the user in
+            /** @phpstan-ignore-next-line */
+            $login_result = $this->login_user( $user, $remember );
 
-			if ( is_wp_error( $login_result ) ) {
-				$this->log( 'Login failed', $login_result );
-				return $login_result;
-			}
+            if ( is_wp_error( $login_result ) ) {
+                $this->log( 'Login failed', $login_result );
+                return $login_result;
+            }
 
-			// Update user meta
-			/** @phpstan-ignore-next-line */
-			$user_id = (is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0;
-			$update_result = $this->update_user_meta( $user_id, $account_info, $api_key );
+            // Update user meta
+            /** @phpstan-ignore-next-line */
+            $user_id = (is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0;
+            $update_result = $this->update_user_meta( $user_id, $account_info, $api_key );
 
-			if ( is_wp_error( $update_result ) ) {
-				$this->log( 'Failed to update user meta', $update_result );
-				// Continue anyway as this is not a critical error
-			}
+            if ( is_wp_error( $update_result ) ) {
+                $this->log( 'Failed to update user meta', $update_result );
+                // Continue anyway as this is not a critical error
+            }
 
-			// Log successful login
-			/** @phpstan-ignore-next-line */
-			$user_login = (is_object($user) && isset($user->user_login) && is_string($user->user_login)) ? $user->user_login : '';
-			/** @phpstan-ignore-next-line */
-			$user_id = (is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0;
-			$just_created = (is_object($user) && isset($user->just_created)) ? (bool)$user->just_created : false;
-			$account_name = (is_array($account_info) && isset($account_info['name']) && is_string($account_info['name'])) ? $account_info['name'] : '';
-			$this->log( sprintf( 'User logged in successfully: %s (ID: %d)', $user_login, $user_id ) );
+            // Log successful login
+            /** @phpstan-ignore-next-line */
+            $user_login = (is_object($user) && isset($user->user_login) && is_string($user->user_login)) ? $user->user_login : '';
+            /** @phpstan-ignore-next-line */
+            $user_id = (is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0;
+            $just_created = (is_object($user) && isset($user->just_created)) ? (bool)$user->just_created : false;
+            $account_name = (is_array($account_info) && isset($account_info['name']) && is_string($account_info['name'])) ? $account_info['name'] : '';
+            $this->log( sprintf( 'User logged in successfully: %s (ID: %d)', $user_login, $user_id ) );
 
-			return array(
-				'user_id'      => $user_id,
-				'account_name' => $account_name,
-				'is_new_user'  => $just_created,
-			);
+            return array(
+                'user_id'      => $user_id,
+                'account_name' => $account_name,
+                'is_new_user'  => $just_created,
+            );
         } catch ( Exception $e ) {
             $this->log( 'Unexpected error in process_login', $e );
             return new WP_Error( 'login_error', __( 'An unexpected error occurred during login.', 'gw2-guild-login' ) );
         }
     }
 
-	/**
-	 * Get user by GW2 account ID
-	 *
-	 * @param string $account_id
-	 * @return WP_User|WP_Error
-	 */
-	public function get_user_by_account_id( string $account_id ): WP_User|WP_Error {
+    /**
+     * Get user by GW2 account ID
+     *
+     * @param string $account_id
+     * @return WP_User|WP_Error
+     */
+    public function get_user_by_account_id( string $account_id ): WP_User|WP_Error {
         // Use direct DB query for better performance
         global $wpdb;
         $user_id_mixed = $wpdb->get_var(
@@ -233,9 +232,10 @@ class GW2_User_Handler {
             )
         );
         $user_id = is_int($user_id_mixed) ? $user_id_mixed : (is_string($user_id_mixed) && ctype_digit($user_id_mixed) ? (int)$user_id_mixed : 0);
-        $encrypted_key = get_user_meta( $user_id, 'gw2_api_key', true );
+        $encrypted_key_mixed = get_user_meta( $user_id, 'gw2_api_key', true );
+        $encrypted_key = is_string($encrypted_key_mixed) ? $encrypted_key_mixed : '';
 
-        if ( empty( $encrypted_key ) ) {
+        if ($encrypted_key === '') {
             return new WP_Error('user_not_found', __('No user found for the given GW2 account ID.', 'gw2-guild-login'));
         }
 

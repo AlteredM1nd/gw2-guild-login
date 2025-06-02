@@ -30,7 +30,9 @@ class GW2_Session_Handler {
         if (!isset($_SESSION['gw2_guild_login']) || !is_array($_SESSION['gw2_guild_login'])) {
             $_SESSION['gw2_guild_login'] = [];
         }
-        $_SESSION['gw2_guild_login'][ $key ] = $value;
+        if (is_string($key) && $key !== '') {
+            $_SESSION['gw2_guild_login'][ $key ] = $value;
+        }
     }
 
     /**
@@ -48,7 +50,7 @@ class GW2_Session_Handler {
         if (!isset($_SESSION['gw2_guild_login']) || !is_array($_SESSION['gw2_guild_login'])) {
             return $default;
         }
-        return array_key_exists($key, $_SESSION['gw2_guild_login']) ? $_SESSION['gw2_guild_login'][ $key ] : $default;
+        return (is_string($key) && array_key_exists($key, $_SESSION['gw2_guild_login'])) ? $_SESSION['gw2_guild_login'][ $key ] : $default;
     }
 
     /**
