@@ -1,4 +1,11 @@
 <?php
+// Polyfill for get_current_user_id() when running PHPUnit outside WordPress
+if (!function_exists('get_current_user_id')) {
+    function get_current_user_id() {
+        return 1; // Test user ID
+    }
+}
+
 // PHPUnit bootstrap file for GW2 Guild Login
 
 // Ensure tests run in a safe environment
