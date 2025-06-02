@@ -238,8 +238,8 @@ if (is_array($all_sessions)) {
             <?php } ?>
         </td>
     </tr>
-    <?php
-}
+    <?php } // Closing foreach brace
+} // Closing if brace
 ?>
 </tbody>
                 </table>
@@ -281,3 +281,6 @@ if (is_array($all_sessions)) {
     </p>
 </div>
 </div>
+</div> <!-- .gw2-dashboard-grid -->
+</div> <!-- .wrap.gw2-dashboard -->
+<?php // End of dashboard.php ?>
