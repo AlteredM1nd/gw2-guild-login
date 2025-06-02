@@ -13,6 +13,10 @@ class ComposerStaticInit9a00c4fb0588d26ae035006fb36a027c
     );
 
     public static $prefixLengthsPsr4 = array (
+        'S' => 
+        array (
+            'SzepeViktor\\PHPStan\\WordPress\\' => 30,
+        ),
         'P' => 
         array (
             'PragmaRX\\Google2FA\\' => 19,
@@ -32,6 +36,10 @@ class ComposerStaticInit9a00c4fb0588d26ae035006fb36a027c
     );
 
     public static $prefixDirsPsr4 = array (
+        'SzepeViktor\\PHPStan\\WordPress\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/szepeviktor/phpstan-wordpress/src',
+        ),
         'PragmaRX\\Google2FA\\' => 
         array (
             0 => __DIR__ . '/..' . '/pragmarx/google2fa/src',

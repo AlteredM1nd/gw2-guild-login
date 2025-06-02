@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * GW2_Guild_Ranks
  *
@@ -10,16 +11,16 @@
  */
 class GW2_Guild_Ranks {
     /** @var self|null Singleton instance */
-    private static $instance = null;
+    private static ?self $instance = null;
     
     /** @var string Guild ranks table name */
-    private $table_ranks;
+    private string $table_ranks;
     
     /** @var string Guild members cache key prefix */
-    private $cache_prefix = 'gw2_guild_members_';
+    private string $cache_prefix = 'gw2_guild_members_';
     
     /** @var int Cache expiration in seconds (1 hour) */
-    private $cache_expiration;
+    private int $cache_expiration;
     
     /**
      * Get the singleton instance
@@ -45,8 +46,9 @@ class GW2_Guild_Ranks {
      * Constructor
      */
     private function __construct() {
+        /** @var wpdb $wpdb */
         global $wpdb;
-        $this->table_ranks = $wpdb->prefix . 'gw2_guild_ranks';
+        $this->table_ranks = (string) $wpdb->prefix . 'gw2_guild_ranks';
         
         // Set cache expiration (1 hour)
         $this->cache_expiration = defined('HOUR_IN_SECONDS') ? HOUR_IN_SECONDS : 3600;
@@ -67,18 +69,19 @@ class GW2_Guild_Ranks {
      * @return void
      */
     public function activate(): void {
+        /** @var wpdb $wpdb */
         global $wpdb;
         
         $sql = "CREATE TABLE {$this->table_ranks} (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            rank_id varchar(50) NOT NULL,
-            rank_name varchar(100) NOT NULL,
-            guild_id varchar(50) NOT NULL,
-            permissions text,
-            last_updated datetime DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY  (id),
-            UNIQUE KEY rank_guild (rank_id, guild_id)
-        ) " . $wpdb->get_charset_collate() . ";";
+         id mediumint(9) NOT NULL AUTO_INCREMENT,
+         rank_id varchar(50) NOT NULL,
+         rank_name varchar(100) NOT NULL,
+         guild_id varchar(50) NOT NULL,
+         permissions text,
+         last_updated datetime DEFAULT CURRENT_TIMESTAMP,
+         PRIMARY KEY  (id),
+         UNIQUE KEY rank_guild (rank_id, guild_id)
+        ) " . (string) $wpdb->get_charset_collate() . ";";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
@@ -169,9 +172,12 @@ class GW2_Guild_Ranks {
     }
     
     /**
-     * Fetch guild data from GW2 API
+     * Fetch guild data from GW2 API.
+     *
+     * @param string $guild_id Guild UUID.
+     * @return array<string, mixed>|\WP_Error Associative array of ranks and members or WP_Error on failure.
      */
-    public function fetch_guild_data(string $guild_id): array|WP_Error {
+    public function fetch_guild_data(string $guild_id): array|\WP_Error {
         $api_key_mixed = get_option('gw2_api_key');
         $guild_id_safe = is_string($guild_id) ? $guild_id : '';
         $api_key_safe = is_string($api_key_mixed) ? $api_key_mixed : '';
@@ -203,7 +209,11 @@ class GW2_Guild_Ranks {
     }
     
     /**
-     * Check if user has required guild rank
+     * Check if a user has the required guild rank.
+     *
+     * @param int $user_id WordPress user ID.
+     * @param string $required_rank Required guild rank name.
+     * @return bool True if user has rank, false otherwise.
      */
     public function check_rank_access(int $user_id, string $required_rank): bool {
         $guild_id_mixed = get_user_meta($user_id, 'gw2_guild_id', true);
@@ -237,12 +247,9 @@ class GW2_Guild_Ranks {
     
     /**
      * Restricted content shortcode
-     */
-    /**
-     * Restricted content shortcode
      *
-     * @param array $atts
-     * @param string|null $content
+     * @param array<string, string> $atts Attributes array with 'rank' and 'message'.
+     * @param string|null $content The content enclosed by the shortcode.
      * @return string
      */
     public function restricted_content_shortcode(array $atts, ?string $content = null): string {
@@ -269,7 +276,12 @@ class GW2_Guild_Ranks {
 }
 
 // Initialize the plugin
-function gw2_guild_ranks_init() {
+/**
+ * Initialize GW2_Guild_Ranks plugin singleton.
+ *
+ * @return GW2_Guild_Ranks Plugin instance.
+ */
+function gw2_guild_ranks_init(): GW2_Guild_Ranks {
     return GW2_Guild_Ranks::instance();
 }
 add_action('plugins_loaded', 'gw2_guild_ranks_init');

@@ -1,6 +1,11 @@
 <?php
+declare(strict_types=1);
 use GW2GuildLogin\GW2_2FA_Handler;
 use GW2GuildLogin\GW2_Login_Shortcode;
+
+/** @var array<string,string> $plugin_data */
+/** @var string $plugin_version */
+
 /**
  * Plugin Name:       GW2 Guild Login
  * Plugin URI:        https://github.com/AlteredM1nd/gw2-guild-login
@@ -174,11 +179,13 @@ function GW2_Guild_Login() {
 register_activation_hook(__FILE__, 'gw2_2fa_activate');
 
 /**
- * Plugin activation
+ * Plugin activation.
+ *
+ * @return void
  */
-function gw2_2fa_activate() {
+function gw2_2fa_activate(): void {
+    global $wpdb; /** @var wpdb $wpdb */
     // Create database tables if they don't exist
-    global $wpdb;
     $charset_collate = $wpdb->get_charset_collate();
     
     // 2FA Secrets table
@@ -270,7 +277,7 @@ function gw2_2fa_activate() {
 
 
 // Enqueue frontend styles and scripts
-function gw2_login_enqueue_assets() {
+function gw2_login_enqueue_assets(): void {
     // Guild rank styles
     wp_register_style('gw2-guild-ranks', plugins_url('assets/css/guild-ranks.css', __FILE__), array(), GW2_GUILD_LOGIN_VERSION);
     wp_enqueue_style('gw2-guild-ranks');
@@ -313,13 +320,14 @@ function gw2_login_enqueue_assets() {
 
         wp_enqueue_script( 'gw2-login-script' );
     }
-    return;
 }
 
 /**
- * Handle the login form submission
+ * Handle the login form submission.
+ *
+ * @return void
  */
-function gw2_handle_login_submission() {
+function gw2_handle_login_submission(): void {
     // Only process POST requests
     $request_method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '';
     if ('POST' !== $request_method) {

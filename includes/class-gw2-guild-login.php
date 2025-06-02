@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Main plugin class
  */
@@ -21,13 +22,17 @@ class GW2_Guild_Login {
 	/**
 	 * Invalidate user cache on logout
 	 */
-	public function handle_logout_cache_invalidation() {
-		if (!is_user_logged_in()) return;
+	public function handle_logout_cache_invalidation(): void {
+		if (!is_user_logged_in()) {
+			return;
+		}
 		$user_id = get_current_user_id();
-		if ($user_id <= 0) return;
-		if (class_exists('GW2_User_Handler')) {
-			$user_handler = new GW2_User_Handler(null);
-			$user_handler->clear_user_cache($user_id);
+		if ($user_id <= 0) {
+			return;
+		}
+		// Use the existing user handler to clear cache
+		if (class_exists('GW2_User_Handler') && isset($this->user_handler)) {
+			$this->user_handler->clear_user_cache($user_id);
 		}
 	}
 
@@ -102,7 +107,7 @@ class GW2_Guild_Login {
 	 *
 	 * @return GW2_Guild_Login
 	 */
-	public static function instance() {
+	public static function instance(): self {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 		}
@@ -112,7 +117,7 @@ class GW2_Guild_Login {
 	/**
 	 * Define plugin constants
 	 */
-	private function define_constants() {
+	private function define_constants(): void {
 		// Define constants if not already defined in main plugin file
 		if ( ! defined( 'GW2_GUILD_LOGIN_VERSION' ) ) {
 			$this->define( 'GW2_GUILD_LOGIN_VERSION', self::VERSION );
@@ -161,7 +166,7 @@ class GW2_Guild_Login {
 	/**
 	 * Include required files
 	 */
-	public function includes() {
+	public function includes(): void {
 		// Ensure constants are defined
 		$this->define_constants();
 
@@ -176,7 +181,7 @@ class GW2_Guild_Login {
 	/**
 	 * Initialize hooks
 	 */
-	private function init_hooks() {
+	private function init_hooks(): void {
 		// Activation and deactivation hooks
 		register_activation_hook( $this->plugin_file, array( $this, 'activate' ) );
 		register_deactivation_hook( $this->plugin_file, array( $this, 'deactivate' ) );
@@ -198,7 +203,7 @@ class GW2_Guild_Login {
 	/**
 	 * Initialize the plugin
 	 */
-	public function init() {
+	public function init(): void {
 		// Initialize session if not already started
 		if ( ! session_id() ) {
 			session_start();
@@ -214,7 +219,7 @@ class GW2_Guild_Login {
 	/**
 	 * Load plugin text domain
 	 */
-	public function load_plugin_textdomain() {
+	public function load_plugin_textdomain(): void {
 		load_plugin_textdomain(
 			'gw2-guild-login',
 			false,
@@ -224,16 +229,22 @@ class GW2_Guild_Login {
 
 	/**
 	 * Add our template to the page template dropdown
+	 *
+	 * @param array<string,string> $templates
+	 * @return array<string,string>
 	 */
-	public function register_page_templates( $templates ) {
+	public function register_page_templates(array $templates): array {
 		$templates = array_merge( $templates, $this->templates );
 		return $templates;
 	}
 
 	/**
 	 * Load the template if it's set
+	 *
+	 * @param string $template
+	 * @return string
 	 */
-	public function load_page_template( $template ) {
+	public function load_page_template(string $template): string {
 		global $post;
 
 		// Return the template if it's not a page
@@ -312,11 +323,15 @@ class GW2_Guild_Login {
 
 	/**
 	 * Create required database tables
+	 *
+	 * @return void
 	 */
-	private static function create_tables() {
-		global $wpdb;
-
-		$charset_collate = $wpdb->get_charset_collate();
+	private static function create_tables(): void {
+		global $wpdb; /** @var \wpdb $wpdb */
+		if (! ($wpdb instanceof \wpdb)) {
+			return;
+		}
+		$charset_collate = (string) $wpdb->get_charset_collate();
 		$table_name      = $wpdb->prefix . 'gw2gl_api_keys';
 
 		$sql = "CREATE TABLE IF NOT EXISTS $table_name (
@@ -332,8 +347,10 @@ class GW2_Guild_Login {
 
 	/**
 	 * Schedule cron events
+	 *
+	 * @return void
 	 */
-	private static function schedule_events() {
+	private static function schedule_events(): void {
 		// Schedule daily sync
 		if ( ! wp_next_scheduled( 'gw2gl_daily_sync' ) ) {
 			wp_schedule_event( time(), 'daily', 'gw2gl_daily_sync' );
@@ -362,8 +379,10 @@ class GW2_Guild_Login {
 
 	/**
 	 * Initialize admin functionality
+	 *
+	 * @return void
 	 */
-	public function init_admin() {
+	public function init_admin(): void {
 		// Only load in admin area and if not already loaded
 		if ( ! is_admin() || $this->admin ) {
 			return;
@@ -391,11 +410,11 @@ class GW2_Guild_Login {
 	}
 
 	/**
-	 * Get the admin instance
+	 * Migrate API keys and warn about encryption key
 	 *
-	 * @return GW2_Guild_Login_Admin|null
+	 * @return void
 	 */
-	public static function maybe_migrate_api_keys_and_warn() {
+	public static function maybe_migrate_api_keys_and_warn(): void {
 		// Migrate legacy API keys
 		if ( class_exists( 'GW2_User_Handler' ) ) {
 			GW2_User_Handler::maybe_migrate_api_keys();
@@ -411,7 +430,12 @@ class GW2_Guild_Login {
 		}
 	}
 
-	public function get_admin() {
+	/**
+	 * Get the admin instance
+	 *
+	 * @return GW2_Guild_Login_Admin|null
+	 */
+	public function get_admin(): ?GW2_Guild_Login_Admin {
 		return $this->admin;
 	}
 }

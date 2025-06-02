@@ -1,3 +1,12 @@
+<?php
+declare(strict_types=1);
+// Retrieve and ensure string types for settings
+$guild_id_raw = get_option('gw2_guild_id', '');
+$guild_id = is_string($guild_id_raw) ? $guild_id_raw : '';
+$api_key_raw = get_option('gw2_api_key', '');
+$api_key = is_string($api_key_raw) ? $api_key_raw : '';
+?>
+
 <div class="wrap gw2-admin-rank-access">
     <h1>Guild Rank Access</h1>
     

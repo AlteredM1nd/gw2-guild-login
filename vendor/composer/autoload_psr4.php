@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'SzepeViktor\\PHPStan\\WordPress\\' => array($vendorDir . '/szepeviktor/phpstan-wordpress/src'),
     'PragmaRX\\Google2FA\\' => array($vendorDir . '/pragmarx/google2fa/src'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'ParagonIE\\ConstantTime\\' => array($vendorDir . '/paragonie/constant_time_encoding/src'),

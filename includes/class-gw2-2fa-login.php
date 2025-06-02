@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 use GW2GuildLogin\GW2_2FA_Handler;
 /**
  * Handles 2FA during the login process
@@ -31,7 +32,7 @@ class GW2_2FA_Login {
     /**
      * Add 2FA field to login form
      */
-    public function add_2fa_field() {
+    public function add_2fa_field(): void {
         // Only show if user exists and 2FA is enabled
         $user = wp_get_current_user();
         if (is_object($user) && method_exists($user, 'exists') && $user->exists() && isset($user->ID) && is_int($user->ID) && $this->handler->is_2fa_enabled($user->ID)) {
@@ -56,7 +57,7 @@ class GW2_2FA_Login {
      * @param string $password
      * @return WP_User|WP_Error
      */
-    public function verify_2fa($user, $username, $password) {
+    public function verify_2fa(\WP_User|\WP_Error $user, string $username, string $password): \WP_User|\WP_Error {
         // Don't interfere with other authentication methods
         // $user is WP_User or WP_Error. Only allow WP_User with valid ID.
         if (!($user instanceof \WP_User) || !$user->exists() || !isset($user->ID) || $user->ID <= 0) {
@@ -132,7 +133,7 @@ class GW2_2FA_Login {
     /**
      * Handle 2FA verification form submission
      */
-    public function handle_2fa_verification() {
+    public function handle_2fa_verification(): ?\WP_Error {
         // Nonce verification for 2FA form
         if (!isset($_POST['_2fa_nonce']) || !wp_verify_nonce($_POST['_2fa_nonce'], '2fa_verify')) {
             return new WP_Error(
@@ -181,7 +182,7 @@ class GW2_2FA_Login {
      * 
      * @param WP_User $user
      */
-    private function show_2fa_form($user) {
+    private function show_2fa_form(\WP_User $user): void {
         // Load the login header with empty error message
         login_header(
             __('Two-Factor Authentication', 'gw2-guild-login'),
@@ -240,7 +241,7 @@ class GW2_2FA_Login {
      * @param array $codes
      * @return bool
      */
-    private function send_backup_codes_email($user, $codes) {
+    private function send_backup_codes_email(\WP_User $user, array $codes): bool {
         $blog_name = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
         $subject = sprintf(__('[%s] New Backup Codes', 'gw2-guild-login'), $blog_name);
         
@@ -262,7 +263,7 @@ class GW2_2FA_Login {
     /**
      * Enqueue login page scripts
      */
-    public function enqueue_login_scripts() {
+    public function enqueue_login_scripts(): void {
         wp_enqueue_style(
             'gw2-2fa-login',
             plugins_url('assets/css/gw2-2fa-login.css', dirname(__FILE__)),

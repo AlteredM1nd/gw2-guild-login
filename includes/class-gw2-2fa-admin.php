@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 use GW2GuildLogin\GW2_2FA_Handler;
 /**
  * GW2_2FA_Admin
@@ -47,7 +47,7 @@ class GW2_2FA_Admin {
      * @param WP_User $user
      * @return void
      */
-    public function add_2fa_profile_section(object $user): void {
+    public function add_2fa_profile_section(\WP_User $user): void {
         if (!is_object($user) || !isset($user->ID) || !is_int($user->ID) || !current_user_can('edit_user', $user->ID)) {
             return;
         }

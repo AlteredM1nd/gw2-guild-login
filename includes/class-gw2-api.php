@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Handles all GW2 API interactions
  */
@@ -15,14 +16,14 @@ class GW2_API {
 	 *
 	 * @var int
 	 */
-	protected $cache_expiry = 3600; // 1 hour
+	protected int $cache_expiry = 3600; // 1 hour
 
 	/**
 	 * Rate limiting settings
 	 *
 	 * @var array
 	 */
-	protected $rate_limit = [
+	protected array $rate_limit = [
 		'requests' => 300, // Requests per window
 		'window'   => 60,  // Seconds
 	];
@@ -32,7 +33,7 @@ class GW2_API {
 	 *
 	 * @var array
 	 */
-	protected $rate_limits = [];
+	protected array $rate_limits = [];
 
 	/**
 	 * Constructor
@@ -56,7 +57,7 @@ class GW2_API {
 	 * @param string $api_key
 	 * @return array|WP_Error
 	 */
-	public function validate_api_key( $api_key ) {
+	public function validate_api_key(string $api_key): array|\WP_Error {
 		// Check rate limit first
 		$rate_limited = $this->check_rate_limit( 'validate_key' );
 		if ( is_wp_error( $rate_limited ) ) {
@@ -112,7 +113,7 @@ class GW2_API {
 	 * @param string $account_id
 	 * @return bool|WP_Error
 	 */
-	public function is_guild_member( $api_key, $account_id ) {
+	public function is_guild_member(string $api_key, string $account_id): bool|\WP_Error {
         // Check rate limit first
         $rate_limited = $this->check_rate_limit( 'guild_check' );
         if ( is_wp_error( $rate_limited ) ) {
@@ -160,7 +161,7 @@ class GW2_API {
 	 * @param string $endpoint
 	 * @return bool|WP_Error True if allowed, WP_Error if rate limited
 	 */
-	protected function check_rate_limit( $endpoint ) {
+	protected function check_rate_limit(string $endpoint): bool|\WP_Error {
 		$now = time();
 		$key = md5( $endpoint . ( isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '' ) );
 
@@ -213,7 +214,7 @@ class GW2_API {
  * @param bool $force_refresh Optional. If true, bypass cache and fetch fresh data.
  * @return array|WP_Error
  */
-protected function make_api_request( $endpoint, $api_key = '', $force_refresh = false ) {
+protected function make_api_request(string $endpoint, string $api_key = '', bool $force_refresh = false): array|\WP_Error {
 		try {
 			// Build the request URL
 			$url = self::API_BASE_URL . ltrim( $endpoint, '/' );
@@ -288,7 +289,7 @@ protected function make_api_request( $endpoint, $api_key = '', $force_refresh = 
 	 * @param string $api_key
 	 * @return string|false
 	 */
-	protected function sanitize_api_key( $api_key ) {
+	protected function sanitize_api_key(string $api_key): string|false {
 		$api_key = trim( $api_key );
 
 		// Check if the API key matches the expected format
@@ -305,7 +306,7 @@ protected function make_api_request( $endpoint, $api_key = '', $force_refresh = 
 	 * @param string $guild_id
 	 * @return array|WP_Error
 	 */
-	public function get_guild_details( $guild_id ) {
+	public function get_guild_details(string $guild_id): array|\WP_Error {
 		if ( empty( $guild_id ) ) {
 			return new WP_Error( 'invalid_guild_id', __( 'Invalid guild ID', 'gw2-guild-login' ) );
 		}
@@ -319,7 +320,7 @@ protected function make_api_request( $endpoint, $api_key = '', $force_refresh = 
 	 * @param string $api_key The GW2 API key
 	 * @return array|WP_Error Array of character names on success, WP_Error on failure
 	 */
-	public function get_character_names($api_key) {
+	public function get_character_names(string $api_key): array|\WP_Error {
         $characters = $this->make_api_request('characters', $api_key);
         if (is_wp_error($characters) || !is_array($characters)) {
             return $characters;
@@ -336,7 +337,7 @@ protected function make_api_request( $endpoint, $api_key = '', $force_refresh = 
      * @param string $api_key The GW2 API key
      * @return array|WP_Error Account data on success, WP_Error on failure
      */
-    public function get_account_data($api_key) {
+    public function get_account_data(string $api_key): array|\WP_Error {
         // First validate the API key
         $token_info = $this->validate_api_key($api_key);
         if (is_wp_error($token_info) || !is_array($token_info) || !isset($token_info['permissions']) || !is_array($token_info['permissions'])) {

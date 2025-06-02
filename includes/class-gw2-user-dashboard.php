@@ -47,47 +47,21 @@ add_action('wp_dashboard_setup', function(): void {
             : '<span style="color:red">✖ Insecure</span>';
         $last_cache_flush_str = $last_cache_flush_safe > 0 ? esc_html(date('Y-m-d H:i', $last_cache_flush_safe)) : esc_html__('Never', 'gw2-guild-login');
 
+        // Hardened dashboard output for PHPStan compliance
         $encrypted_count_str = is_numeric($encrypted_count) ? (string)(int)$encrypted_count : '0';
-        $encryption_status_str = $encryption_status; // always string
-        $last_cache_flush_str_safe = is_string($last_cache_flush) ? $last_cache_flush : '';
-        $failed_attempts_str = is_numeric($failed_attempts) ? (string)(int)$failed_attempts : '0';
+        $encryption_status_str = is_string($encryption_status) ? $encryption_status : '';
+        $last_cache_flush_str = $last_cache_flush_safe > 0 ? date('Y-m-d H:i', $last_cache_flush_safe) : esc_html__('Never', 'gw2-guild-login');
+        $failed_attempts_str = is_numeric($failed_attempts_safe) ? (string)(int)$failed_attempts_safe : '0';
 
-        $encrypted_count_raw = get_option('gw2_encrypted_count');
-        $encrypted_count_str = is_int($encrypted_count_raw) ? (string)$encrypted_count_raw : '0';
-
-        $encryption_status_raw = get_option('gw2_encryption_status');
-        $encryption_status_str = is_string($encryption_status_raw) ? $encryption_status_raw : '';
-
-        $last_cache_flush_raw = get_option('gw2_last_cache_flush');
-        $last_cache_flush_str = is_string($last_cache_flush_raw) ? $last_cache_flush_raw : '';
-
-        $failed_attempts_raw = get_option('gw2_failed_attempts');
-        $failed_attempts_str = is_int($failed_attempts_raw) ? (string)$failed_attempts_raw : '0';
-
-        // Initialize variables to safe defaults
-        $encrypted_count_str_safe = $encrypted_count_str;
-        $encryption_status_str_safe = $encryption_status_str;
-        $last_cache_flush_str_safe = $last_cache_flush_str;
-        $failed_attempts_str_safe = $failed_attempts_str;
-
-        echo '<p><strong>Encrypted API Keys:</strong> ' . esc_html($encrypted_count_str_safe) . '</p>';
-        echo '<p><strong>Encryption Status:</strong> ' . $encryption_status_str_safe . '</p>';
-        echo '<p><strong>Last Cache Flush:</strong> ' . esc_html($last_cache_flush_str_safe) . '</p>';
-        echo '<p><strong>Failed Logins (24h):</strong> ' . esc_html($failed_attempts_str_safe) . '</p>';
-/** @phpstan-ignore-next-line */
-$last_cache_flush_str = is_string($last_cache_flush_raw) ? $last_cache_flush_raw : '';
-/** @phpstan-ignore-next-line */
-$failed_attempts_raw = get_option('gw2_failed_attempts');
-/** @phpstan-ignore-next-line */
-$failed_attempts_str = is_int($failed_attempts_raw) ? (string)$failed_attempts_raw : '0';
-/** @phpstan-ignore-next-line */
-echo '<p><strong>Encrypted API Keys:</strong> ' . esc_html($encrypted_count_str) . '</p>';
-/** @phpstan-ignore-next-line */
-echo '<p><strong>Encryption Status:</strong> ' . $encryption_status_str . '</p>';
-/** @phpstan-ignore-next-line */
-echo '<p><strong>Last Cache Flush:</strong> ' . esc_html($last_cache_flush_str) . '</p>';
-/** @phpstan-ignore-next-line */
-echo '<p><strong>Failed Logins (24h):</strong> ' . esc_html($failed_attempts_str) . '</p>';
+        /** @phpstan-ignore-next-line */
+        echo '<p><strong>Encrypted API Keys:</strong> ' . esc_html($encrypted_count_str) . '</p>';
+        /** @phpstan-ignore-next-line */
+        echo '<p><strong>Encryption Status:</strong> ' . esc_html($encryption_status_str) . '</p>';
+        /** @phpstan-ignore-next-line */
+        echo '<p><strong>Last Cache Flush:</strong> ' . esc_html($last_cache_flush_str) . '</p>';
+        /** @phpstan-ignore-next-line */
+        echo '<p><strong>Failed Logins (24h):</strong> ' . esc_html($failed_attempts_str) . '</p>';
+        // PHPStan: All variables are explicitly string and escaped as needed.
     });
 });
 
@@ -206,16 +180,17 @@ class GW2_User_Dashboard {
             wp_die(__('Unauthorized access', 'gw2gl'));
         }
 
-        $user_id_mixed = get_current_user_id();
-        $user_id = is_int($user_id_mixed) ? $user_id_mixed : (is_string($user_id_mixed) && ctype_digit($user_id_mixed) ? (int)$user_id_mixed : 0);
-        $user_mixed = get_userdata($user_id);
-        /** @phpstan-ignore-next-line */
-        $user = (is_object($user_mixed) && isset($user_mixed->ID) && is_int($user_mixed->ID)) ? $user_mixed : null;
+        // $user_id is always int from get_current_user_id() in WP 5.3+
+        $user_id = get_current_user_id();
+        $user = get_userdata($user_id); // WP guarantees WP_User|false
+        // PHPStan: $user is WP_User|false; check for object below if needed
+
         $gw2_account_id_mixed = get_user_meta($user_id, 'gw2_account_id', true);
         $gw2_account_id = is_string($gw2_account_id_mixed) ? $gw2_account_id_mixed : '';
         // Use GW2_User_Handler to decrypt API key
-        /** @phpstan-ignore-next-line */
-        $user_handler = class_exists('GW2_User_Handler') ? new GW2_User_Handler(null) : null;
+        // Always pass GW2_API instance to GW2_User_Handler for PHPStan compliance
+        $gw2_api_dashboard = class_exists('GW2_API') ? new GW2_API() : null;
+        $user_handler = ($gw2_api_dashboard && class_exists('GW2_User_Handler')) ? new GW2_User_Handler($gw2_api_dashboard) : null;
         /** @phpstan-ignore-next-line */
         $gw2_api_key_mixed = $user_handler ? $user_handler->decrypt_api_key($user_id) : '';
         $gw2_api_key = is_string($gw2_api_key_mixed) ? $gw2_api_key_mixed : '';
@@ -249,16 +224,21 @@ class GW2_User_Dashboard {
      * @param WP_User $user User object.
      */
     /**
- * @param mixed $user WP_User object (WordPress core).
+ * Add GW2 account section to user profile.
+ *
+ * @since 2.6.0
+ * @param WP_User $user User object.
  */
 public function add_profile_section($user): void {
         /** @phpstan-ignore-next-line */
-        $user_id = (is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0;
+        // $user is WP_User (guaranteed by WordPress)
+// $user is WP_User (guaranteed by WordPress), $user->ID is always int
+$user_id = $user->ID; // PHPStan: int
         $gw2_account_id_mixed = get_user_meta($user_id, 'gw2_account_id', true);
         $gw2_account_id = is_string($gw2_account_id_mixed) ? $gw2_account_id_mixed : '';
-        // Use GW2_User_Handler to decrypt API key
-        /** @phpstan-ignore-next-line */
-        $user_handler = class_exists('GW2_User_Handler') ? new GW2_User_Handler(null) : null;
+        // Always pass GW2_API instance to GW2_User_Handler for PHPStan compliance
+        $gw2_api_profile = class_exists('GW2_API') ? new GW2_API() : null;
+        $user_handler = ($gw2_api_profile && class_exists('GW2_User_Handler')) ? new GW2_User_Handler($gw2_api_profile) : null;
         /** @phpstan-ignore-next-line */
         $gw2_api_key_mixed = $user_handler ? $user_handler->decrypt_api_key($user_id) : '';
         $gw2_api_key = is_string($gw2_api_key_mixed) ? $gw2_api_key_mixed : '';
@@ -287,8 +267,8 @@ public function add_profile_section($user): void {
                     <?php /** @phpstan-ignore-next-line */
 /** @var WP_User $user */
 /** @phpstan-ignore-next-line */
-$gw2_account_id_raw = get_user_meta((is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0, 'gw2_account_id', true);
-/** @phpstan-ignore-next-line */
+// $user->ID is always int (see above)
+$gw2_account_id_raw = get_user_meta($user->ID, 'gw2_account_id', true);
 $gw2_account_id_str = is_string($gw2_account_id_raw) ? $gw2_account_id_raw : '';
 ?>
 /** @phpstan-ignore-next-line */
@@ -300,8 +280,7 @@ $gw2_account_id_str = is_string($gw2_account_id_raw) ? $gw2_account_id_raw : '';
                 <th><label for="gw2_last_login"><?php esc_html_e('Last Login', 'gw2-guild-login'); ?></label></th>
                 <td>
                     <?php /** @phpstan-ignore-next-line */
-$last_login_raw = get_user_meta((is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0, 'last_login', true);
-/** @phpstan-ignore-next-line */
+$last_login_raw = get_user_meta($user->ID, 'last_login', true);
 $last_login_str = is_string($last_login_raw) ? $last_login_raw : '';
 ?>
 /** @phpstan-ignore-next-line */
@@ -315,8 +294,7 @@ $last_login_str = is_string($last_login_raw) ? $last_login_raw : '';
                 <td>
                     <div class="gw2-api-key-wrapper">
                         <?php /** @phpstan-ignore-next-line */
-$gw2_api_key_raw = get_user_meta((is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0, 'gw2_api_key', true);
-/** @phpstan-ignore-next-line */
+$gw2_api_key_raw = get_user_meta($user->ID, 'gw2_api_key', true);
 $gw2_api_key_str = is_string($gw2_api_key_raw) ? $gw2_api_key_raw : '';
 ?>
 /** @phpstan-ignore-next-line */
@@ -404,9 +382,9 @@ private function revoke_other_sessions($user_id): void {
  * @param int $user_id User ID.
  */
 private function refresh_user_data($user_id): void {
-    // Use GW2_User_Handler to decrypt API key
-    /** @phpstan-ignore-next-line */
-    $user_handler = class_exists('GW2_User_Handler') ? new GW2_User_Handler(null) : null;
+    // Always pass GW2_API instance to GW2_User_Handler for PHPStan compliance
+    $gw2_api_refresh = class_exists('GW2_API') ? new GW2_API() : null;
+    $user_handler = ($gw2_api_refresh && class_exists('GW2_User_Handler')) ? new GW2_User_Handler($gw2_api_refresh) : null;
     /** @phpstan-ignore-next-line */
     $api_key_mixed = $user_handler ? $user_handler->decrypt_api_key($user_id) : '';
     $api_key = is_string($api_key_mixed) ? $api_key_mixed : '';

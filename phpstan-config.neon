@@ -1,22 +1,24 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
 parameters:
-    level: 1
+    level: max
+    bootstrapFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+    scanFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
     paths:
         - .
     excludePaths:
         - vendor/*
         - node_modules/*
     reportUnmatchedIgnoredErrors: false
-    bootstrapFiles:
-        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
-    scanFiles:
-        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
     ignoreErrors:
-        - message: '#Constant GW2_GUILD_LOGIN_PLUGIN_DIR not found.#'
-          path: includes/class-gw2-guild-login.php
-        - message: '#Call to an undefined method.*#'
-        - message: '#Access to an undefined property.*#'
-        - message: '#Class .* not found#'
-        - message: '#Instantiated class .* not found#'
-        - message: '#Undefined class constant#'
-        - message: '#Undefined function.*#'
-        - message: '#Function .* not found#'
+        - '#Constant GW2_GUILD_LOGIN_PLUGIN_DIR not found.#'
+        - '#Call to an undefined method.*#'
+        - '#Access to an undefined property.*#'
+        - '#Class .* not found#'
+        - '#Instantiated class .* not found#'
+        - '#Undefined class constant#'
+        - '#Undefined function.*#'
+        - '#Function .* not found#'

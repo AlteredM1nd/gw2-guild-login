@@ -312,14 +312,15 @@ class GW2_Guild_Login_Admin {
 		if ( $force_dark ) {
 			$custom_css .= " body { background: #181c22 !important; color: #f7f9fb !important; }";
 		}
-		echo '<style>'.$custom_css.'</style>';
+	    // Ensure $custom_css is always a string and properly escaped for output in <style>.
+    echo '<style>' . esc_html((string)$custom_css) . '</style>'; // PHPStan: safe string output
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+            <h1><?php echo esc_html((string)get_admin_page_title()); // PHPStan: ensure string ?></h1>
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( 'gw2gl_settings_group' );
@@ -332,7 +333,7 @@ class GW2_Guild_Login_Admin {
 				<div class="gw2gl-admin-box">
 					<h3><?php _e( 'About GW2 Guild Login', 'gw2-guild-login' ); ?></h3>
 					<p><?php _e( 'GW2 Guild Login allows users to log in to your WordPress site using their Guild Wars 2 API key, with optional guild membership verification.', 'gw2-guild-login' ); ?></p>
-					<p><?php _e( 'Version', 'gw2-guild-login' ); ?>: <?php echo esc_html( $this->version ); ?></p>
+                    <p><?php _e( 'Version', 'gw2-guild-login' ); ?>: <?php echo esc_html((string)$this->version); // PHPStan: ensure string ?></p>
 				</div>
 				
 				<div class="gw2gl-admin-box">

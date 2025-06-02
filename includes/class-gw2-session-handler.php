@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Handles session management for the plugin
  */
@@ -6,7 +7,7 @@ class GW2_Session_Handler {
     /**
      * Initialize session handling
      */
-    public static function init() {
+    public static function init(): void {
         if ( ! session_id() && ! headers_sent() ) {
             session_start( [
                 'cookie_httponly' => true,
@@ -22,7 +23,7 @@ class GW2_Session_Handler {
      * @param string $key
      * @param mixed $value
      */
-    public static function set( $key, $value ) {
+    public static function set(string $key, mixed $value): void {
         self::init();
         if (!is_string($key) || $key === '') {
             return;
@@ -42,7 +43,7 @@ class GW2_Session_Handler {
      * @param mixed $default
      * @return mixed
      */
-    public static function get( $key, $default = null ) {
+    public static function get(string $key, mixed $default = null): mixed {
         self::init();
         if (!is_string($key) || $key === '') {
             return $default;
@@ -58,7 +59,7 @@ class GW2_Session_Handler {
      * 
      * @param string $key
      */
-    public static function remove( $key ) {
+    public static function remove(string $key): void {
         self::init();
         if (!is_string($key) || $key === '') {
             return;
@@ -71,7 +72,7 @@ class GW2_Session_Handler {
     /**
      * Clear all session data
      */
-    public static function clear() {
+    public static function clear(): void {
         self::init();
         if (isset($_SESSION['gw2_guild_login'])) {
             unset($_SESSION['gw2_guild_login']);
@@ -81,7 +82,7 @@ class GW2_Session_Handler {
     /**
      * Regenerate session ID
      */
-    public static function regenerate() {
+    public static function regenerate(): void {
         self::init();
         session_regenerate_id( true );
     }

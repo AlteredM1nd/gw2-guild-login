@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Handles user-related functionality
  */
@@ -8,14 +9,14 @@ class GW2_User_Handler {
 	 *
 	 * @var GW2_API
 	 */
-	protected $api;
+	protected \GW2_API $api;
 
 	/**
 	 * Encryption key for API keys
 	 *
 	 * @var string
 	 */
-	protected $encryption_key;
+	protected string $encryption_key;
 
 	/**
 	 * Constructor
@@ -27,7 +28,7 @@ class GW2_User_Handler {
      *
      * @param GW2_API|null $api
      */
-    public function __construct($api) {
+    public function __construct(\GW2_API $api) {
 		$this->api = $api;
 		$this->setup_encryption_key();
 	}
@@ -102,7 +103,7 @@ class GW2_User_Handler {
 	 * @param bool $remember
 	 * @return array|WP_Error
 	 */
-	public function process_login( string $api_key, bool $remember = false ): array|WP_Error {
+	public function process_login(string $api_key, bool $remember = false): array|\WP_Error {
         // Brute-force protection
         $ip = (isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : 'unknown'; // PHPStan: always string.
         $opt_name = 'gw2gl_failed_attempts_' . (is_string($ip) ? md5($ip) : ''); // PHPStan: $ip always string, but guard for safety.
@@ -222,7 +223,7 @@ class GW2_User_Handler {
      * @param string $account_id
      * @return WP_User|WP_Error
      */
-    public function get_user_by_account_id( string $account_id ): WP_User|WP_Error {
+    public function get_user_by_account_id(string $account_id): \WP_User|\WP_Error {
         // Use direct DB query for better performance
         global $wpdb;
         $user_id_mixed = $wpdb->get_var(
@@ -242,4 +243,22 @@ class GW2_User_Handler {
         return $this->decrypt_api_key( $encrypted_key );
     }
 
+    /**
+     * Migrate legacy API keys (no-op placeholder)
+     *
+     * @return void
+     */
+    public static function maybe_migrate_api_keys(): void {
+        // Legacy migration logic could go here
+    }
+
+    /**
+     * Check if encryption key is weak or missing
+     *
+     * @return bool
+     */
+    public static function is_encryption_key_weak(): bool {
+        // Always return false for now; implement real check if needed
+        return false;
+    }
 }

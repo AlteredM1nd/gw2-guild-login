@@ -19,8 +19,7 @@ $gw2_plugin = GW2_Guild_Login();
 $is_guild_member = false;
 $current_user = wp_get_current_user();
 // Guard for PHPStan: ensure user ID is always int
-$current_user_id = (is_object($current_user) && isset($current_user->ID) && is_int($current_user->ID)) ? $current_user->ID : 0;
-if (!isset($current_user_id)) { $current_user_id = 0; }
+$current_user_id = (int) (is_object($current_user) ? $current_user->ID : 0);
 
 if ( $current_user_id > 0 ) {
 	try {
@@ -50,39 +49,27 @@ if ( $current_user_id > 0 ) {
 // If not a guild member, handle the redirect.
 if ( ! $is_guild_member ) {
 	// Store the current URL for redirect after login.
-	$redirect_to_url_mixed = get_permalink();
-$redirect_to_url = is_string($redirect_to_url_mixed) ? $redirect_to_url_mixed : '';
-if (!isset($redirect_to_url)) { $redirect_to_url = ''; }
-if ( ! isset( $_GET['redirect_to'] ) && $redirect_to_url !== '' ) {
-    $_SESSION['gw2_redirect_to'] = $redirect_to_url;
-}
+	$redirect_to_url = get_permalink() ?: '';
+	$_SESSION['gw2_redirect_to'] = $redirect_to_url;
 
-// Get the login page URL or use home URL as fallback.
-$login_page_id_mixed = get_option( 'gw2_guild_login_page' );
-$login_page_id = is_int($login_page_id_mixed) ? $login_page_id_mixed : (is_string($login_page_id_mixed) && ctype_digit($login_page_id_mixed) ? (int)$login_page_id_mixed : 0);
-if (!isset($login_page_id)) { $login_page_id = 0; }
-$login_page_url_mixed = $login_page_id > 0 ? get_permalink( $login_page_id ) : '';
-$login_page_url = is_string($login_page_url_mixed) ? $login_page_url_mixed : '';
-if (!isset($login_page_url)) { $login_page_url = ''; }
-$redirect_url = $login_page_url !== '' ? $login_page_url : home_url();
-if (!isset($redirect_url)) { $redirect_url = home_url(); }
+	// Get the login page URL or use home URL as fallback.
+	$login_page_id = (int) get_option('gw2_guild_login_page', 0);
+	$login_page_url = $login_page_id > 0 ? get_permalink($login_page_id) : '';
+	$redirect_url = $login_page_url !== '' ? $login_page_url : home_url();
 
-// Add a message for the user.
-if ( ! is_user_logged_in() ) {
-    $message = 'Please log in with your GW2 API key to view this page.';
-} else {
-    $message = 'You need to be a member of the guild to view this page.';
-}
-if (!isset($message) || !is_string($message)) { $message = ''; }
-// Set the message in session.
-$_SESSION['gw2_login_message'] = is_string($message) ? $message : '';
-$_SESSION['gw2_message_type']  = 'error';
+	// Message for non-members
+	$message = is_user_logged_in()
+		? __('You need to be a member of the guild to view this page.', 'gw2-guild-login')
+		: __('Please log in with your GW2 API key to view this page.', 'gw2-guild-login');
 
-// Redirect.
-if ( is_string($redirect_url) && $redirect_url !== '' ) {
-    wp_safe_redirect( $redirect_url );
-}
-exit;
+	$_SESSION['gw2_login_message'] = $message;
+	$_SESSION['gw2_message_type']  = 'error';
+
+	// Redirect.
+	if ( is_string($redirect_url) && $redirect_url !== '' ) {
+		wp_safe_redirect( $redirect_url );
+	}
+	exit;
 }
 
 // If we get here, the user is a guild member - proceed with normal page load.

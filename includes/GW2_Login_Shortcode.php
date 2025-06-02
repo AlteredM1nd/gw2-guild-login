@@ -57,10 +57,10 @@ class GW2_Login_Shortcode {
         ?>
         <div class="gw2-login-branding">
             <?php if ( $logo ) : ?>
-                <div class="gw2-login-logo"><img src="<?php echo esc_url($logo); ?>" alt="<?php esc_attr_e('Site Logo', 'gw2-guild-login'); ?>" class="gw2-admin-custom-logo" /></div>
+                <div class="gw2-login-logo"><img src="<?php echo esc_url(is_string($logo) ? $logo : ''); // PHPStan: ensure string ?>" alt="<?php esc_attr_e('Site Logo', 'gw2-guild-login'); ?>" class="gw2-admin-custom-logo" /></div>
             <?php endif; ?>
             <?php if ( $welcome ) : ?>
-                <div class="gw2-login-welcome-text"><?php echo wp_kses_post($welcome); ?></div>
+                <div class="gw2-login-welcome-text"><?php echo wp_kses_post(is_string($welcome) ? $welcome : ''); // PHPStan: ensure string ?></div>
             <?php endif; ?>
         </div>
         <div class="gw2-login-form-container">
@@ -90,7 +90,7 @@ class GW2_Login_Shortcode {
                 esc_html__( 'Get an API key', 'gw2-guild-login' ) . '</a>'
             ),
             array( 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) )
-        );
+        ); // All params are strings and translation-safe
         ?>
     </small>
 </div>
@@ -108,7 +108,7 @@ class GW2_Login_Shortcode {
                 
                 <input type="hidden" 
                        name="redirect_to" 
-                       value="<?php echo esc_url( $this->get_redirect_url() ); ?>">
+                       value="<?php echo esc_url((string)$this->get_redirect_url()); // PHPStan: ensure string ?>">
                 
                 <div class="form-submit">
     <button type="submit" 
@@ -123,14 +123,14 @@ class GW2_Login_Shortcode {
                 <div class="register-link mt-3">
                     <?php 
                     echo wp_kses(
-                        sprintf(
-                            /* translators: %s: Registration URL */
-                            __( "Don't have an account? %s", 'gw2-guild-login' ),
-                            '<a href="' . esc_url( wp_registration_url() ) . '">' . 
-                            esc_html__( 'Register', 'gw2-guild-login' ) . '</a>'
-                        ),
-                        array( 'a' => array( 'href' => array() ) )
-                    );
+                         sprintf(
+                             /* translators: %s: Registration URL */
+                             __( "Don't have an account? %s", 'gw2-guild-login' ),
+                             '<a href="' . esc_url((string)wp_registration_url()) . '">' . 
+                             esc_html__( 'Register', 'gw2-guild-login' ) . '</a>'
+                         ),
+                         array( 'a' => array( 'href' => array() ) )
+                     ); // All params are strings and translation-safe
                     ?>
                 </div>
                 <?php endif; ?>
@@ -147,9 +147,11 @@ class GW2_Login_Shortcode {
      */
     protected function render_user_status() {
         $current_user = wp_get_current_user();
-        $user_id = (is_object($current_user) && isset($current_user->ID) && is_int($current_user->ID)) ? $current_user->ID : 0;
+        // $current_user is WP_User (guaranteed by WordPress)
+$user_id = isset($current_user->ID) && is_int($current_user->ID) ? $current_user->ID : 0;
         $gw2_account_mixed = get_user_meta( $user_id, 'gw2_account_name', true );
-        $gw2_account = is_string($gw2_account_mixed) ? $gw2_account_mixed : '';
+        // get_user_meta returns string for 'gw2_account_name' or ''
+$gw2_account = is_string($gw2_account_mixed) ? $gw2_account_mixed : '';
 
         $settings_mixed = get_option('gw2gl_settings', array());
         $settings = is_array($settings_mixed) ? $settings_mixed : array();
