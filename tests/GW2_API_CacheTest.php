@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/class-gw2-api.php';
 require_once __DIR__ . '/../includes/class-gw2-api-cache-utils.php';
 
 class GW2_API_CacheTest extends TestCase {
-    public function test_cache_and_clear_api_response() {
+    public function test_cache_and_clear_api_response(): void {
         $api = $this->getMockBuilder('GW2_API')
             ->disableOriginalConstructor()
             ->onlyMethods(['make_api_request'])

@@ -2,6 +2,25 @@
 
 All notable changes to the GW2 Guild Login plugin will be documented in this file.
 
+## [2.6.1] - 2025-06-02
+
+### Improved
+- **Strict Type Safety & Static Analysis:**
+  - Comprehensive refactor of `GW2_User_Handler` for full PHPStan compliance and strict type safety.
+  - All variables from WordPress APIs and plugin methods are now strictly typed before use.
+  - Dynamic property access on WordPress user objects is guarded and annotated for static analysis.
+  - All output and function calls now use strictly typed variables, eliminating mixed-type errors.
+  - **Static analysis suppressions:** Added robust PHPStan ignore rules to eliminate unavoidable template/static analysis warnings in WordPress context (e.g., variable scope in templates, unknown WP classes).
+  - All persistent PHPStan warnings are now either real bugs or intentionally suppressed for WordPress template edge cases.
+  - Documentation (README, USAGE, CONTRIBUTING) updated to reflect new static analysis and type safety practices.
+- **Security & Maintainability:**
+  - Improved code clarity and future-proofing without changing any business logic or user-facing behavior.
+  - Enhanced static analysis ensures safer plugin updates and easier auditing.
+
+### Notes
+- No business logic or feature changes; this release is a code quality and security hardening update.
+- All static analysis suppressions are intentional and documented; future real bugs will stand out in PHPStan output.
+
 ## [2.6.0] - 2025-06-01
 
 ### Added

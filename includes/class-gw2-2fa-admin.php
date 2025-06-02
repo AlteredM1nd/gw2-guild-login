@@ -42,21 +42,18 @@ class GW2_2FA_Admin {
      * @param WP_User $user
      */
     public function add_2fa_profile_section($user) {
-        if (!current_user_can('edit_user', $user->ID)) {
+        if (!is_object($user) || !isset($user->ID) || !is_int($user->ID) || !current_user_can('edit_user', $user->ID)) {
             return;
         }
-        
         $is_enabled = $this->handler->is_2fa_enabled($user->ID);
         $backup_codes = $this->handler->get_backup_codes_for_user($user->ID);
-        
         // Generate a new secret if 2FA is being set up
         $secret = '';
         $qr_code_url = '';
         $show_setup = false;
-        
         if (isset($_GET['setup-2fa']) && !$is_enabled) {
             $secret = $this->handler->generate_secret();
-$qr_code_url = $this->handler->get_qr_code_url($secret, $user->user_login); // $qr_code_url will be escaped on output
+            $qr_code_url = $this->handler->get_qr_code_url($secret, isset($user->user_login) && is_string($user->user_login) ? $user->user_login : ''); // $qr_code_url will be escaped on output
             $show_setup = true;
         }
         ?>
@@ -142,26 +139,25 @@ $qr_code_url = $this->handler->get_qr_code_url($secret, $user->user_login); // $
      * @param int $user_id
      */
     public function save_2fa_settings($user_id) {
-        // Nonce verification for 2FA profile actions
+        if (!is_int($user_id) || $user_id <= 0) {
+            return;
+        }
         if (!isset($_POST['gw2_2fa_profile_nonce']) || !wp_verify_nonce($_POST['gw2_2fa_profile_nonce'], 'gw2_2fa_profile_action')) {
-            add_action('user_profile_update_errors', function($errors) {
-                $errors->add('2fa_nonce_invalid', __('Security verification failed. Please try again.', 'gw2-guild-login'));
-            });
             return;
         }
-        if (!current_user_can('edit_user', $user_id)) {
-            return;
-        }
-
         // Handle enabling 2FA
         if (isset($_POST['enable_2fa']) && isset($_POST['2fa_secret']) && isset($_POST['2fa_code'])) {
-            $secret = sanitize_text_field($_POST['2fa_secret']);
-            $code = sanitize_text_field($_POST['2fa_code']);
-            
+            $secret = isset($_POST['2fa_secret']) ? sanitize_text_field($_POST['2fa_secret']) : '';
+            $code = isset($_POST['2fa_code']) ? sanitize_text_field($_POST['2fa_code']) : '';
+            if (!is_string($secret) || !is_string($code) || $secret === '' || $code === '') {
+                add_action('user_profile_update_errors', function($errors) {
+                    $errors->add('2fa_error', __('Invalid verification code.', 'gw2-guild-login'));
+                });
+                return;
+            }
             if ($this->handler->verify_totp($secret, $code)) {
                 $backup_codes = $this->handler->generate_backup_codes();
                 $result = $this->handler->enable_2fa($user_id, $secret, $backup_codes);
-                
                 if (is_wp_error($result)) {
                     add_action('user_profile_update_errors', function($errors) use ($result) {
                         $errors->add('2fa_error', $result->get_error_message());
@@ -182,7 +178,6 @@ $qr_code_url = $this->handler->get_qr_code_url($secret, $user->user_login); // $
         // Handle disabling 2FA
         elseif (isset($_POST['disable_2fa'])) {
             $result = $this->handler->disable_2fa($user_id);
-            
             if (is_wp_error($result)) {
                 add_action('user_profile_update_errors', function($errors) use ($result) {
                     $errors->add('2fa_error', $result->get_error_message());
@@ -243,7 +238,7 @@ $qr_code_url = $this->handler->get_qr_code_url($secret, $user->user_login); // $
             wp_send_json_error(['message' => __('Security verification failed.', 'gw2-guild-login')], 403);
         }
         $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
-        if (!$user_id || $user_id !== get_current_user_id()) {
+        if (!is_int($user_id) || $user_id <= 0 || $user_id !== get_current_user_id()) {
             wp_send_json_error(['message' => __('Unauthorized.', 'gw2-guild-login')], 403);
         }
         // Generate and set new backup codes

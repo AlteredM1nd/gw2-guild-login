@@ -5,7 +5,7 @@ use GW2GuildLogin\GW2_2FA_Handler;
 
 class GW2_2FA_HandlerEncryptTest extends TestCase
 {
-    public function test_encrypt_and_decrypt_secret_roundtrip()
+    public function test_encrypt_and_decrypt_secret_roundtrip(): void
     {
         $handler = GW2_2FA_Handler::instance(true);
         $secret = 'TESTSECRET123456';
@@ -15,7 +15,7 @@ class GW2_2FA_HandlerEncryptTest extends TestCase
         $this->assertEquals($secret, $decrypted, 'Decrypted secret should match original');
     }
 
-    public function test_encrypt_secret_requires_openssl()
+    public function test_encrypt_secret_requires_openssl(): void
     {
         if (!extension_loaded('openssl')) {
             $this->markTestSkipped('OpenSSL extension not available');

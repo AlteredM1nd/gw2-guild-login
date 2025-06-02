@@ -12,6 +12,8 @@ Thank you for your interest in contributing to GW2 Guild Login 2.6.0! We appreci
 
 ## Code Standards & Best Practices
 
+- Always run PHPStan/static analysis before submitting a pull request. The codebase uses robust ignore rules to suppress unavoidable WordPress/template warnings—do not remove these unless you have changed the code to make them unnecessary.
+- All real bugs will stand out in PHPStan output; suppressed warnings are documented and intentional.
 - Follow [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/)
 - Write meaningful commit messages
 - Document your code with PHPDoc blocks

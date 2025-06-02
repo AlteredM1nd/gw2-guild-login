@@ -38,15 +38,17 @@ class GW2_API {
 	 * Constructor
 	 */
 	public function __construct() {
-		// Get cache expiry from options
-		$options = get_option( 'gw2gl_settings', array() );
-		if ( isset( $options['api_cache_expiry'] ) ) {
-			$this->cache_expiry = (int) $options['api_cache_expiry'];
-		}
+        // Get cache expiry from options
+        $options = get_option( 'gw2gl_settings', array() );
+        $cache_expiry = is_array($options) && isset($options['api_cache_expiry']) ? $options['api_cache_expiry'] : null;
+        if (is_numeric($cache_expiry)) {
+            $this->cache_expiry = (int) $cache_expiry;
+        }
 
-		// Initialize rate limiting
-		$this->rate_limits = get_transient( 'gw2gl_rate_limits' ) ?: [];
-	}
+        // Initialize rate limiting
+        $rate_limits = get_transient( 'gw2gl_rate_limits' );
+        $this->rate_limits = is_array($rate_limits) ? $rate_limits : [];
+    }
 
 	/**
 	 * Validate an API key and return account info
@@ -111,45 +113,46 @@ class GW2_API {
 	 * @return bool|WP_Error
 	 */
 	public function is_guild_member( $api_key, $account_id ) {
-		// Check rate limit first
-		$rate_limited = $this->check_rate_limit( 'guild_check' );
-		if ( is_wp_error( $rate_limited ) ) {
-			return $rate_limited;
-		}
+        // Check rate limit first
+        $rate_limited = $this->check_rate_limit( 'guild_check' );
+        if ( is_wp_error( $rate_limited ) ) {
+            return $rate_limited;
+        }
 
-		$options         = get_option( 'gw2gl_settings', array() );
-		$target_guild_ids = isset( $options['target_guild_id'] ) ? $options['target_guild_id'] : '';
+        $options = get_option( 'gw2gl_settings', array() );
+        $target_guild_ids_raw = is_array($options) && isset($options['target_guild_id']) ? $options['target_guild_id'] : '';
+        $target_guild_ids_str = is_string($target_guild_ids_raw) ? $target_guild_ids_raw : '';
 
-		if ( empty( $target_guild_ids ) ) {
-			return new WP_Error(
-				'no_guild_configured',
-				__( 'No target guild has been configured.', 'gw2-guild-login' )
-			);
-		}
+        if ( empty( $target_guild_ids_str ) ) {
+            return new WP_Error(
+                'no_guild_configured',
+                __( 'No target guild has been configured.', 'gw2-guild-login' )
+            );
+        }
 
-		// Support multiple guild IDs (comma-separated)
-		$target_guild_ids = array_filter(array_map('trim', explode(',', $target_guild_ids)));
+        // Support multiple guild IDs (comma-separated)
+        $target_guild_ids = array_filter(array_map('trim', explode(',', $target_guild_ids_str)));
 
-		try {
-			// Get account guilds
-			$guilds = $this->make_api_request( 'account/guilds', $api_key );
+        try {
+            // Get account guilds
+            $guilds = $this->make_api_request( 'account/guilds', $api_key );
 
-			if ( is_wp_error( $guilds ) ) {
-				return $guilds;
-			}
+            if ( is_wp_error( $guilds ) ) {
+                return $guilds;
+            }
 
-			// Check if the account is in any of the target guilds
-			foreach ( $target_guild_ids as $guild_id ) {
-				if ( in_array( $guild_id, (array) $guilds ) ) {
-					return true;
-				}
-			}
-			return false;
+            // Check if the account is in any of the target guilds
+            foreach ( $target_guild_ids as $guild_id ) {
+                if ( in_array( $guild_id, is_array($guilds) ? $guilds : [], true ) ) {
+                    return true;
+                }
+            }
+            return false;
 
-		} catch ( Exception $e ) {
-			return new WP_Error( 'guild_check_failed', __( 'Failed to verify guild membership.', 'gw2-guild-login' ) );
-		}
-	}
+        } catch ( Exception $e ) {
+            return new WP_Error( 'guild_check_failed', __( 'Failed to verify guild membership.', 'gw2-guild-login' ) );
+        }
+    }
 
 	/**
 	 * Check and enforce rate limiting
@@ -317,17 +320,15 @@ protected function make_api_request( $endpoint, $api_key = '', $force_refresh = 
 	 * @return array|WP_Error Array of character names on success, WP_Error on failure
 	 */
 	public function get_character_names($api_key) {
-		$characters = $this->make_api_request('characters', $api_key);
-		
-		if (is_wp_error($characters)) {
-			return $characters;
-		}
-		
-		// Extract just the character names
-		return array_map(function($char) {
-			return $char['name'];
-		}, $characters);
-	}
+        $characters = $this->make_api_request('characters', $api_key);
+        if (is_wp_error($characters) || !is_array($characters)) {
+            return $characters;
+        }
+        // Extract just the character names
+        return array_map(function($char) {
+            return is_array($char) && isset($char['name']) && is_string($char['name']) ? $char['name'] : '';
+        }, $characters);
+    }
 
     /**
      * Get account data from the GW2 API using an API key
@@ -338,7 +339,7 @@ protected function make_api_request( $endpoint, $api_key = '', $force_refresh = 
     public function get_account_data($api_key) {
         // First validate the API key
         $token_info = $this->validate_api_key($api_key);
-        if (is_wp_error($token_info)) {
+        if (is_wp_error($token_info) || !is_array($token_info) || !isset($token_info['permissions']) || !is_array($token_info['permissions'])) {
             return $token_info;
         }
 
@@ -358,37 +359,32 @@ protected function make_api_request( $endpoint, $api_key = '', $force_refresh = 
 
         // Get account info
         $account = $this->make_api_request('account', $api_key);
-        if (is_wp_error($account)) {
+        if (is_wp_error($account) || !is_array($account)) {
             return $account;
         }
 
         // Get guilds if available
         $guilds = [];
-        if (in_array('guilds', $token_info['permissions'])) {
-            $guilds = $this->make_api_request('account/guilds', $api_key);
-            if (is_wp_error($guilds)) {
-                // Don't fail the whole request if guilds can't be fetched
-                $guilds = [];
-            }
+        if (in_array('guilds', $token_info['permissions'], true)) {
+            $guilds_result = $this->make_api_request('account/guilds', $api_key);
+            $guilds = is_wp_error($guilds_result) || !is_array($guilds_result) ? [] : $guilds_result;
         }
 
         // Get characters if available
         $characters = [];
-        if (in_array('characters', $token_info['permissions'])) {
+        if (in_array('characters', $token_info['permissions'], true)) {
             $character_names = $this->get_character_names($api_key);
-            if (!is_wp_error($character_names)) {
-                $characters = $character_names;
-            }
+            $characters = (!is_wp_error($character_names) && is_array($character_names)) ? $character_names : [];
             // Don't fail the whole request if characters can't be fetched
         }
 
         // Format the response
         return array(
-            'id'           => $account['id'],
-            'name'         => $account['name'],
-            'world'        => $account['world'],
-            'created'      => $account['created'],
-            'access'       => $account['access'],
+            'id'           => isset($account['id']) && is_string($account['id']) ? $account['id'] : '',
+            'name'         => isset($account['name']) && is_string($account['name']) ? $account['name'] : '',
+            'world'        => isset($account['world']) && is_string($account['world']) ? $account['world'] : '',
+            'created'      => isset($account['created']) && is_string($account['created']) ? $account['created'] : '',
+            'access'       => isset($account['access']) && is_string($account['access']) ? $account['access'] : '',
             'guilds'       => $guilds,
             'characters'   => $characters,
             'last_updated' => current_time('mysql')

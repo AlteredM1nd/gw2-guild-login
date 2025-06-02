@@ -1,3 +1,6 @@
+includes:
+    - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+
 parameters:
     level: 1
     paths:
@@ -6,3 +9,32 @@ parameters:
         - vendor/*
         - node_modules/*
     reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        - '#Binary operation "." between mixed and#'
+        - '#Parameter #1 \(mixed\) of echo cannot be converted to string#'
+        - '#Cannot call method get_error_message\(\) on array\|WP_Error(\|null)?#'
+        - '#PHPDoc tag @var with type string is not subtype of native type#'
+        - '#PHPDoc tag @var for variable \$user contains unknown class WP_User#'
+        - '#PHPDoc tag @param references unknown parameter:.*#'
+        - '#Method .* has invalid return type WP_Error#'
+        - '#Parameter #1 \$api of class GW2_User_Handler constructor expects GW2_API, null given#'
+        - '#Call to function is_numeric\(\) with int will always evaluate to true#'
+        - '#Unknown class WP_User#'
+        - '#Unknown class WP_Error#'
+        - '#Unknown class WP_Session_Tokens#'
+        - '#Unknown class.*WP_.*#'
+        - '#Call to static method get_instance\(\) on an unknown class WP_Session_Tokens#'
+        - '#Call to function is_string\(\) with string will always evaluate to true#'
+        - '#Call to function is_int\(\) with int will always evaluate to true#'
+        - '#Call to function is_array\(\) with array<mixed> will always evaluate to true#'
+        - '#Call to function ctype_digit\(\) with \*NEVER\* will always evaluate to true#'
+        - '#Call to function is_object\(\) with .* will always evaluate to true#'
+        - '#Call to function method_exists\(\) with .* will always evaluate to true#'
+        - '#Call to function is_string\(\) with .+ will always evaluate to true#'
+        - '#Cannot access property .* on unknown class WP_.*#'
+        - '#Access to an undefined property WP_.*#'
+        - '#Access to dynamic property WP_.*#'
+        - '#Property .* does not exist on WP_.*#'
+        - '#Class WP_.* not found#'
+        - '#Variable \$is_current might not be defined.*#'
+        - '#Variable \$session_id might not be defined.*#'

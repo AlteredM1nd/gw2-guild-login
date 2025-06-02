@@ -365,22 +365,18 @@ class GW2_Login_Shortcode {
         if ( ! is_user_logged_in() ) {
             return $this->get_restricted_content_message( 'login_required' );
         }
-
         $options = get_option( 'gw2gl_settings', array() );
-        
+        $target_guild_id = isset($options['target_guild_id']) ? (string)$options['target_guild_id'] : '';
         // If no guild is set, show content to all logged-in users
-        if ( empty( $options['target_guild_id'] ) ) {
+        if ( $target_guild_id === '' ) {
             return do_shortcode( $content );
         }
-
         // Check if user is in the guild
         $user_id = get_current_user_id();
         $is_member = get_user_meta( $user_id, 'gw2_guild_member', true );
-        
-        if ( $is_member ) {
+        if (is_string($is_member) && $is_member !== '') {
             return do_shortcode( $content );
         }
-        
         return $this->get_restricted_content_message( 'guild_required' );
     }
 

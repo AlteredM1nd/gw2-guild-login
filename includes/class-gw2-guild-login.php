@@ -24,6 +24,7 @@ class GW2_Guild_Login {
 	public function handle_logout_cache_invalidation() {
 		if (!is_user_logged_in()) return;
 		$user_id = get_current_user_id();
+		if ($user_id <= 0) return;
 		if (class_exists('GW2_User_Handler')) {
 			$user_handler = new GW2_User_Handler(null);
 			$user_handler->clear_user_cache($user_id);

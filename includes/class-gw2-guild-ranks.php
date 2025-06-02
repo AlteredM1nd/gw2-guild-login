@@ -143,24 +143,28 @@ class GW2_Guild_Ranks {
      */
     private function fetch_guild_data($guild_id) {
         $api_key = get_option('gw2_api_key');
-        
-        if (empty($api_key)) {
+        $guild_id_safe = is_string($guild_id) ? $guild_id : '';
+        $api_key_safe = is_string($api_key) ? $api_key : '';
+        if ($api_key_safe === '' || $guild_id_safe === '') {
             return new WP_Error('missing_api_key', 'GW2 API key is not configured');
         }
-        
-        $ranks_url = "https://api.guildwars2.com/v2/guild/$guild_id/ranks?access_token=$api_key";
-        $members_url = "https://api.guildwars2.com/v2/guild/$guild_id/members?access_token=$api_key";
-        
+        $ranks_url = "https://api.guildwars2.com/v2/guild/$guild_id_safe/ranks?access_token=$api_key_safe";
+        $members_url = "https://api.guildwars2.com/v2/guild/$guild_id_safe/members?access_token=$api_key_safe";
         $ranks_response = wp_remote_get($ranks_url);
         $members_response = wp_remote_get($members_url);
-        
         if (is_wp_error($ranks_response) || is_wp_error($members_response)) {
             return new WP_Error('api_error', 'Failed to fetch guild data from GW2 API');
         }
-        
-        $ranks = json_decode(wp_remote_retrieve_body($ranks_response), true);
-        $members = json_decode(wp_remote_retrieve_body($members_response), true);
-        
+        $ranks_json = wp_remote_retrieve_body($ranks_response);
+        $members_json = wp_remote_retrieve_body($members_response);
+        $ranks = is_string($ranks_json) ? json_decode($ranks_json, true) : [];
+        $members = is_string($members_json) ? json_decode($members_json, true) : [];
+        if (!is_array($ranks)) {
+            $ranks = [];
+        }
+        if (!is_array($members)) {
+            $members = [];
+        }
         return array(
             'ranks' => $ranks,
             'members' => $members,
@@ -174,33 +178,30 @@ class GW2_Guild_Ranks {
     public function check_rank_access($user_id, $required_rank) {
         $guild_id = get_user_meta($user_id, 'gw2_guild_id', true);
         $account_name = get_user_meta($user_id, 'gw2_account_name', true);
-        
-        if (empty($guild_id) || empty($account_name)) {
+        $required_rank_safe = is_string($required_rank) ? $required_rank : '';
+        $guild_id_safe = is_string($guild_id) ? $guild_id : '';
+        $account_name_safe = is_string($account_name) ? $account_name : '';
+        if ($guild_id_safe === '' || $account_name_safe === '' || $required_rank_safe === '') {
             return false;
         }
-        
-        $cache_key = $this->cache_prefix . $guild_id;
+        $cache_key = $this->cache_prefix . $guild_id_safe;
         $data = get_transient($cache_key);
-        
         // If no cache or cache is invalid, fetch fresh data
-        if (false === $data) {
-            $data = $this->fetch_guild_data($guild_id);
-            
-            if (is_wp_error($data)) {
-                
+        if ($data === false || !is_array($data) || !isset($data['members']) || !is_array($data['members'])) {
+            $data = $this->fetch_guild_data($guild_id_safe);
+            if (is_wp_error($data) || !is_array($data) || !isset($data['members']) || !is_array($data['members'])) {
                 return false;
             }
-            
             set_transient($cache_key, $data, $this->cache_expiration);
         }
-        
         // Find the user in members list
         foreach ($data['members'] as $member) {
-            if ($member['name'] === $account_name) {
-                return $member['rank'] === $required_rank;
+            if (is_array($member) && isset($member['name'], $member['rank']) && is_string($member['name']) && is_string($member['rank'])) {
+                if ($member['name'] === $account_name_safe) {
+                    return $member['rank'] === $required_rank_safe;
+                }
             }
         }
-        
         return false;
     }
     

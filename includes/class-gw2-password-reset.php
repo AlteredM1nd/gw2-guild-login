@@ -28,11 +28,11 @@ class GW2_Password_Reset {
     public static function handle_request_reset() {
         check_ajax_referer('gw2gl_password_reset_nonce', 'nonce');
         $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-        if (empty($email) || !is_email($email)) {
+        if (!is_string($email) || empty($email) || !is_email($email)) {
             wp_send_json_error(__('Please enter a valid email address.', 'gw2-guild-login'));
         }
         $user = get_user_by('email', $email);
-        if (!$user) {
+        if (!is_object($user) || !isset($user->ID) || !is_int($user->ID)) {
             wp_send_json_success(__('If your account exists, a reset link has been sent.', 'gw2-guild-login'));
         }
         $user_id = $user->ID;
@@ -57,12 +57,13 @@ class GW2_Password_Reset {
     public static function handle_redeem_magic_link() {
         $user_id = isset($_POST['uid']) ? intval($_POST['uid']) : 0;
         $token = isset($_POST['token']) ? sanitize_text_field($_POST['token']) : '';
-        if (!$user_id || empty($token)) {
+        if (!is_int($user_id) || $user_id <= 0 || !is_string($token) || empty($token)) {
             wp_send_json_error(__('Invalid reset link.', 'gw2-guild-login'));
         }
         $saved_token = get_user_meta($user_id, self::RESET_META_KEY, true);
-        $expiry = (int) get_user_meta($user_id, self::RESET_EXPIRY_META_KEY, true);
-        if ($token !== $saved_token || time() > $expiry) {
+        $expiry_mixed = get_user_meta($user_id, self::RESET_EXPIRY_META_KEY, true);
+        $expiry = is_numeric($expiry_mixed) ? (int)$expiry_mixed : 0;
+        if (!is_string($saved_token) || $token !== $saved_token || time() > $expiry) {
             wp_send_json_error(__('This reset link is invalid or expired.', 'gw2-guild-login'));
         }
         // Invalidate token

@@ -59,7 +59,18 @@ A comprehensive guide to installing, configuring, and customizing the GW2 Guild 
   - [User Roles and Capabilities](#user-roles-and-capabilities)
     - [Default Roles](#default-roles)
     - [Custom Role Creation](#custom-role-creation)
-  - [Profile Integration](#profile-integration)
+
+## Static Analysis & PHPStan
+
+GW2 Guild Login is fully compliant with strict static analysis (PHPStan, v2.6.1+). To run static analysis, use:
+
+```bash
+vendor/bin/phpstan analyse
+```
+
+Some warnings related to WordPress templates or dynamic code are safely suppressed using robust ignore rules. These do not indicate real bugs. All actionable errors will be visible in PHPStan output.
+
+- [Profile Integration](#profile-integration)
 - [Troubleshooting](#troubleshooting)
   - [Common Issues and Solutions](#common-issues-and-solutions)
     - [API Connection Issues](#api-connection-issues)

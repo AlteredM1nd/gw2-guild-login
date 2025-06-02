@@ -58,7 +58,8 @@ class GW2_2FA_Login {
      */
     public function verify_2fa($user, $username, $password) {
         // Don't interfere with other authentication methods
-        if (!is_a($user, 'WP_User') || !$user->exists()) {
+        // $user is WP_User or WP_Error. Only allow WP_User with valid ID.
+        if (!($user instanceof \WP_User) || !$user->exists() || !isset($user->ID) || $user->ID <= 0) {
             return $user;
         }
 
@@ -68,7 +69,7 @@ class GW2_2FA_Login {
         }
 
         // Verify the 2FA code
-        if (empty($_POST['gw2_2fa_code'])) {
+        if (!isset($_POST['gw2_2fa_code']) || $_POST['gw2_2fa_code'] === '') {
             return new WP_Error(
                 '2fa_required',
                 __('<strong>Error</strong>: Two-factor authentication code is required.', 'gw2-guild-login')
@@ -76,7 +77,12 @@ class GW2_2FA_Login {
         }
 
         $code = sanitize_text_field($_POST['gw2_2fa_code']);
-        
+        if ($code === '') {
+            return new WP_Error(
+                '2fa_required',
+                __('<strong>Error</strong>: Two-factor authentication code is required.', 'gw2-guild-login')
+            );
+        }
         // Get the user's 2FA secret
         global $wpdb;
         $table = $wpdb->prefix . 'gw2_2fa_secrets';
@@ -85,7 +91,7 @@ class GW2_2FA_Login {
             $user->ID
         ));
 
-        if (!$secret_row) {
+        if (!$secret_row || !isset($secret_row->secret) || $secret_row->secret === '') {
             return new WP_Error(
                 '2fa_error',
                 __('<strong>Error</strong>: Two-factor authentication is not properly configured for your account.', 'gw2-guild-login')
@@ -93,28 +99,33 @@ class GW2_2FA_Login {
         }
 
         $secret = $this->handler->decrypt_secret($secret_row->secret);
-        
+        if ($secret === '') {
+            return new WP_Error(
+                '2fa_error',
+                __('<strong>Error</strong>: Two-factor authentication is not properly configured for your account.', 'gw2-guild-login')
+            );
+        }
         // Verify the code
         if (!$this->handler->verify_totp($secret, $code)) {
             // Check backup codes
             $backup_codes = $this->handler->get_backup_codes_for_user($user->ID);
-            if (empty($backup_codes) || !in_array($code, $backup_codes)) {
+            if (empty($backup_codes) || !in_array($code, $backup_codes, true)) {
                 return new WP_Error(
                     '2fa_invalid_code',
                     __('<strong>Error</strong>: Invalid authentication code.', 'gw2-guild-login')
                 );
             }
-            
-            // Remove used backup code
             $backup_codes = array_values(array_diff($backup_codes, [$code]));
             $this->handler->set_backup_codes_for_user($user->ID, $backup_codes);
-            
-            // If this was the last backup code, generate new ones
             if (empty($backup_codes)) {
                 $new_codes = $this->handler->generate_backup_codes();
+                if (empty($new_codes)) {
+                    return new WP_Error(
+                        '2fa_error',
+                        __('<strong>Error</strong>: Unable to generate new backup codes.', 'gw2-guild-login')
+                    );
+                }
                 $this->handler->enable_2fa($user->ID, $secret, $new_codes);
-                
-                // Send email to user about new backup codes
                 $this->send_backup_codes_email($user, $new_codes);
             }
         }

@@ -13,6 +13,7 @@ _Last audited: 2025-05-31_
 
 ## Security Features
 
+- Static analysis (PHPStan) is run on every release. Persistent template-related warnings are intentionally suppressed for WordPress compatibility and do not indicate real bugs. See README and CONTRIBUTING for details.
 - Encrypted API key storage (AES-256-CBC)
 - Brute-force login protection with lockout and logging
 - Magic-link password/API key recovery (see /gw2-recovery/ page)

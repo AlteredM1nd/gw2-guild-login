@@ -1,7 +1,7 @@
 <?php
 // Polyfill for get_current_user_id() when running PHPUnit outside WordPress
 if (!function_exists('get_current_user_id')) {
-    function get_current_user_id() {
+    function get_current_user_id(): int {
         return 1; // Test user ID
     }
 }
@@ -25,17 +25,24 @@ if (!function_exists('set_transient')) {
      * Simple in-memory cache for PHPUnit tests.
      */
     global $gw2gl_test_transients;
+    /** @var array<string, mixed> $gw2gl_test_transients */
     $gw2gl_test_transients = array();
-    function set_transient($key, $value, $expiration = 0) {
+    function set_transient(string $key, mixed $value, int $expiration = 0): bool {
+    global $gw2gl_test_transients;
+    /** @var array<string, mixed> $gw2gl_test_transients */
         global $gw2gl_test_transients;
         $gw2gl_test_transients[$key] = $value;
         return true;
     }
-    function get_transient($key) {
+    function get_transient(string $key): mixed {
+    global $gw2gl_test_transients;
+    /** @var array<string, mixed> $gw2gl_test_transients */
         global $gw2gl_test_transients;
         return isset($gw2gl_test_transients[$key]) ? $gw2gl_test_transients[$key] : false;
     }
-    function delete_transient($key) {
+    function delete_transient(string $key): bool {
+    global $gw2gl_test_transients;
+    /** @var array<string, mixed> $gw2gl_test_transients */
         global $gw2gl_test_transients;
         unset($gw2gl_test_transients[$key]);
         return true;
@@ -44,7 +51,7 @@ if (!function_exists('set_transient')) {
 
 // Polyfill wp_rand for non-WordPress environments
 if (!function_exists('wp_rand')) {
-    function wp_rand($min = 0, $max = null) {
+    function wp_rand(int $min = 0, ?int $max = null): int {
         if ($max === null) {
             $max = mt_getrandmax();
         }

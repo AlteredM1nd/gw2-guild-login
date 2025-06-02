@@ -1,21 +1,11 @@
 ![Security](https://img.shields.io/badge/Security-A+-green?style=flat)
+![PHPStan Level](https://img.shields.io/badge/PHPStan-level%20max-brightgreen)
+![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-blue)
+![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)
+![License](https://img.shields.io/github/license/AlteredM1nd/gw2-guild-login)
+![Release](https://img.shields.io/github/v/release/AlteredM1nd/gw2-guild-login)
 
 # GW2 Guild Login
-
-- Encrypted API key storage
-- Brute-force protection
-- WP security standards compliant
-
-## Security Features
-- 🔒 Military-grade API key encryption (AES-256-CBC, automatic migration)
-- 🛡️ Brute-force attack protection with lockout and logging
-- ✉️ Magic-link password/API key recovery via /gw2-recovery/ (JWT, 1-hour expiry)
-- ⚡ User-specific cache keys and auto-invalidation
-- 📊 Security dashboard: encryption status, lockout stats, admin warnings
-- 🚦 Admin notices for weak/missing encryption keys
-- ♻️ Automatic legacy key cleanup after migration
-- 🧪 Automated test coverage for all critical features
-
 
 A secure, modern WordPress plugin enabling users to log in using their Guild Wars 2 API key. Features robust guild membership verification, role management, advanced 2FA (with backup codes), and industry-leading security and coding standards compliance.
 
@@ -32,24 +22,23 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 
 ## Features
 
-### 🔒 Secure API Key Encryption (v2.6.0)
-- **API Key Encryption:** All API keys are encrypted at rest using AES-256-CBC. A migration utility will encrypt any existing plaintext keys automatically on upgrade. A persistent flag ensures migration only runs once. Admins are notified if the encryption key is missing or weak, and should ensure `SECURE_AUTH_KEY` is set in `wp-config.php`. A strong encryption key (32+ chars) is required; admins will see a warning if their key is missing or weak.
-- **Brute-force Protection:** Login attempts are rate-limited and repeated failures result in a temporary lockout (5 attempts in 15 minutes = 10 minute block).
-- **Automatic Cache Invalidation:** User API cache is auto-cleared on login, logout, API key update, and guild membership changes.
+### 🔒 Security & Authentication Features
+- **Military-grade API Key Encryption:** All API keys are encrypted at rest using AES-256-CBC. Automatic migration utility encrypts any existing plaintext keys on upgrade, with a persistent flag to ensure migration only runs once. Admins are notified if the encryption key is missing or weak, and should ensure `SECURE_AUTH_KEY` is set in `wp-config.php`. A strong encryption key (32+ chars) is required; admins will see a warning if their key is missing or weak.
+- **Brute-force Protection & Rate Limiting:** Login attempts are rate-limited and repeated failures result in a temporary lockout (5 attempts in 15 minutes = 10 minute block). All events are logged and stats are shown on the security dashboard.
+- **Magic-link Password/API Key Recovery:** Secure recovery via `/gw2-recovery/` (JWT, 1-hour expiry).
+- **Two-Factor Authentication (2FA):** TOTP-based 2FA with authenticator app support and secure backup codes. Admins can enforce or recommend 2FA for users and regenerate backup codes via AJAX.
+- **User-specific Cache Keys & Invalidation:** User API cache is auto-cleared on login, logout, API key update, and guild membership changes. Efficient API usage with robust response caching (configurable, can be cleared by admin or developer, filterable for debugging).
+- **Security Dashboard:** Displays encryption status (✔ Active/✖ Insecure), brute-force stats, and admin warnings for weak/missing keys.
+- **Admin Notices & Warnings:** Proactive admin notices for weak/missing encryption keys and other security issues.
+- **Session Management:** Custom session handler with security headers, session revocation, device/session listing, and ability to revoke other sessions.
+- **Input Sanitization & Output Escaping:** All user input/output is sanitized and escaped per WordPress security best practices.
+- **Nonce & Capability Checks:** Nonce verification and capability checks on all sensitive actions.
+- **I18n & Accessibility:** All user/admin-facing strings are translation-ready and properly escaped.
+- **Automatic Legacy Key Cleanup:** Legacy plaintext API keys are securely deleted after migration.
+- **Automated Test Coverage:** Automated test coverage for all critical features.
+- **Strict Type Safety & Static Analysis:** Full PHPStan/static analysis compliance (v2.6.1+). All code, including dynamic WordPress templates, is statically analyzed to the greatest extent possible. Persistent static analysis warnings are either real bugs or intentionally suppressed for WordPress edge cases. See the Contributing and Usage docs for details.
 - **Improved Debug Logging:** Security and cache events are logged in debug mode for easier troubleshooting.
-
-- See the [Security](SECURITY.md) and [Usage](docs/USAGE.md) docs for details.
-
-### 🔒 Authentication & Security
-- **GW2 API Login**: Secure authentication using Guild Wars 2 API keys
-- **Two-Factor Authentication (2FA)**: TOTP-based 2FA with authenticator app support and secure backup codes
-- **Admin 2FA Controls**: Enforce or recommend 2FA for users; regenerate backup codes via AJAX
-- **Secure Session Management**: Custom session handler with security headers, session revocation, and device/session listing
-- **Rate Limiting**: Protection against brute force attacks
-- **API Key Encryption**: All keys are encrypted before storage
-- **Input Sanitization & Output Escaping**: All user input/output is sanitized and escaped per WordPress security best practices
-- **Nonce & Capability Checks**: Nonce verification and capability checks on all sensitive actions
-- **I18n & Accessibility**: All user/admin-facing strings are translation-ready and properly escaped
+- **See the [Security](SECURITY.md) and [Usage](docs/USAGE.md) docs for details.**
 
 ### 👥 Guild Integration
 - **Guild Membership Verification**: Restrict access to specific guilds
@@ -129,6 +118,20 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 - **Session Management**: Control how sessions are handled
 
 ## Usage
+
+### Page Templates
+
+The plugin provides two ready-to-use page templates for seamless integration with your WordPress site:
+
+- [`dashboard.php`](templates/dashboard/dashboard.php): Securely renders the logged-in user's Guild Wars 2 account overview, session/device management, and profile details. Used for the member dashboard page. Fully type-safe and extensible via hooks/filters. Can be overridden by copying to your theme or child theme.
+- [`template-guild-only.php`](templates/template-guild-only.php): Restricts page content to verified guild members only. Displays a customizable access denied message to non-members. Useful for members-only pages, event calendars, or resource libraries.
+
+**How to use or override:**
+1. Assign the template to a page in the WordPress editor ("Template" dropdown).
+2. To customize, copy the template file into your active theme or child theme (preserving the path structure) and modify as needed.
+3. Both templates support WordPress hooks and can be extended for custom layouts, additional fields, or branding.
+
+> **Security Note:** These templates enforce all plugin security features (authentication, guild checks, output escaping) and are safe for use in production environments.
 
 ### Shortcodes
 

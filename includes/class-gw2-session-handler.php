@@ -24,6 +24,12 @@ class GW2_Session_Handler {
      */
     public static function set( $key, $value ) {
         self::init();
+        if (!is_string($key) || $key === '') {
+            return;
+        }
+        if (!isset($_SESSION['gw2_guild_login']) || !is_array($_SESSION['gw2_guild_login'])) {
+            $_SESSION['gw2_guild_login'] = [];
+        }
         $_SESSION['gw2_guild_login'][ $key ] = $value;
     }
 
@@ -36,7 +42,13 @@ class GW2_Session_Handler {
      */
     public static function get( $key, $default = null ) {
         self::init();
-        return $_SESSION['gw2_guild_login'][ $key ] ?? $default;
+        if (!is_string($key) || $key === '') {
+            return $default;
+        }
+        if (!isset($_SESSION['gw2_guild_login']) || !is_array($_SESSION['gw2_guild_login'])) {
+            return $default;
+        }
+        return array_key_exists($key, $_SESSION['gw2_guild_login']) ? $_SESSION['gw2_guild_login'][ $key ] : $default;
     }
 
     /**
@@ -46,7 +58,12 @@ class GW2_Session_Handler {
      */
     public static function remove( $key ) {
         self::init();
-        unset( $_SESSION['gw2_guild_login'][ $key ] );
+        if (!is_string($key) || $key === '') {
+            return;
+        }
+        if (isset($_SESSION['gw2_guild_login']) && is_array($_SESSION['gw2_guild_login']) && array_key_exists($key, $_SESSION['gw2_guild_login'])) {
+            unset($_SESSION['gw2_guild_login'][ $key ]);
+        }
     }
 
     /**
@@ -54,7 +71,9 @@ class GW2_Session_Handler {
      */
     public static function clear() {
         self::init();
-        unset( $_SESSION['gw2_guild_login'] );
+        if (isset($_SESSION['gw2_guild_login'])) {
+            unset($_SESSION['gw2_guild_login']);
+        }
     }
 
     /**
