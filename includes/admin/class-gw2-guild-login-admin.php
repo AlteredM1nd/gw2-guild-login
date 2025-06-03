@@ -283,6 +283,69 @@ class GW2_Guild_Login_Admin {
 				'description' => __( 'How long to cache API responses in seconds. Minimum 300 (5 minutes).', 'gw2-guild-login' ),
 			)
 		);
+
+		// Security Settings Section
+		add_settings_section(
+			'gw2gl_security_section',
+			__( 'Security', 'gw2-guild-login' ),
+			function() {
+				echo '<p>' . esc_html__( 'Configure security-related options.', 'gw2-guild-login' ) . '</p>';
+			},
+			'gw2-guild-login'
+		);
+		add_settings_field(
+			'enable_2fa',
+			__( 'Require 2FA', 'gw2-guild-login' ),
+			array( $this, 'checkbox_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_security_section',
+			array(
+				'id' => 'enable_2fa',
+				'label' => __( 'Enable two-factor authentication for all logins', 'gw2-guild-login' ),
+			)
+		);
+		add_settings_field(
+			'session_timeout',
+			__( 'Session Timeout (minutes)', 'gw2-guild-login' ),
+			array( $this, 'number_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_security_section',
+			array(
+				'id' => 'session_timeout',
+				'default' => 30,
+				'min' => 1,
+				'step' => 1,
+				'description' => __( 'Maximum session duration for users.', 'gw2-guild-login' ),
+			)
+		);
+		add_settings_field(
+			'rate_limit',
+			__( 'API Rate Limit (per hour)', 'gw2-guild-login' ),
+			array( $this, 'number_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_security_section',
+			array(
+				'id' => 'rate_limit',
+				'default' => 100,
+				'min' => 1,
+				'step' => 1,
+				'description' => __( 'Max API requests per hour.', 'gw2-guild-login' ),
+			)
+		);
+		add_settings_field(
+			'login_attempt_limit',
+			__( 'Login Attempt Limit', 'gw2-guild-login' ),
+			array( $this, 'number_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_security_section',
+			array(
+				'id' => 'login_attempt_limit',
+				'default' => 5,
+				'min' => 1,
+				'step' => 1,
+				'description' => __( 'Failed logins before lockout.', 'gw2-guild-login' ),
+			)
+		);
 	}
 
 	/**
@@ -339,6 +402,12 @@ class GW2_Guild_Login_Admin {
 		if ( $sanitized['api_cache_expiry'] < 300 ) {
 			$sanitized['api_cache_expiry'] = 300;
 		}
+
+		// Security fields
+		$sanitized['enable_2fa'] = isset($input['enable_2fa']) ? 1 : 0;
+		$sanitized['session_timeout'] = isset($input['session_timeout']) ? absint($input['session_timeout']) : 30;
+		$sanitized['rate_limit'] = isset($input['rate_limit']) ? absint($input['rate_limit']) : 100;
+		$sanitized['login_attempt_limit'] = isset($input['login_attempt_limit']) ? absint($input['login_attempt_limit']) : 5;
 
 		// Add admin notice for settings saved
 		add_settings_error(

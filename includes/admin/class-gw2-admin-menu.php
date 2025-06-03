@@ -64,16 +64,6 @@ class GW2_Admin_Menu {
             array($this, 'render_settings_page')
         );
         
-        // Rank Access
-        add_submenu_page(
-            $this->menu_slug,
-            __('Rank Access', 'gw2-guild-login'),
-            __('Rank Access', 'gw2-guild-login'),
-            'manage_options',
-            'gw2-rank-access',
-            array($this, 'render_rank_access_page')
-        );
-        
         // User Management
         add_submenu_page(
             $this->menu_slug,
@@ -82,6 +72,46 @@ class GW2_Admin_Menu {
             'manage_options',
             'gw2-user-management',
             array($this, 'render_user_management_page')
+        );
+
+        // Guild Roster
+        add_submenu_page(
+            $this->menu_slug,
+            __('Guild Roster', 'gw2-guild-login'),
+            __('Guild Roster', 'gw2-guild-login'),
+            'manage_options',
+            'gw2-guild-roster',
+            array($this, 'render_guild_roster_page')
+        );
+
+        // Reports
+        add_submenu_page(
+            $this->menu_slug,
+            __('Reports', 'gw2-guild-login'),
+            __('Reports', 'gw2-guild-login'),
+            'manage_options',
+            'gw2-reports',
+            array($this, 'render_reports_page')
+        );
+
+        // Tools
+        add_submenu_page(
+            $this->menu_slug,
+            __('Tools', 'gw2-guild-login'),
+            __('Tools', 'gw2-guild-login'),
+            'manage_options',
+            'gw2-tools',
+            array($this, 'render_tools_page')
+        );
+
+        // Appearance & Branding
+        add_submenu_page(
+            $this->menu_slug,
+            __('Appearance & Branding', 'gw2-guild-login'),
+            __('Appearance & Branding', 'gw2-guild-login'),
+            'manage_options',
+            'gw2-appearance-branding',
+            array($this, 'render_appearance_branding_page')
         );
     }
     
@@ -122,17 +152,6 @@ class GW2_Admin_Menu {
     }
     
     /**
-     * Render rank access page
-     */
-    public function render_rank_access_page() {
-        if (!current_user_can('manage_options')) {
-            return;
-        }
-        // No custom POST handling; handled by Settings API
-        include GW2_GUILD_LOGIN_DIR . 'admin/views/rank-access.php';
-    }
-    
-    /**
      * Render user management page
      */
     public function render_user_management_page() {
@@ -141,6 +160,46 @@ class GW2_Admin_Menu {
         }
         
         include GW2_GUILD_LOGIN_DIR . 'admin/views/user-management.php';
+    }
+
+    /**
+     * Render guild roster page
+     */
+    public function render_guild_roster_page() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        include GW2_GUILD_LOGIN_DIR . 'admin/views/guild-roster.php';
+    }
+
+    /**
+     * Render reports page
+     */
+    public function render_reports_page() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        include GW2_GUILD_LOGIN_DIR . 'admin/views/reports.php';
+    }
+
+    /**
+     * Render tools page
+     */
+    public function render_tools_page() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        include GW2_GUILD_LOGIN_DIR . 'admin/views/tools.php';
+    }
+
+    /**
+     * Render appearance & branding page
+     */
+    public function render_appearance_branding_page() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        include GW2_GUILD_LOGIN_DIR . 'admin/views/appearance-branding.php';
     }
 }
 

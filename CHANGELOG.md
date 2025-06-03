@@ -2,6 +2,48 @@
 
 All notable changes to the GW2 Guild Login plugin will be documented in this file.
 
+## [2.6.3] - 2025-06-03
+
+### Added
+- New **Dashboard** page under GW2 Guild menu with:
+  - System status overview (PHP, WP, plugin versions)
+  - Recent GW2 login activity list
+  - Quick links to common admin tasks
+  - Server environment information (DB version)
+- Enhanced **Guild Settings**:
+  - Default user role selector
+  - Auto-register new users toggle
+  - **Security** section with settings for 2FA requirement, session timeout, API rate limiting and login attempt limits
+- **User Management** redesigned with tabs:
+  - **All Users**: filter by guild membership and role, bulk action placeholder, export selected users
+  - **Add New**: manual user creation form, role assignment, live guild rank dropdown
+- **Guild Roster** page:
+  - Live guild member list fetched from GW2 API
+  - Rank-based filtering
+  - Join date tracking
+  - WordPress last login display
+- **Reports** page:
+  - Login activity metrics (last 7 days)
+  - Failed login attempts count
+  - User engagement metrics (total, GW2-linked, active)
+  - Security events (2FA enabled users)
+- **Tools** page:
+  - Import/Export of settings and rank mappings via JSON
+  - Guild member sync (cache clear)
+  - Clear all plugin transients
+  - Reset settings to defaults
+  - Debug information table (PHP, WP, plugin version, theme, active plugins)
+- **Appearance & Branding** page:
+  - Primary & Accent Color pickers with live preview
+  - Custom Logo upload and preview
+  - Welcome text textarea
+  - Force Dark Mode toggle
+
+### Changed
+- Removed **Rank Access** submenu (deprecated in favor of User Management → Add New rank mapping)
+
+*All new UI screens immediately save via Settings API and reflect changes live in the admin.*
+
 ## [2.6.2] - 2025-06-02
 
 ### Improved
