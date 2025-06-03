@@ -128,18 +128,7 @@ class GW2_Admin_Menu {
         if (!current_user_can('manage_options')) {
             return;
         }
-        
-        // Handle form submission
-        if (isset($_POST['gw2_guild_id'])) {
-            check_admin_referer('gw2_guild_settings');
-            update_option('gw2_guild_id', sanitize_text_field($_POST['gw2_guild_id']));
-            update_option('gw2_api_key', sanitize_text_field($_POST['gw2_api_key']));
-            add_settings_error('gw2_messages', 'gw2_message', 'Settings Saved', 'updated');
-        }
-        
-        $guild_id = get_option('gw2_guild_id', '');
-        $api_key = get_option('gw2_api_key', '');
-        
+        // No custom POST handling; handled by Settings API
         include GW2_GUILD_LOGIN_DIR . 'admin/views/rank-access.php';
     }
     
