@@ -54,13 +54,13 @@ class GW2_Admin_Menu {
             array($this, 'render_dashboard_page')
         );
         
-        // Guild Settings
+        // Guild Settings (use the same slug as the settings page)
         add_submenu_page(
             $this->menu_slug,
             __('Guild Settings', 'gw2-guild-login'),
             __('Guild Settings', 'gw2-guild-login'),
             'manage_options',
-            'gw2-guild-settings',
+            'gw2-guild-login', // Use the same slug as the main settings page
             array($this, 'render_settings_page')
         );
         
