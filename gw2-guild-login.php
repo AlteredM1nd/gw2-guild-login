@@ -124,6 +124,16 @@ function GW2_Guild_Login() {
 
 // Plugin initialization now handled in GW2_Guild_Login class.
 
+// Always register plugin settings for admin pages
+if (is_admin()) {
+    // Ensure the admin class is loaded
+    if (class_exists('GW2_Guild_Login_Admin')) {
+        // Get the singleton or global instance
+        $gw2_admin = new GW2_Guild_Login_Admin();
+        add_action('admin_init', array($gw2_admin, 'register_settings'));
+    }
+}
+
 // Initialize 2FA
 // 2FA initialization now handled in GW2_2FA_Handler class.
 

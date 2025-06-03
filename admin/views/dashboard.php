@@ -15,7 +15,7 @@ declare(strict_types=1);
                  if ($guild_id !== '') {
                      echo '<p><strong>Guild ID:</strong> ' . esc_html($guild_id) . '</p>';
                  } else {
-                    $settings_url_raw = admin_url('admin.php?page=gw2-guild-settings');
+                    $settings_url_raw = admin_url('admin.php?page=gw2-guild-login');
                     $settings_url = is_string($settings_url_raw) ? $settings_url_raw : '';
                      echo '<p>No guild configured. <a href="' . esc_url($settings_url) . '">Configure now</a></p>';
                  }
@@ -27,7 +27,7 @@ declare(strict_types=1);
             <h2>Quick Actions</h2>
             <div class="gw2-admin-card-content">
                 <ul class="gw2-admin-actions">
-                    <li><a href="<?php echo esc_url(admin_url('admin.php?page=gw2-guild-settings')); ?>" aria-label="Go to Guild Settings">Guild Settings</a></li>
+                    <li><a href="<?php echo esc_url(admin_url('admin.php?page=gw2-guild-login')); ?>" aria-label="Go to Guild Settings">Guild Settings</a></li>
                     <li><a href="<?php echo esc_url(admin_url('admin.php?page=gw2-rank-access')); ?>" aria-label="Manage Rank Access">Manage Rank Access</a></li>
                     <li><a href="<?php echo esc_url(admin_url('admin.php?page=gw2-user-management')); ?>" aria-label="User Management">User Management</a></li>
                 </ul>
