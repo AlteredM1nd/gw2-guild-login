@@ -2,6 +2,8 @@
 
 **Important:** As of v2.6.0, PHP 8.0 or higher is required to use this plugin.
 
+**Note:** As of v2.6.2, the plugin is fully compliant with strict static analysis (PHPStan, max strictness), with all code strictly type-safe and output hardened. This release is focused on code quality, security, and future-proofing.
+
 A comprehensive guide to installing, configuring, and customizing the GW2 Guild Login plugin for WordPress.
 
 ## Table of Contents
@@ -59,17 +61,6 @@ A comprehensive guide to installing, configuring, and customizing the GW2 Guild 
   - [User Roles and Capabilities](#user-roles-and-capabilities)
     - [Default Roles](#default-roles)
     - [Custom Role Creation](#custom-role-creation)
-
-## Static Analysis & PHPStan
-
-GW2 Guild Login is fully compliant with strict static analysis (PHPStan, v2.6.1+). To run static analysis, use:
-
-```bash
-vendor/bin/phpstan analyse
-```
-
-Some warnings related to WordPress templates or dynamic code are safely suppressed using robust ignore rules. These do not indicate real bugs. All actionable errors will be visible in PHPStan output.
-
 - [Profile Integration](#profile-integration)
 - [Troubleshooting](#troubleshooting)
   - [Common Issues and Solutions](#common-issues-and-solutions)

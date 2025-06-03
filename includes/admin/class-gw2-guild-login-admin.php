@@ -40,7 +40,7 @@ class GW2_Guild_Login_Admin {
 	public function enqueue_styles() {
 		wp_enqueue_style(
 			$this->plugin_name,
-			plugin_dir_url( __FILE__ ) . '2.6.0/admin/css/gw2-guild-login-admin.css',
+			plugin_dir_url( __FILE__ ) . '2.6.2/admin/css/gw2-guild-login-admin.css',
 			array(),
 			$this->version,
 			'all'
@@ -56,7 +56,7 @@ class GW2_Guild_Login_Admin {
 	public function enqueue_scripts() {
 		wp_enqueue_script(
 			$this->plugin_name,
-			plugin_dir_url( __FILE__ ) . '2.6.0/admin/js/gw2-guild-login-admin.js',
+			plugin_dir_url( __FILE__ ) . '2.6.2/admin/js/gw2-guild-login-admin.js',
 			array( 'jquery' ),
 			$this->version,
 			false

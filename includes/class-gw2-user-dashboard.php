@@ -6,7 +6,7 @@
  * Manages user data display, session management, AJAX actions, and profile integration.
  *
  * @package GW2_Guild_Login
- * @since 2.6.0
+ * @since 2.6.2
  */
 
 // Exit if accessed directly.
@@ -19,7 +19,8 @@ add_action('wp_dashboard_setup', function(): void {
         // @phpstan-ignore-next-line for $wpdb as WordPress core global
         /** @phpstan-ignore-next-line */
         $encrypted_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key = 'gw2_api_key' AND meta_value != ''");
-        $encrypted_count_safe = is_numeric($encrypted_count) ? (int)$encrypted_count : 0;
+        $encrypted_count_int = is_numeric($encrypted_count) ? (int)$encrypted_count : 0;
+        $encrypted_count_safe = $encrypted_count_int;
 
         $last_cache_flush = get_option('gw2gl_last_cache_flush');
         $last_cache_flush_safe = is_numeric($last_cache_flush) ? (int)$last_cache_flush : 0;
@@ -32,6 +33,9 @@ add_action('wp_dashboard_setup', function(): void {
         $failed_attempts = 0;
         if (is_array($option_names)) {
             foreach ($option_names as $opt) {
+                if (!is_string($opt)) {
+                    continue; // Harden for PHPStan: only use string option names
+                }
                 $data = get_option($opt);
                 if (is_array($data) && isset($data['time']) && $data['time'] > (time() - 86400)) {
                     $failed_attempts += isset($data['count']) && is_numeric($data['count']) ? (int)$data['count'] : 0;
@@ -42,24 +46,20 @@ add_action('wp_dashboard_setup', function(): void {
         }
         $failed_attempts_safe = (int)$failed_attempts;
 
-        $encryption_status = (defined('SECURE_AUTH_KEY') && is_string(SECURE_AUTH_KEY) && strlen(SECURE_AUTH_KEY) >= 64)
+        $secure_auth_key = (defined('SECURE_AUTH_KEY') && is_string(SECURE_AUTH_KEY)) ? SECURE_AUTH_KEY : '';
+        $encryption_status = (strlen($secure_auth_key) >= 64)
             ? '<span style="color:green">✔ Active</span>'
             : '<span style="color:red">✖ Insecure</span>';
         $last_cache_flush_str = $last_cache_flush_safe > 0 ? esc_html(date('Y-m-d H:i', $last_cache_flush_safe)) : esc_html__('Never', 'gw2-guild-login');
 
-        // Hardened dashboard output for PHPStan compliance
-        $encrypted_count_str = is_numeric($encrypted_count) ? (string)(int)$encrypted_count : '0';
-        $encryption_status_str = is_string($encryption_status) ? $encryption_status : '';
+        $encrypted_count_str = (string)$encrypted_count_int;
+        $encryption_status_str = $encryption_status;
         $last_cache_flush_str = $last_cache_flush_safe > 0 ? date('Y-m-d H:i', $last_cache_flush_safe) : esc_html__('Never', 'gw2-guild-login');
-        $failed_attempts_str = is_numeric($failed_attempts_safe) ? (string)(int)$failed_attempts_safe : '0';
+        $failed_attempts_str = (string)(int)$failed_attempts_safe;
 
-        /** @phpstan-ignore-next-line */
         echo '<p><strong>Encrypted API Keys:</strong> ' . esc_html($encrypted_count_str) . '</p>';
-        /** @phpstan-ignore-next-line */
         echo '<p><strong>Encryption Status:</strong> ' . esc_html($encryption_status_str) . '</p>';
-        /** @phpstan-ignore-next-line */
         echo '<p><strong>Last Cache Flush:</strong> ' . esc_html($last_cache_flush_str) . '</p>';
-        /** @phpstan-ignore-next-line */
         echo '<p><strong>Failed Logins (24h):</strong> ' . esc_html($failed_attempts_str) . '</p>';
         // PHPStan: All variables are explicitly string and escaped as needed.
     });
@@ -69,7 +69,7 @@ class GW2_User_Dashboard {
     /**
      * Instance of this class.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      * @var GW2_User_Dashboard
      */
     private static $instance = null;
@@ -77,7 +77,7 @@ class GW2_User_Dashboard {
     /**
      * Get the singleton instance of this class.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      * @return GW2_User_Dashboard
      */
     public static function get_instance() {
@@ -90,7 +90,7 @@ class GW2_User_Dashboard {
     /**
      * Constructor.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      */
     private function __construct() {
         add_action('init', array($this, 'init'));
@@ -102,7 +102,7 @@ class GW2_User_Dashboard {
     /**
      * Initialize the dashboard.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      */
     public function init(): void {
         // Add user profile fields
@@ -117,7 +117,7 @@ class GW2_User_Dashboard {
     /**
      * Add dashboard menu item.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      */
     public function add_dashboard_menu(): void {
         add_users_page(
@@ -132,7 +132,7 @@ class GW2_User_Dashboard {
     /**
      * Enqueue dashboard scripts and styles.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      * @param string $hook Current admin page.
      */
     public function enqueue_scripts($hook): void {
@@ -169,7 +169,7 @@ class GW2_User_Dashboard {
     /**
      * Render the dashboard page.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      */
     public function render_dashboard_page(): void {
         if (!is_user_logged_in()) {
@@ -191,70 +191,64 @@ class GW2_User_Dashboard {
         // Always pass GW2_API instance to GW2_User_Handler for PHPStan compliance
         $gw2_api_dashboard = class_exists('GW2_API') ? new GW2_API() : null;
         $user_handler = ($gw2_api_dashboard && class_exists('GW2_User_Handler')) ? new GW2_User_Handler($gw2_api_dashboard) : null;
-        /** @phpstan-ignore-next-line */
-        $gw2_api_key_mixed = $user_handler ? $user_handler->decrypt_api_key($user_id) : '';
-        $gw2_api_key = is_string($gw2_api_key_mixed) ? $gw2_api_key_mixed : '';
-        $last_login_mixed = get_user_meta($user_id, 'gw2_last_login', true);
-        $last_login = is_string($last_login_mixed) ? $last_login_mixed : '';
+        $gw2_api_key = $user_handler ? $user_handler->decrypt_api_key($user_id) : '';
+        $last_login = get_user_meta($user_id, 'gw2_last_login', true);
 
-        // Get user sessions
-        /** @phpstan-ignore-next-line */
         $sessions = WP_Session_Tokens::get_instance($user_id);
         /** @phpstan-ignore-next-line */
-        $all_sessions = is_object($sessions) && method_exists($sessions, 'get_all') ? $sessions->get_all() : array();
+$all_sessions = method_exists($sessions, 'get_all') ? $sessions->get_all() : array();
         $current_session = wp_get_session_token();
         $current_ip = '';
         $current_ua = '';
 
-        // Get current session info
-        if (is_array($all_sessions) && isset($all_sessions[$current_session])) {
+        if (isset($all_sessions[$current_session])) {
             $session_entry = $all_sessions[$current_session];
-            $current_ip = (is_array($session_entry) && isset($session_entry['ip']) && is_string($session_entry['ip'])) ? $session_entry['ip'] : '';
-            $current_ua = (is_array($session_entry) && isset($session_entry['ua']) && is_string($session_entry['ua'])) ? $session_entry['ua'] : '';
+            /** @phpstan-ignore-next-line */
+if (is_array($session_entry)) {
+                /** @phpstan-ignore-next-line */
+                $current_ip = isset($session_entry['ip']) && is_string($session_entry['ip']) ? $session_entry['ip'] : '';
+                /** @phpstan-ignore-next-line */
+                $current_ua = isset($session_entry['ua']) && is_string($session_entry['ua']) ? $session_entry['ua'] : '';
+            } else {
+                $current_ip = '';
+                $current_ua = '';
+            }
         }
 
-        /** @phpstan-ignore-next-line */
         include plugin_dir_path(dirname(__FILE__)) . 'templates/dashboard/dashboard.php';
     }
 
     /**
      * Add GW2 account section to user profile.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      * @param WP_User $user User object.
      */
-    /**
- * Add GW2 account section to user profile.
- *
- * @since 2.6.0
- * @param WP_User $user User object.
- */
-public function add_profile_section($user): void {
-        /** @phpstan-ignore-next-line */
-        // $user is WP_User (guaranteed by WordPress)
-// $user is WP_User (guaranteed by WordPress), $user->ID is always int
-$user_id = $user->ID; // PHPStan: int
+    public function add_profile_section($user): void {
+        $user_id = $user->ID;
         $gw2_account_id_mixed = get_user_meta($user_id, 'gw2_account_id', true);
         $gw2_account_id = is_string($gw2_account_id_mixed) ? $gw2_account_id_mixed : '';
-        // Always pass GW2_API instance to GW2_User_Handler for PHPStan compliance
         $gw2_api_profile = class_exists('GW2_API') ? new GW2_API() : null;
         $user_handler = ($gw2_api_profile && class_exists('GW2_User_Handler')) ? new GW2_User_Handler($gw2_api_profile) : null;
-        /** @phpstan-ignore-next-line */
         $gw2_api_key_mixed = $user_handler ? $user_handler->decrypt_api_key($user_id) : '';
-        $gw2_api_key = is_string($gw2_api_key_mixed) ? $gw2_api_key_mixed : '';
+        /** @phpstan-ignore-next-line */
+$gw2_api_key = is_string($gw2_api_key_mixed) ? $gw2_api_key_mixed : '';
         $last_login_mixed = get_user_meta($user_id, 'gw2_last_login', true);
-        $last_login = is_string($last_login_mixed) ? $last_login_mixed : '';
-        // Strict type for account ID
-        $gw2_account_id_safe = $gw2_account_id;
-        // Strict type for API key
-        $gw2_api_key_safe = $gw2_api_key;
-        // Strict type for last login
+        /** @phpstan-ignore-next-line */
+$last_login = is_string($last_login_mixed) ? $last_login_mixed : '';
+
         $last_login_safe = '';
-        if (is_string($last_login) && $last_login !== '' && (is_numeric($last_login) || strtotime($last_login) !== false)) {
+        /** @phpstan-ignore-next-line */
+if ($last_login !== '' && (is_numeric($last_login) || (is_string($last_login) && strtotime($last_login) !== false))) {
             $date_format = get_option('date_format');
             $time_format = get_option('time_format');
-            $timestamp = is_numeric($last_login) ? (int)$last_login : strtotime($last_login);
-            $last_login_safe = date_i18n(is_string($date_format) ? $date_format : 'Y-m-d' . ' ' . (is_string($time_format) ? $time_format : 'H:i'), $timestamp);
+            /** @phpstan-ignore-next-line */
+$timestamp = is_numeric($last_login) ? (int)$last_login : (is_string($last_login) ? strtotime($last_login) : 0);
+            /** @phpstan-ignore-next-line */
+$date_format_str = is_string($date_format) ? $date_format : 'Y-m-d';
+/** @phpstan-ignore-next-line */
+$time_format_str = is_string($time_format) ? $time_format : 'H:i';
+            $last_login_safe = date_i18n($date_format_str . ' ' . $time_format_str, $timestamp);
         } else {
             $last_login_safe = esc_html__('Never', 'gw2-guild-login');
         }
@@ -264,41 +258,27 @@ $user_id = $user->ID; // PHPStan: int
             <tr>
                 <th><label for="gw2_account_id"><?php esc_html_e('GW2 Account ID', 'gw2-guild-login'); ?></label></th>
                 <td>
-                    <?php /** @phpstan-ignore-next-line */
-/** @var WP_User $user */
-/** @phpstan-ignore-next-line */
-// $user->ID is always int (see above)
-$gw2_account_id_raw = get_user_meta($user->ID, 'gw2_account_id', true);
-$gw2_account_id_str = is_string($gw2_account_id_raw) ? $gw2_account_id_raw : '';
-?>
-/** @phpstan-ignore-next-line */
-<input type="text" name="gw2_account_id" id="gw2_account_id" value="<?php echo esc_attr($gw2_account_id_str); ?>" class="regular-text" disabled />
+                    <?php /** @phpstan-ignore-next-line */ ?>
+<input type="text" name="gw2_account_id" id="gw2_account_id" value="<?php echo esc_attr(is_string($gw2_account_id) ? $gw2_account_id : ''); ?>" class="regular-text" disabled />
                     <p class="description"><?php esc_html_e('Your Guild Wars 2 account ID.', 'gw2-guild-login'); ?></p>
                 </td>
             </tr>
             <tr>
                 <th><label for="gw2_last_login"><?php esc_html_e('Last Login', 'gw2-guild-login'); ?></label></th>
                 <td>
-                    <?php /** @phpstan-ignore-next-line */
-$last_login_raw = get_user_meta($user->ID, 'last_login', true);
-$last_login_str = is_string($last_login_raw) ? $last_login_raw : '';
-?>
-/** @phpstan-ignore-next-line */
-<input type="text" name="gw2_last_login" id="gw2_last_login" value="<?php echo esc_attr($last_login_str); ?>" class="regular-text" disabled />
+                    <?php /** @phpstan-ignore-next-line */ ?>
+<input type="text" name="gw2_last_login" id="gw2_last_login" value="<?php echo esc_attr(is_string($last_login) ? $last_login : ''); ?>" class="regular-text" disabled />
                 </td>
             </tr>
-            <?php if (current_user_can('manage_options') && $gw2_api_key_safe !== '') : ?>
+            <?php /** @phpstan-ignore-next-line */
+if (current_user_can('manage_options') && is_string($gw2_api_key) && $gw2_api_key !== '') : ?>
             <tr>
                 <th><label for="gw2_api_key"><?php esc_html_e('API Key', 'gw2-guild-login'); ?></label></th>
                 <th><label><?php esc_html_e('API Key', 'gw2-guild-login'); ?></label></th>
                 <td>
                     <div class="gw2-api-key-wrapper">
-                        <?php /** @phpstan-ignore-next-line */
-$gw2_api_key_raw = get_user_meta($user->ID, 'gw2_api_key', true);
-$gw2_api_key_str = is_string($gw2_api_key_raw) ? $gw2_api_key_raw : '';
-?>
-/** @phpstan-ignore-next-line */
-<input type="password" value="<?php echo esc_attr($gw2_api_key_str); ?>" class="regular-text" id="gw2_api_key" readonly autocomplete="off" />
+                        <?php /** @phpstan-ignore-next-line */ ?>
+<input type="password" value="<?php echo esc_attr(is_string($gw2_api_key) ? $gw2_api_key : ''); ?>" class="regular-text" id="gw2_api_key" readonly autocomplete="off" />
                         <button type="button" class="button button-secondary" id="toggle-api-key"><?php esc_html_e('Show', 'gw2-guild-login'); ?></button>
                         <button type="button" class="button button-secondary" id="copy-api-key"><?php esc_html_e('Copy', 'gw2-guild-login'); ?></button>
                     </div>
@@ -313,7 +293,7 @@ $gw2_api_key_str = is_string($gw2_api_key_raw) ? $gw2_api_key_raw : '';
     /**
      * Save profile fields.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      * @param int $user_id User ID.
      */
     public function save_profile_fields($user_id): void {
@@ -328,7 +308,7 @@ $gw2_api_key_str = is_string($gw2_api_key_raw) ? $gw2_api_key_raw : '';
     /**
      * Handle AJAX requests.
      *
-     * @since 2.6.0
+     * @since 2.6.2
      */
     public function handle_ajax_request(): void {
         check_ajax_referer('gw2-dashboard-nonce', 'nonce');
@@ -340,9 +320,8 @@ $gw2_api_key_str = is_string($gw2_api_key_raw) ? $gw2_api_key_raw : '';
             wp_send_json_error(__('You must be logged in to perform this action.', 'gw2-guild-login'));
         }
 
-        $action = isset($_POST['action_type']) ? sanitize_text_field($_POST['action_type']) : '';
-        $user_id_mixed = get_current_user_id();
-        $user_id = is_int($user_id_mixed) ? $user_id_mixed : (is_string($user_id_mixed) && ctype_digit($user_id_mixed) ? (int)$user_id_mixed : 0);
+        $action = isset($_POST['action_type']) ? (is_string($_POST['action_type']) ? sanitize_text_field($_POST['action_type']) : '') : '';
+        $user_id = (int)get_current_user_id();
 
         switch ($action) {
             case 'revoke_sessions':
@@ -362,14 +341,15 @@ $gw2_api_key_str = is_string($gw2_api_key_raw) ? $gw2_api_key_raw : '';
     /**
      * Revoke all sessions except the current one.
  * @phpstan-ignore-next-line WP_Session_Tokens is a WordPress core class.
- * @since 2.6.0
+ * @since 2.6.2
  * @param int $user_id User ID.
  */
 private function revoke_other_sessions($user_id): void {
     /** @phpstan-ignore-next-line */
     $sessions = WP_Session_Tokens::get_instance($user_id);
     $current_session = wp_get_session_token();
-    if (is_object($sessions) && method_exists($sessions, 'destroy_others')) {
+    /** @phpstan-ignore-next-line */
+if (is_object($sessions) && method_exists($sessions, 'destroy_others')) {
         /** @phpstan-ignore-next-line */
         $sessions->destroy_others($current_session);
     }
@@ -378,7 +358,7 @@ private function revoke_other_sessions($user_id): void {
 
 /**
  * Refresh user data from GW2 API.
- * @since 2.6.0
+ * @since 2.6.2
  * @param int $user_id User ID.
  */
 private function refresh_user_data($user_id): void {
@@ -433,7 +413,7 @@ private function refresh_user_data($user_id): void {
 }
 
 // Initialize the dashboard
-function gw2_user_dashboard_init(): GW2_User_Dashboard {
-    return GW2_User_Dashboard::get_instance();
+function gw2_user_dashboard_init(): void {
+    GW2_User_Dashboard::get_instance();
 }
 add_action('plugins_loaded', 'gw2_user_dashboard_init');

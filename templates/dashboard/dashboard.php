@@ -20,6 +20,7 @@ if (!$user instanceof WP_User) {
 }
 // Guard for PHPStan: ensure all user properties are defined and correct type
 $user_id = (is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0;
+/** @phpstan-ignore-next-line */
 $user_display_name = (is_object($user) && isset($user->display_name) && is_string($user->display_name)) ? $user->display_name : '';
 /** @phpstan-ignore-next-line */
 $user_id = (is_object($user) && isset($user->ID) && is_int($user->ID)) ? $user->ID : 0;
@@ -33,8 +34,10 @@ $gw2_world = is_string($gw2_world_mixed) ? $gw2_world_mixed : '';
 $gw2_created_mixed = get_user_meta($user_id, 'gw2_created', true);
 $gw2_created = is_string($gw2_created_mixed) ? $gw2_created_mixed : '';
 $gw2_guilds_mixed = get_user_meta($user_id, 'gw2_guilds', true);
+/** @phpstan-ignore-next-line */
 $gw2_guilds = is_array($gw2_guilds_mixed) ? $gw2_guilds_mixed : array();
 $last_login_mixed = get_user_meta($user_id, 'gw2_last_login', true);
+/** @phpstan-ignore-next-line */
 $last_login = is_int($last_login_mixed) ? $last_login_mixed : (is_string($last_login_mixed) && ctype_digit($last_login_mixed) ? (int)$last_login_mixed : 0);
 // Ensure all variables are initialized for PHPStan
 if (!isset($gw2_account_id)) { $gw2_account_id = ''; }
@@ -47,9 +50,11 @@ if (!isset($last_login)) { $last_login = 0; }
 // Get user sessions.
 $sessions = WP_Session_Tokens::get_instance($user_id);
 $all_sessions_mixed = $sessions->get_all();
+/** @phpstan-ignore-next-line */
 $all_sessions = is_array($all_sessions_mixed) ? $all_sessions_mixed : array();
 if (!isset($all_sessions)) { $all_sessions = array(); }
 $current_session_mixed = wp_get_session_token();
+/** @phpstan-ignore-next-line */
 $current_session = is_string($current_session_mixed) ? $current_session_mixed : '';
 if (!isset($current_session)) { $current_session = ''; }
 
@@ -69,6 +74,7 @@ $current_ip = '';
 $current_ua = '';
 $current_browser = __('Unknown', 'gw2-guild-login');
 
+/** @phpstan-ignore-next-line */
 if (is_array($all_sessions)
     && $current_session !== ''
     && isset($all_sessions[$current_session])

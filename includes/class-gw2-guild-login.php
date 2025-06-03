@@ -41,7 +41,7 @@ class GW2_Guild_Login {
 	 *
 	 * @var string
 	 */
-	const VERSION = '2.6.0';
+	const VERSION = '2.6.2';
 
 	/**
 	 * The API handler instance
@@ -77,7 +77,7 @@ class GW2_Guild_Login {
 	 * The instance of the class
 	 *
 	 * @var GW2_Guild_Login
-	 * @since 2.6.0
+	 * @since 2.6.2
 	 */
 	protected static $instance = null;
 

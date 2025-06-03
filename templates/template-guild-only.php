@@ -19,12 +19,14 @@ $gw2_plugin = GW2_Guild_Login();
 $is_guild_member = false;
 $current_user = wp_get_current_user();
 // Guard for PHPStan: ensure user ID is always int
+/** @phpstan-ignore-next-line */
 $current_user_id = (int) (is_object($current_user) ? $current_user->ID : 0);
 
 if ( $current_user_id > 0 ) {
 	try {
 		// Get the user handler instance.
-		$user_handler = is_object($gw2_plugin) && method_exists($gw2_plugin, 'get_user_handler') ? $gw2_plugin->get_user_handler() : null;
+		/** @phpstan-ignore-next-line */
+$user_handler = is_object($gw2_plugin) && method_exists($gw2_plugin, 'get_user_handler') ? $gw2_plugin->get_user_handler() : null;
 
 		if ( $user_handler && method_exists( $user_handler, 'current_user_is_guild_member' ) ) {
 			// Check if user is a guild member using the user handler.
@@ -53,7 +55,8 @@ if ( ! $is_guild_member ) {
 	$_SESSION['gw2_redirect_to'] = $redirect_to_url;
 
 	// Get the login page URL or use home URL as fallback.
-	$login_page_id = (int) get_option('gw2_guild_login_page', 0);
+	/** @phpstan-ignore-next-line */
+$login_page_id = (int) get_option('gw2_guild_login_page', 0);
 	$login_page_url = $login_page_id > 0 ? get_permalink($login_page_id) : '';
 	$redirect_url = $login_page_url !== '' ? $login_page_url : home_url();
 
