@@ -440,14 +440,7 @@ class GW2_Guild_Login {
 	}
 }
 
-/**
- * Returns the main instance of GW2_Guild_Login
- *
- * @return GW2_Guild_Login
- */
-function GW2_Guild_Login() {
-	return GW2_Guild_Login::instance();
-}
+
 
 // Initialize the plugin
 $GLOBALS['gw2_guild_login'] = GW2_Guild_Login();
