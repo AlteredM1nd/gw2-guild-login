@@ -117,58 +117,63 @@ class GW2_Guild_Ranks {
         if (!current_user_can('manage_options')) {
             return;
         }
-        
-        if (isset($_POST['gw2_guild_id'])) {
-            check_admin_referer('gw2_guild_settings');
-            $guild_id_mixed = sanitize_text_field($_POST['gw2_guild_id']);
-            $api_key_mixed = sanitize_text_field($_POST['gw2_api_key']);
-            $guild_id = is_string($guild_id_mixed) ? $guild_id_mixed : '';
-            $api_key = is_string($api_key_mixed) ? $api_key_mixed : '';
-            update_option('gw2_guild_id', $guild_id);
-            update_option('gw2_api_key', $api_key);
-            add_settings_error('gw2_messages', 'gw2_message', 'Settings Saved', 'updated');
+
+        // Handle form submission for rank-role mappings
+        if (isset($_POST['gw2_rank_roles'])) {
+            check_admin_referer('gw2_rank_settings');
+            $mappings = array_map('sanitize_text_field', wp_unslash($_POST['gw2_rank_roles']));
+            update_option('gw2_rank_role_map', $mappings);
+            add_settings_error('gw2_messages', 'gw2_message', __('Rank mappings saved.', 'gw2-guild-login'), 'updated');
         }
-        
-        $guild_id_mixed = get_option('gw2_guild_id', '');
-        $api_key_mixed = get_option('gw2_api_key', '');
-        $guild_id = is_string($guild_id_mixed) ? $guild_id_mixed : '';
-        $api_key = is_string($api_key_mixed) ? $api_key_mixed : '';
-        // PHPStan: Ensure variables are always strings for safe output.
-        
+
+        // Fetch saved general settings
+        $general = get_option('gw2gl_settings', []);
+        $guild_ids = array_filter(array_map('trim', explode(',', $general['guild_ids'] ?? '')));
+        $guild_id = $guild_ids[0] ?? '';
+
+        // Fetch guild ranks from API
+        $data = $this->fetch_guild_data((string)$guild_id);
+        $ranks = is_array($data) && isset($data['ranks']) && is_array($data['ranks']) ? $data['ranks'] : [];
+
+        // Get available WP roles
+        if (function_exists('get_editable_roles')) {
+            $roles = get_editable_roles();
+        } else {
+            global $wp_roles;
+            $roles = $wp_roles->roles;
+        }
+
+        // Load existing mappings
+        $saved_map = get_option('gw2_rank_role_map', []);
+
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('GW2 Guild Settings', 'gw2-guild-login'); ?></h1>
+            <h1><?php esc_html_e('Guild Rank to Role Mapping', 'gw2-guild-login'); ?></h1>
             <?php settings_errors('gw2_messages'); ?>
             <form method="post">
-                <?php wp_nonce_field('gw2_guild_settings'); ?>
+                <?php wp_nonce_field('gw2_rank_settings'); ?>
                 <table class="form-table">
-                    <tr>
-                        <th><label for="gw2_guild_id"><?php esc_html_e('Guild ID', 'gw2-guild-login'); ?></label></th>
-                        <td>
-                            <input type="text" id="gw2_guild_id" name="gw2_guild_id" 
-                                   value="<?php echo esc_attr($guild_id); ?>" class="regular-text">
-                            <p class="description"><?php esc_html_e("Your guild's UUID (found in guild panel URL)", 'gw2-guild-login'); ?></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><label for="gw2_api_key"><?php esc_html_e('API Key', 'gw2-guild-login'); ?></label></th>
-                        <td>
-                            <input type="password" id="gw2_api_key" name="gw2_api_key" 
-                                   value="<?php echo esc_attr($api_key); ?>" class="regular-text">
-                            <p class="description"><?php esc_html_e("GW2 API key with 'guild' permission", 'gw2-guild-login'); ?></p>
-                        </td>
-                    </tr>
+                    <?php foreach ($ranks as $rank) : ?>
+                        <?php if (is_array($rank) && isset($rank['name'])) : $name = (string)$rank['name']; ?>
+                        <tr>
+                            <th scope="row"><?php echo esc_html($name); ?></th>
+                            <td>
+                                <select name="gw2_rank_roles[<?php echo esc_attr($name); ?>]">
+                                    <?php foreach ($roles as $slug => $info) : ?>
+                                        <option value="<?php echo esc_attr($slug); ?>" <?php selected($saved_map[$name] ?? '', $slug); ?>>
+                                            <?php echo esc_html($info['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </table>
-                <?php submit_button(esc_html__('Save Settings', 'gw2-guild-login')); ?>
+                <?php submit_button(__('Save Rank Mappings', 'gw2-guild-login')); ?>
             </form>
-            
-            <h2><?php esc_html_e('Shortcode Usage', 'gw2-guild-login'); ?></h2>
-            <p><?php esc_html_e('Use the following shortcode to restrict content by guild rank:', 'gw2-guild-login'); ?></p>
-            <pre><code>[gw2_restricted rank="Officer"]This content is only visible to officers.[/gw2_restricted]</code></pre>
-            <p><?php esc_html_e('You can customize the access denied message:', 'gw2-guild-login'); ?></p>
-            <pre><code>[gw2_restricted rank="Member" message="Members only! Join our guild to see this content."]...[/gw2_restricted]</code></pre>
         </div>
-        <?php
+    <?php
     }
     
     /**
