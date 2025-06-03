@@ -34,22 +34,24 @@ class GW2_Guild_Login_Admin {
         $this->settings = is_array($settings_mixed) ? $settings_mixed : array(); // PHPStan: always array.
 
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
+		add_filter( 'admin_body_class', [ $this, 'add_admin_dark_body_class' ] );
 	}
 
 	/**
 	 * Register the stylesheets for the admin area.
 	 */
 	public function enqueue_styles() {
-		wp_enqueue_style(
-			$this->plugin_name,
-			plugin_dir_url( __FILE__ ) . '2.6.2/admin/css/gw2-guild-login-admin.css',
-			array(),
-			$this->version,
-			'all'
-		);
-		// Enqueue WordPress color picker for appearance settings
-		wp_enqueue_style('wp-color-picker');
-		wp_enqueue_media();
+		 // Load modern admin stylesheet
+   wp_enqueue_style(
+       $this->plugin_name,
+       plugin_dir_url( __FILE__ ) . 'css/admin-style.css',
+       array(),
+       $this->version,
+       'all'
+   );
+     // Enqueue WordPress color picker for appearance settings
+     wp_enqueue_style('wp-color-picker');
+     wp_enqueue_media();
 	}
 
 	/**
@@ -343,6 +345,19 @@ class GW2_Guild_Login_Admin {
 		$sanitized['rate_limit'] = isset($input['rate_limit']) ? absint($input['rate_limit']) : 100;
 		$sanitized['login_attempt_limit'] = isset($input['login_attempt_limit']) ? absint($input['login_attempt_limit']) : 5;
 
+		// Preserve appearance settings across main save
+        foreach ( [
+            'appearance_primary_color',
+            'appearance_accent_color',
+            'appearance_logo',
+            'appearance_welcome_text',
+            'appearance_force_dark',
+        ] as $app_key ) {
+            if ( isset( $current_settings[ $app_key ] ) ) {
+                $sanitized[ $app_key ] = $current_settings[ $app_key ];
+            }
+        }
+
 		// Add admin notice for settings saved
 		add_settings_error(
 			'gw2gl_settings',
@@ -429,18 +444,30 @@ class GW2_Guild_Login_Admin {
 	 * @param string $hook The current admin page hook.
 	 */
 	public function enqueue_admin_assets( string $hook ) {
-		if ( strpos( $hook, 'gw2-guild-login' ) === false ) {
-			return;
-		}
+		// Load WP color picker assets
+		wp_enqueue_style('wp-color-picker');
+		wp_enqueue_script('wp-color-picker');
+		// Load modern admin stylesheet
 		wp_enqueue_style(
 			'gw2-guild-login-modern',
 			plugin_dir_url( __FILE__ ) . 'css/admin-style.css',
 			[],
 			$this->version
 		);
-		// WP color picker
-		wp_enqueue_style('wp-color-picker');
-		wp_enqueue_script('wp-color-picker');
+	}
+
+	/**
+	 * Append a custom body class when Force Dark Mode is active.
+	 *
+	 * @param string $classes Existing admin body classes.
+	 * @return string Modified classes.
+	 */
+	public function add_admin_dark_body_class( string $classes ): string {
+	    $settings = get_option( 'gw2gl_settings', [] );
+	    if ( ! empty( $settings['appearance_force_dark'] ) ) {
+	        $classes = trim( $classes . ' gw2-admin-dark' );
+	    }
+	    return $classes;
 	}
 
 	/**

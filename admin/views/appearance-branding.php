@@ -47,13 +47,13 @@ $force_dark = !empty($settings['appearance_force_dark']);
             <tr>
                 <th><label for="appearance_primary_color"><?php esc_html_e('Primary Color', 'gw2-guild-login'); ?></label></th>
                 <td>
-                    <input type="text" id="appearance_primary_color" name="appearance_primary_color" value="<?php echo esc_attr($primary); ?>" class="wp-color-picker-field" />
+                    <input type="text" id="appearance_primary_color" name="appearance_primary_color" value="<?php echo esc_attr($primary); ?>" class="wp-color-picker-field" data-default-color="<?php echo esc_attr('#1976d2'); ?>" />
                 </td>
             </tr>
             <tr>
                 <th><label for="appearance_accent_color"><?php esc_html_e('Accent Color', 'gw2-guild-login'); ?></label></th>
                 <td>
-                    <input type="text" id="appearance_accent_color" name="appearance_accent_color" value="<?php echo esc_attr($accent); ?>" class="wp-color-picker-field" />
+                    <input type="text" id="appearance_accent_color" name="appearance_accent_color" value="<?php echo esc_attr($accent); ?>" class="wp-color-picker-field" data-default-color="<?php echo esc_attr('#26c6da'); ?>" />
                 </td>
             </tr>
             <tr>
