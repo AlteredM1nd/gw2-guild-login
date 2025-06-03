@@ -95,10 +95,13 @@ require_once plugin_dir_path(__FILE__) . 'includes/GW2_2FA_Handler.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-gw2-user-dashboard.php';
 
 // Load the guild ranks functionality
-require_once plugin_dir_path(__FILE__) . 'includes/class-gw2-guild-ranks.php';
+require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-guild-ranks.php';
+
+// Load the admin settings class
+require_once GW2_GUILD_LOGIN_DIR . 'includes/admin/class-gw2-guild-login-admin.php';
 
 // Load the admin menu
-require_once plugin_dir_path(__FILE__) . 'includes/admin/class-gw2-admin-menu.php';
+require_once GW2_GUILD_LOGIN_DIR . 'includes/admin/class-gw2-admin-menu.php';
 require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-2fa-login.php'; 
 
 // Include database migration if needed
