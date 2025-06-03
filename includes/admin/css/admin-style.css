@@ -1,0 +1,90 @@
+/* Modern GW2 Guild Login Admin Styles */
+
+/* Card-like container for wrap */
+.wrap {
+    background: #fff;
+    margin: 1.5rem;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Headings */
+.wrap h1, .wrap h2, .wrap h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Tables styling */
+.widefat {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+.widefat th {
+    background-color: #f1f1f1;
+    color: #34495e;
+    padding: 8px;
+    border-bottom: 2px solid #ddd;
+}
+.widefat td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+.widefat tr:nth-child(even) {
+    background-color: #fafafa;
+}
+.widefat tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Buttons */
+.button-primary, input[type="submit"].button-primary {
+    background: #0073aa;
+    border-color: #006799;
+    color: #fff;
+    box-shadow: none;
+    text-shadow: none;
+}
+.button-primary:hover, .button-primary:focus {
+    background: #0085ba;
+    border-color: #0074a2;
+    color: #fff;
+}
+
+/* Sidebar boxes */
+.gw2gl-admin-sidebar {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+.gw2gl-admin-box {
+    flex: 1;
+    background: #f9f9f9;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+.gw2gl-admin-box h3 {
+    margin-top: 0;
+}
+
+/* Form fields polish */
+.form-table th {
+    padding: 12px 8px;
+    vertical-align: top;
+}
+.form-table td {
+    padding: 12px 8px;
+}
+
+/* Dark mode override if needed */
+body.gw2-admin-dark {
+    background: #2b3038 !important;
+    color: #c5c8c6 !important;
+}
+body.gw2-admin-dark .wrap {
+    background: #383c44;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}

@@ -2,6 +2,20 @@
 
 All notable changes to the GW2 Guild Login plugin will be documented in this file.
 
+## [2.6.4] - 2025-06-03
+
+### Changed
+- Removed **Appearance & Branding** section from the **Guild Settings** page (now lives in its own submenu)
+- Introduced standalone **Appearance & Branding** submenu with:
+  - Primary & accent color pickers (with live preview)
+  - Custom logo uploader & preview
+  - Welcome text field
+  - Persistent **Force Dark Mode** checkbox with state retention and **Restore Defaults** button
+- Added **Restore Defaults** action to reset all appearance settings to plugin defaults
+- Enqueued a new modern admin stylesheet (`admin-style.css`) on all GW2 Guild Login admin pages via `enqueue_admin_assets()`
+- Created `includes/admin/css/admin-style.css` for updated card layouts, table styling, button designs, sidebar boxes, and dark-mode overrides
+- Updated **GW2_2FA_Handler::get_encryption_key()** to remove hardcoded fallback key: now supports a `GW2GL_ENCRYPTION_KEY` constant override or a securely generated/stored option key (32-byte SHA-256 derived)
+
 ## [2.6.3] - 2025-06-03
 
 ### Added

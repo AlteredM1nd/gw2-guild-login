@@ -7,12 +7,25 @@ if (!current_user_can('manage_options')) {
 // Handle form submission
 settings_errors('appearance_messages');
 if ('POST' === $_SERVER['REQUEST_METHOD'] && isset($_POST['appearance_nonce']) && wp_verify_nonce($_POST['appearance_nonce'], 'gw2_appearance')) {
+    // Load current settings
     $settings = get_option('gw2gl_settings', []);
-    $settings['appearance_primary_color'] = sanitize_hex_color($_POST['appearance_primary_color'] ?? '') ?: '#1976d2';
-    $settings['appearance_accent_color'] = sanitize_hex_color($_POST['appearance_accent_color'] ?? '') ?: '#26c6da';
-    $settings['appearance_logo'] = esc_url_raw($_POST['appearance_logo'] ?? '');
-    $settings['appearance_welcome_text'] = sanitize_textarea_field($_POST['appearance_welcome_text'] ?? '');
-    $settings['appearance_force_dark'] = isset($_POST['appearance_force_dark']) ? 1 : 0;
+    // Check for restore defaults
+    if (isset($_POST['restore_defaults'])) {
+        $settings = [
+            'appearance_primary_color' => '#1976d2',
+            'appearance_accent_color'  => '#26c6da',
+            'appearance_logo'          => '',
+            'appearance_welcome_text'  => '',
+            'appearance_force_dark'    => 0,
+        ];
+    } else {
+        // Save custom values
+        $settings['appearance_primary_color'] = sanitize_hex_color($_POST['appearance_primary_color'] ?? '') ?: '#1976d2';
+        $settings['appearance_accent_color'] = sanitize_hex_color($_POST['appearance_accent_color'] ?? '') ?: '#26c6da';
+        $settings['appearance_logo'] = esc_url_raw($_POST['appearance_logo'] ?? '');
+        $settings['appearance_welcome_text'] = sanitize_textarea_field($_POST['appearance_welcome_text'] ?? '');
+        $settings['appearance_force_dark'] = isset($_POST['appearance_force_dark']) ? 1 : 0;
+    }
     update_option('gw2gl_settings', $settings);
     add_settings_error('appearance_messages', 'saved', __('Appearance settings saved.', 'gw2-guild-login'), 'updated');
 }
@@ -34,13 +47,13 @@ $force_dark = !empty($settings['appearance_force_dark']);
             <tr>
                 <th><label for="appearance_primary_color"><?php esc_html_e('Primary Color', 'gw2-guild-login'); ?></label></th>
                 <td>
-                    <input type="text" id="appearance_primary_color" name="appearance_primary_color" value="<?php echo esc_attr($primary); ?>" class="gw2-color-field" />
+                    <input type="text" id="appearance_primary_color" name="appearance_primary_color" value="<?php echo esc_attr($primary); ?>" class="wp-color-picker-field" />
                 </td>
             </tr>
             <tr>
                 <th><label for="appearance_accent_color"><?php esc_html_e('Accent Color', 'gw2-guild-login'); ?></label></th>
                 <td>
-                    <input type="text" id="appearance_accent_color" name="appearance_accent_color" value="<?php echo esc_attr($accent); ?>" class="gw2-color-field" />
+                    <input type="text" id="appearance_accent_color" name="appearance_accent_color" value="<?php echo esc_attr($accent); ?>" class="wp-color-picker-field" />
                 </td>
             </tr>
             <tr>
@@ -67,11 +80,12 @@ $force_dark = !empty($settings['appearance_force_dark']);
             </tr>
         </table>
         <?php submit_button(__('Save Appearance Settings', 'gw2-guild-login')); ?>
+        <?php submit_button(__('Restore Defaults', 'gw2-guild-login'), 'secondary', 'restore_defaults', false); ?>
     </form>
 </div>
 <script>
 jQuery(function($){
-    $('.gw2-color-field').wpColorPicker();
+    $('.wp-color-picker-field').wpColorPicker();
     $('#upload_logo_button').on('click', function(e){
         e.preventDefault();
         var frame = wp.media({title: '<?php echo esc_js(__('Select Logo','gw2-guild-login')); ?>', button:{ text:'<?php echo esc_js(__('Use this logo','gw2-guild-login')); ?>'}, multiple:false});

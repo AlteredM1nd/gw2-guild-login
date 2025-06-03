@@ -376,14 +376,24 @@ class GW2_2FA_Handler {
     }
 
     /**
-     * Get the encryption key
-     * 
+     * Get the encryption key (32 bytes for AES-256-CBC)
+     *
      * @return string
      */
     private function get_encryption_key() {
-        $key = defined('LOGGED_IN_KEY') ? LOGGED_IN_KEY : 'default-key';
-        $key = substr(hash('sha256', $key), 0, 32);
-        return $key;
+        // Allow override via constant, else use stored option or generate a new key
+        $raw = defined('GW2GL_ENCRYPTION_KEY')
+            ? GW2GL_ENCRYPTION_KEY
+            : get_option('gw2gl_encryption_key', '');
+
+        if (empty($raw)) {
+            // Generate a secure random key and persist it
+            $raw = wp_generate_password(32, false, false);
+            update_option('gw2gl_encryption_key', $raw);
+        }
+
+        // Derive a 32-byte key via SHA-256
+        return substr(hash('sha256', $raw), 0, 32);
     }
 }
 

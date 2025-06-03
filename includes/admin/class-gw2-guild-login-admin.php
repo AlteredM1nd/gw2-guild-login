@@ -32,6 +32,8 @@ class GW2_Guild_Login_Admin {
 		$this->version     = GW2_GUILD_LOGIN_VERSION;
 		$settings_mixed = get_option( 'gw2gl_settings', array() );
         $this->settings = is_array($settings_mixed) ? $settings_mixed : array(); // PHPStan: always array.
+
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
 	}
 
 	/**
@@ -155,74 +157,6 @@ class GW2_Guild_Login_Admin {
 				'description' => __( 'Enter an API key with permission to access guild data.', 'gw2-guild-login' ),
 			)
 		);
-
-		// Appearance & Branding Section
-		add_settings_section(
-			'gw2gl_appearance_section',
-			__( 'Appearance & Branding', 'gw2-guild-login' ),
-			array( $this, 'appearance_section_callback' ),
-			'gw2-guild-login'
-		);
-
-		add_settings_field(
-			'appearance_primary_color',
-			__( 'Primary Color', 'gw2-guild-login' ),
-			array( $this, 'color_picker_field_callback' ),
-			'gw2-guild-login',
-			'gw2gl_appearance_section',
-			array(
-				'id' => 'appearance_primary_color',
-				'default' => '#1976d2',
-				'description' => __( 'Choose the primary UI color.', 'gw2-guild-login' ),
-			)
-		);
-		add_settings_field(
-			'appearance_accent_color',
-			__( 'Accent Color', 'gw2-guild-login' ),
-			array( $this, 'color_picker_field_callback' ),
-			'gw2-guild-login',
-			'gw2gl_appearance_section',
-			array(
-				'id' => 'appearance_accent_color',
-				'default' => '#26c6da',
-				'description' => __( 'Choose the accent color.', 'gw2-guild-login' ),
-			)
-		);
-		add_settings_field(
-			'appearance_logo',
-			__( 'Custom Logo', 'gw2-guild-login' ),
-			array( $this, 'logo_upload_field_callback' ),
-			'gw2-guild-login',
-			'gw2gl_appearance_section',
-			array(
-				'id' => 'appearance_logo',
-				'description' => __( 'Upload a custom logo for the login/dashboard.', 'gw2-guild-login' ),
-			)
-		);
-		add_settings_field(
-			'appearance_welcome_text',
-			__( 'Custom Welcome Text', 'gw2-guild-login' ),
-			array( $this, 'textarea_field_callback' ),
-			'gw2-guild-login',
-			'gw2gl_appearance_section',
-			array(
-				'id' => 'appearance_welcome_text',
-				'description' => __( 'This text will appear at the top of the login and dashboard pages.', 'gw2-guild-login' ),
-			)
-		);
-		add_settings_field(
-			'appearance_force_dark',
-			__( 'Force Dark Mode', 'gw2-guild-login' ),
-			array( $this, 'checkbox_field_callback' ),
-			'gw2-guild-login',
-			'gw2gl_appearance_section',
-			array(
-				'id' => 'appearance_force_dark',
-				'label' => __( 'Always use dark mode (override user preference)', 'gw2-guild-login' ),
-				'description' => '',
-			)
-		);
-
 
 		add_settings_field(
 			'target_guild_id',
@@ -483,17 +417,30 @@ class GW2_Guild_Login_Admin {
 	}
 
 	/**
-	 * Appearance section callback.
-	 */
-	public function appearance_section_callback() {
-		echo '<p>' . __( 'Customize the look and feel of the login and dashboard pages.', 'gw2-guild-login' ) . '</p>';
-	}
-
-	/**
 	 * API section callback.
 	 */
 	public function api_section_callback() {
 		echo '<p>' . __( 'Configure API-related settings.', 'gw2-guild-login' ) . '</p>';
+	}
+
+	/**
+	 * Enqueue modern admin styles.
+	 *
+	 * @param string $hook The current admin page hook.
+	 */
+	public function enqueue_admin_assets( string $hook ) {
+		if ( strpos( $hook, 'gw2-guild-login' ) === false ) {
+			return;
+		}
+		wp_enqueue_style(
+			'gw2-guild-login-modern',
+			plugin_dir_url( __FILE__ ) . 'css/admin-style.css',
+			[],
+			$this->version
+		);
+		// WP color picker
+		wp_enqueue_style('wp-color-picker');
+		wp_enqueue_script('wp-color-picker');
 	}
 
 	/**
