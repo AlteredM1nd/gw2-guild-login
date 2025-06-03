@@ -126,10 +126,16 @@ function GW2_Guild_Login() {
 
 // Always register plugin settings for admin pages
 if (is_admin()) {
-    // Ensure the admin class is loaded
     if (class_exists('GW2_Guild_Login_Admin')) {
-        // Get the singleton or global instance
-        $gw2_admin = new GW2_Guild_Login_Admin();
+        if (method_exists('GW2_Guild_Login_Admin', 'instance')) {
+            $gw2_admin = GW2_Guild_Login_Admin::instance();
+        } else {
+            global $gw2_guild_login_admin_instance;
+            if (!isset($gw2_guild_login_admin_instance)) {
+                $gw2_guild_login_admin_instance = new GW2_Guild_Login_Admin();
+            }
+            $gw2_admin = $gw2_guild_login_admin_instance;
+        }
         add_action('admin_init', array($gw2_admin, 'register_settings'));
     }
 }
