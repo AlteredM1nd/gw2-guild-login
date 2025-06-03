@@ -88,8 +88,8 @@ require_once GW2_GUILD_LOGIN_DIR . 'includes/class-gw2-password-reset.php'; // M
 // Load the core plugin class.
 require plugin_dir_path(__FILE__) . 'includes/class-gw2-guild-login.php';
 
-// Load the 2FA functionality
-require_once plugin_dir_path(__FILE__) . 'includes/class-gw2-2fa.php';
+// Load the 2FA handler class
+require_once plugin_dir_path(__FILE__) . 'includes/GW2_2FA_Handler.php';
 
 // Load the user dashboard
 require_once plugin_dir_path(__FILE__) . 'includes/class-gw2-user-dashboard.php';
