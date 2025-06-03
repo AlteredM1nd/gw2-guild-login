@@ -122,6 +122,40 @@ class GW2_Guild_Login_Admin {
 			'gw2-guild-login'
 		);
 
+		// Guild Settings Section
+		add_settings_section(
+			'gw2gl_guild_section',
+			__( 'Guild Settings', 'gw2-guild-login' ),
+			function() {
+				echo '<p>' . esc_html__( 'Configure your Guild Wars 2 guild integration. Enter one or more Guild IDs (comma-separated) and a Guild API Key for guild validation.', 'gw2-guild-login' ) . '</p>';
+			},
+			'gw2-guild-login'
+		);
+
+		add_settings_field(
+			'guild_ids',
+			__( 'Guild IDs', 'gw2-guild-login' ),
+			array( $this, 'textarea_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_guild_section',
+			array(
+				'id' => 'guild_ids',
+				'description' => __( 'Enter one or more Guild IDs, separated by commas.', 'gw2-guild-login' ),
+			)
+		);
+
+		add_settings_field(
+			'guild_api_key',
+			__( 'Guild API Key', 'gw2-guild-login' ),
+			array( $this, 'text_field_callback' ),
+			'gw2-guild-login',
+			'gw2gl_guild_section',
+			array(
+				'id' => 'guild_api_key',
+				'description' => __( 'Enter an API key with permission to access guild data.', 'gw2-guild-login' ),
+			)
+		);
+
 		// Appearance & Branding Section
 		add_settings_section(
 			'gw2gl_appearance_section',
@@ -258,6 +292,25 @@ class GW2_Guild_Login_Admin {
 	 * @return array
 	 */
 	public function sanitize_settings( $input ) {
+		$sanitized = array();
+
+		// Sanitize Guild IDs (allow comma-separated alphanumeric/hex strings)
+		if ( isset( $input['guild_ids'] ) && is_string( $input['guild_ids'] ) ) {
+			$ids = array_map( 'trim', explode( ',', $input['guild_ids'] ) );
+			$ids = array_filter( $ids, function( $id ) {
+				return preg_match( '/^[a-fA-F0-9]{8,}$/', $id ); // GW2 Guild IDs are usually hex
+			});
+			$sanitized['guild_ids'] = implode( ',', $ids );
+		}
+
+		// Sanitize Guild API Key (alphanumeric, 72+ chars)
+		if ( isset( $input['guild_api_key'] ) && is_string( $input['guild_api_key'] ) ) {
+			$api_key = trim( $input['guild_api_key'] );
+			if ( preg_match( '/^[a-zA-Z0-9-]{70,}$/', $api_key ) ) {
+				$sanitized['guild_api_key'] = $api_key;
+			}
+		}
+
 		// Support multiple guild IDs as array
 		if ( isset( $input['target_guild_id'] ) ) {
 			$ids = array_filter(array_map('trim', explode(',', $input['target_guild_id'])));
