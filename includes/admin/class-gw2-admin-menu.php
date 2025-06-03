@@ -120,9 +120,17 @@ class GW2_Admin_Menu {
      */
     public function enqueue_styles($hook) {
         if (strpos($hook, 'gw2-guild') !== false) {
+            // Legacy admin styles
             wp_enqueue_style(
                 'gw2-admin',
                 plugins_url('assets/css/admin.css', dirname(__DIR__)),
+                array(),
+                GW2_GUILD_LOGIN_VERSION
+            );
+            // Modern admin overrides (including dark mode)
+            wp_enqueue_style(
+                'gw2-admin-modern',
+                plugin_dir_url(__FILE__) . 'css/admin-style.css',
                 array(),
                 GW2_GUILD_LOGIN_VERSION
             );

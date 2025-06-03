@@ -282,6 +282,81 @@ class GW2_Guild_Login_Admin {
 				'description' => __( 'Failed logins before lockout.', 'gw2-guild-login' ),
 			)
 		);
+
+		// Appearance & Branding Section
+		add_settings_section(
+			'gw2gl_appearance_section',
+			__( 'Appearance & Branding', 'gw2-guild-login' ),
+			'__return_false',
+			'gw2-appearance-branding'
+		);
+
+		// Primary Color Picker
+		add_settings_field(
+			'appearance_primary_color',
+			__( 'Primary Color', 'gw2-guild-login' ),
+			array( $this, 'color_picker_field_callback' ),
+			'gw2-appearance-branding',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_primary_color',
+				'default' => '#1976d2',
+				'description' => __( 'Primary theme color.', 'gw2-guild-login' ),
+			)
+		);
+
+		// Accent Color Picker
+		add_settings_field(
+			'appearance_accent_color',
+			__( 'Accent Color', 'gw2-guild-login' ),
+			array( $this, 'color_picker_field_callback' ),
+			'gw2-appearance-branding',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_accent_color',
+				'default' => '#26c6da',
+				'description' => __( 'Accent theme color.', 'gw2-guild-login' ),
+			)
+		);
+
+		// Logo Upload
+		add_settings_field(
+			'appearance_logo',
+			__( 'Custom Logo URL', 'gw2-guild-login' ),
+			array( $this, 'logo_upload_field_callback' ),
+			'gw2-appearance-branding',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_logo',
+				'description' => __( 'URL of a custom logo to display in the header.', 'gw2-guild-login' ),
+			)
+		);
+
+		// Welcome Text
+		add_settings_field(
+			'appearance_welcome_text',
+			__( 'Welcome Text', 'gw2-guild-login' ),
+			array( $this, 'textarea_field_callback' ),
+			'gw2-appearance-branding',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_welcome_text',
+				'description' => __( 'Custom welcome message displayed to users.', 'gw2-guild-login' ),
+			)
+		);
+
+		// Force Dark Mode Toggle
+		add_settings_field(
+			'appearance_force_dark',
+			__( 'Force Dark Mode', 'gw2-guild-login' ),
+			array( $this, 'checkbox_field_callback' ),
+			'gw2-appearance-branding',
+			'gw2gl_appearance_section',
+			array(
+				'id' => 'appearance_force_dark',
+				'label' => __( 'Enable dark theme for all users', 'gw2-guild-login' ),
+			)
+		);
 	}
 
 	/**
@@ -353,7 +428,11 @@ class GW2_Guild_Login_Admin {
             'appearance_welcome_text',
             'appearance_force_dark',
         ] as $app_key ) {
-            if ( isset( $current_settings[ $app_key ] ) ) {
+            if ( isset( $input[ $app_key ] ) ) {
+                // Use new input when provided
+                $sanitized[ $app_key ] = $input[ $app_key ];
+            } elseif ( isset( $current_settings[ $app_key ] ) ) {
+                // Preserve existing value when no new input
                 $sanitized[ $app_key ] = $current_settings[ $app_key ];
             }
         }
