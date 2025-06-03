@@ -10,7 +10,7 @@ use GW2GuildLogin\GW2_Login_Shortcode;
  * Plugin Name:       GW2 Guild Login
  * Plugin URI:        https://github.com/AlteredM1nd/gw2-guild-login
  * Description:       Allows users to log in using their GW2 API key to verify guild membership with WordPress user integration.
- * Version:           2.6.2
+ * Version:           2.6.4
  * Author:            AlteredM1nd
  * Author URI:        https://github.com/AlteredM1nd
  * License:           GPL-2.0+
