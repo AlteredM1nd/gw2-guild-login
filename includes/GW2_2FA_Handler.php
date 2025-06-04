@@ -372,7 +372,7 @@ class GW2_2FA_Handler {
         // Backup codes are stored as comma-separated string
         $codes = array_map('trim', explode(',', $decrypted));
         // Remove empty entries (in case of trailing commas)
-        return array_filter($codes, 'strlen');
+        return array_filter($codes, function($code) { return strlen($code) > 0; });
     }
 
     /**

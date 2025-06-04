@@ -4,6 +4,13 @@
  */
 class GW2_Guild_Login_Admin {
 	/**
+	 * The single instance of this class.
+	 *
+	 * @var GW2_Guild_Login_Admin|null
+	 */
+	private static $instance = null;
+
+	/**
 	 * The ID of this plugin.
 	 *
 	 * @var string
@@ -23,6 +30,18 @@ class GW2_Guild_Login_Admin {
 	 * @var array
 	 */
 	private $settings;
+
+	/**
+	 * Get the singleton instance of this class.
+	 *
+	 * @return GW2_Guild_Login_Admin
+	 */
+	public static function instance(): GW2_Guild_Login_Admin {
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
 
 	/**
 	 * Initialize the class and set its properties.
@@ -83,6 +102,32 @@ class GW2_Guild_Login_Admin {
 	}
 
 	/**
+	 * Generate a tooltip with helpful information
+	 *
+	 * @param string $content Tooltip content
+	 * @return string HTML for tooltip
+	 */
+	private function get_tooltip( $content ) {
+		return sprintf(
+			'<span class="gw2-tooltip"><span class="gw2-tooltip-icon">?</span><span class="gw2-tooltip-content">%s</span></span>',
+			esc_html( $content )
+		);
+	}
+
+	/**
+	 * Generate a field hint with helpful information
+	 *
+	 * @param string $content Hint content
+	 * @return string HTML for field hint
+	 */
+	private function get_field_hint( $content ) {
+		return sprintf(
+			'<span class="gw2-field-hint"><span class="gw2-hint-content">%s</span></span>',
+			wp_kses_post( $content )
+		);
+	}
+
+	/**
 	 * Add the plugin admin menu.
 	 */
 	public function add_admin_menu() {
@@ -138,63 +183,63 @@ class GW2_Guild_Login_Admin {
 
 		add_settings_field(
 			'guild_ids',
-			__( 'Guild IDs', 'gw2-guild-login' ),
+			__( 'Guild IDs', 'gw2-guild-login' ) . $this->get_tooltip( 'Find your Guild ID by visiting https://api.guildwars2.com/v2/guild/search?name=YourGuildName or check your guild\'s API details in-game.' ),
 			array( $this, 'textarea_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_guild_section',
 			array(
 				'id' => 'guild_ids',
-				'description' => __( 'Enter one or more Guild IDs, separated by commas.', 'gw2-guild-login' ),
+				'description' => __( 'Enter one or more Guild IDs, separated by commas. Example: ABC123DEF-456G-789H-012I-JKLMNOP123QR', 'gw2-guild-login' ) . $this->get_field_hint( 'Each Guild ID is a unique identifier (UUID) for your Guild Wars 2 guild. You can find it via the GW2 API or by using guild search tools. Multiple guild IDs allow users from any of the specified guilds to access your site.' ),
 			)
 		);
 
 		add_settings_field(
 			'guild_api_key',
-			__( 'Guild API Key', 'gw2-guild-login' ),
+			__( 'Guild API Key', 'gw2-guild-login' ) . $this->get_tooltip( 'Create an API key at https://account.arena.net/applications with "account" and "guilds" permissions. This key is used by the plugin to verify guild membership.' ),
 			array( $this, 'text_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_guild_section',
 			array(
 				'id' => 'guild_api_key',
-				'description' => __( 'Enter an API key with permission to access guild data.', 'gw2-guild-login' ),
+				'description' => __( 'Enter an API key with "account" and "guilds" permissions for guild data access.', 'gw2-guild-login' ) . $this->get_field_hint( 'This API key should have the following permissions:<br/>• <strong>account</strong> - Access basic account information<br/>• <strong>guilds</strong> - Access guild membership data<br/><br/>⚠️ <strong>Important:</strong> Keep this key secure and never share it publicly. This key allows the plugin to verify which users belong to your guild.' ),
 			)
 		);
 
 		add_settings_field(
 			'target_guild_id',
-			__( 'Target Guild IDs', 'gw2-guild-login' ),
+			__( 'Target Guild IDs', 'gw2-guild-login' ) . $this->get_tooltip( 'Legacy field. Users must be members of at least one of these guilds to log in. Leave empty to allow any GW2 account access.' ),
 			array( $this, 'text_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_general_section',
 			array(
 				'id'          => 'target_guild_id',
-				'description' => __( 'Enter one or more Guild IDs, separated by commas. Users must be a member of at least one to log in.', 'gw2-guild-login' ),
+				'description' => __( 'Enter one or more Guild IDs, separated by commas. Users must be a member of at least one to log in.', 'gw2-guild-login' ) . $this->get_field_hint( 'This setting restricts login access to members of specific guilds. If left empty, any valid GW2 API key will allow login. Use the format: <code>Guild1ID,Guild2ID,Guild3ID</code> for multiple guilds.' ),
 			)
 		);
 
 		add_settings_field(
 			'member_role',
-			__( 'Default User Role', 'gw2-guild-login' ),
+			__( 'Default User Role', 'gw2-guild-login' ) . $this->get_tooltip( 'Choose the WordPress user role assigned to new users when they register through GW2 login. Higher roles have more site permissions.' ),
 			array( $this, 'select_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_general_section',
 			array(
 				'id'          => 'member_role',
 				'options'     => $this->get_user_roles(),
-				'description' => __( 'Select the default role for new users.', 'gw2-guild-login' ),
+				'description' => __( 'Select the default role for new users.', 'gw2-guild-login' ) . $this->get_field_hint( 'This determines what permissions new users will have on your site:<br/>• <strong>Subscriber</strong> - Can only read content and manage their profile<br/>• <strong>Contributor</strong> - Can write posts but not publish them<br/>• <strong>Author</strong> - Can publish and manage their own posts<br/>• <strong>Editor</strong> - Can publish and manage posts by all users<br/>• <strong>Administrator</strong> - Full site access (use with caution)<br/><br/>💡 <strong>Recommendation:</strong> Start with "Subscriber" for security, then promote trusted guild members manually.' ),
 			)
 		);
 
 		add_settings_field(
 			'enable_auto_register',
-			__( 'Auto-register New Users', 'gw2-guild-login' ),
+			__( 'Auto-register New Users', 'gw2-guild-login' ) . $this->get_tooltip( 'When enabled, users with valid GW2 API keys who aren\'t already registered will automatically get WordPress accounts created. When disabled, only existing users can log in.' ),
 			array( $this, 'checkbox_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_general_section',
 			array(
 				'id'          => 'enable_auto_register',
 				'label'       => __( 'Enable automatic registration of new users', 'gw2-guild-login' ),
-				'description' => __( 'If enabled, new users will be automatically registered when they log in with a valid API key.', 'gw2-guild-login' ),
+				'description' => __( 'If enabled, new users will be automatically registered when they log in with a valid API key.', 'gw2-guild-login' ) . $this->get_field_hint( '<strong>Enabled:</strong> Anyone with a valid GW2 API key can create an account by logging in<br/><strong>Disabled:</strong> Only users who already have WordPress accounts can use GW2 login<br/><br/>⚠️ <strong>Security Note:</strong> If you have Target Guild IDs configured, auto-registration will only work for members of those guilds. Otherwise, any GW2 player can register.' ),
 			)
 		);
 
@@ -208,7 +253,7 @@ class GW2_Guild_Login_Admin {
 
 		add_settings_field(
 			'api_cache_expiry',
-			__( 'API Cache Expiry', 'gw2-guild-login' ),
+			__( 'API Cache Expiry', 'gw2-guild-login' ) . $this->get_tooltip( 'How long the plugin stores GW2 API responses before fetching fresh data. Longer cache times reduce API calls but may delay updates to guild membership changes.' ),
 			array( $this, 'number_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_api_section',
@@ -216,7 +261,7 @@ class GW2_Guild_Login_Admin {
 				'id'          => 'api_cache_expiry',
 				'min'         => 300,
 				'step'        => 60,
-				'description' => __( 'How long to cache API responses in seconds. Minimum 300 (5 minutes).', 'gw2-guild-login' ),
+				'description' => __( 'How long to cache API responses in seconds. Minimum 300 (5 minutes).', 'gw2-guild-login' ) . $this->get_field_hint( 'Caching improves performance by storing API responses temporarily:<br/>• <strong>300 seconds (5 minutes)</strong> - Frequent updates, more API calls<br/>• <strong>1800 seconds (30 minutes)</strong> - Balanced performance<br/>• <strong>3600 seconds (1 hour)</strong> - Fewer API calls, slower updates<br/><br/>💡 <strong>Recommendation:</strong> Use 1800 seconds unless you need real-time guild membership updates.' ),
 			)
 		);
 
@@ -231,18 +276,19 @@ class GW2_Guild_Login_Admin {
 		);
 		add_settings_field(
 			'enable_2fa',
-			__( 'Require 2FA', 'gw2-guild-login' ),
+			__( 'Require 2FA', 'gw2-guild-login' ) . $this->get_tooltip( 'Forces all users to set up two-factor authentication (TOTP) using apps like Google Authenticator or Authy. Significantly improves account security.' ),
 			array( $this, 'checkbox_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_security_section',
 			array(
 				'id' => 'enable_2fa',
 				'label' => __( 'Enable two-factor authentication for all logins', 'gw2-guild-login' ),
+				'description' => $this->get_field_hint( 'When enabled, users must provide both their GW2 API key AND a time-based code from an authenticator app:<br/>• <strong>Supported apps:</strong> Google Authenticator, Authy, Microsoft Authenticator, 1Password<br/>• <strong>Setup process:</strong> Users scan a QR code on first login<br/>• <strong>Recovery:</strong> Users receive backup codes for emergency access<br/><br/>🔒 <strong>Security benefit:</strong> Even if someone steals a user\'s API key, they can\'t log in without the authenticator device.' ),
 			)
 		);
 		add_settings_field(
 			'session_timeout',
-			__( 'Session Timeout (minutes)', 'gw2-guild-login' ),
+			__( 'Session Timeout (minutes)', 'gw2-guild-login' ) . $this->get_tooltip( 'How long users stay logged in before being automatically signed out. Shorter timeouts improve security but require more frequent logins.' ),
 			array( $this, 'number_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_security_section',
@@ -251,12 +297,12 @@ class GW2_Guild_Login_Admin {
 				'default' => 30,
 				'min' => 1,
 				'step' => 1,
-				'description' => __( 'Maximum session duration for users.', 'gw2-guild-login' ),
+				'description' => __( 'Maximum session duration for users.', 'gw2-guild-login' ) . $this->get_field_hint( 'Balances security with user convenience:<br/>• <strong>15-30 minutes:</strong> High security for sensitive sites<br/>• <strong>60-120 minutes:</strong> Standard for most guild sites<br/>• <strong>480+ minutes (8+ hours):</strong> Convenience-focused<br/><br/>⚠️ <strong>Security tip:</strong> Shorter timeouts reduce the risk if someone accesses an unattended computer.' ),
 			)
 		);
 		add_settings_field(
 			'rate_limit',
-			__( 'API Rate Limit (per hour)', 'gw2-guild-login' ),
+			__( 'API Rate Limit (per hour)', 'gw2-guild-login' ) . $this->get_tooltip( 'Maximum number of GW2 API requests allowed per hour per user. Prevents abuse and ensures your site stays within GW2 API limits.' ),
 			array( $this, 'number_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_security_section',
@@ -265,12 +311,12 @@ class GW2_Guild_Login_Admin {
 				'default' => 100,
 				'min' => 1,
 				'step' => 1,
-				'description' => __( 'Max API requests per hour.', 'gw2-guild-login' ),
+				'description' => __( 'Max API requests per hour.', 'gw2-guild-login' ) . $this->get_field_hint( 'Protects against API abuse and ensures service reliability:<br/>• <strong>50-100 requests:</strong> Conservative limit for most sites<br/>• <strong>200-300 requests:</strong> Higher limit for active guild sites<br/>• <strong>500+ requests:</strong> For sites with frequent API usage<br/><br/>📊 <strong>Context:</strong> Normal users typically make 1-5 API requests per login. Higher limits accommodate power users and admin functions.' ),
 			)
 		);
 		add_settings_field(
 			'login_attempt_limit',
-			__( 'Login Attempt Limit', 'gw2-guild-login' ),
+			__( 'Login Attempt Limit', 'gw2-guild-login' ) . $this->get_tooltip( 'Number of failed login attempts before temporarily locking out a user or IP address. Helps prevent brute force attacks.' ),
 			array( $this, 'number_field_callback' ),
 			'gw2-guild-login',
 			'gw2gl_security_section',
@@ -279,7 +325,7 @@ class GW2_Guild_Login_Admin {
 				'default' => 5,
 				'min' => 1,
 				'step' => 1,
-				'description' => __( 'Failed logins before lockout.', 'gw2-guild-login' ),
+				'description' => __( 'Failed logins before lockout.', 'gw2-guild-login' ) . $this->get_field_hint( 'Protects against automated attacks and password guessing:<br/>• <strong>3-5 attempts:</strong> High security, may inconvenience legitimate users<br/>• <strong>5-10 attempts:</strong> Balanced protection for most sites<br/>• <strong>10+ attempts:</strong> More lenient, allows for user error<br/><br/>🛡️ <strong>How it works:</strong> After reaching the limit, users must wait before trying again. This stops automated attacks while allowing real users to recover from typos.' ),
 			)
 		);
 
@@ -514,7 +560,7 @@ class GW2_Guild_Login_Admin {
 	 * API section callback.
 	 */
 	public function api_section_callback() {
-		echo '<p>' . __( 'Configure API-related settings.', 'gw2-guild-login' ) . '</p>';
+		echo '<p>' . esc_html__( 'Configure how the plugin interacts with the Guild Wars 2 API. These settings affect performance and reliability.', 'gw2-guild-login' ) . '</p>';
 	}
 
 	/**

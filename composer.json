@@ -24,5 +24,13 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
+    },
+    "scripts": {
+        "phpstan": "vendor/bin/phpstan analyze --memory-limit=2G",
+        "phpstan-clean": "vendor/bin/phpstan analyze -c phpstan-production.neon --memory-limit=2G",
+        "phpstan-baseline": "vendor/bin/phpstan analyze --generate-baseline --memory-limit=2G",
+        "test": "phpunit",
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf"
     }
 }

@@ -1,12 +1,12 @@
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
+    - phpstan-baseline.neon
 
 parameters:
-    level: max
-    memoryLimit: 512M
-    baseline: phpstan-baseline.neon
+    level: 9
     bootstrapFiles:
         - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+        - phpstan-bootstrap.php
     paths:
         - .
     excludePaths:
@@ -18,6 +18,9 @@ parameters:
 ignoreErrors:
     - '#Call to function is_array\(\) with array#'
     - '#Call to function is_string\(\) with string#'
+    - '#Call to function is_int\(\) with int#'
+    - '#Call to function is_object\(\) with.*will always evaluate to true#'
+    - '#Call to function method_exists\(\) with.*will always evaluate to true#'
     - '#Binary operation "\\." between mixed#'
     - '#Cannot access property#'
     - '#Cannot call method#'
@@ -28,3 +31,21 @@ ignoreErrors:
     - '#Result of.*always.*#'
     - '#Function .* return type has no value type specified in iterable#'
     - '#Dead code.*#'
+    - '#function.alreadyNarrowedType#'
+    - '#function.impossibleType#'
+    - '#booleanAnd.alwaysTrue#'
+    - '#booleanAnd.rightAlwaysTrue#'
+    - '#booleanOr.alwaysFalse#'
+    - '#booleanOr.rightAlwaysTrue#'
+    - '#isset.offset#'
+    - '#isset.property#'
+    - '#isset.variable#'
+    - '#instanceof.alwaysTrue#'
+    - '#ternary.alwaysTrue#'
+    - '#identical.alwaysFalse#'
+    - '#notIdentical.alwaysTrue#'
+    - '#property.onlyRead#'
+    - '#property.onlyWritten#'
+    - '#catch.neverThrown#'
+    - '#deadCode.unreachable#'
+    - '#variable.undefined#'

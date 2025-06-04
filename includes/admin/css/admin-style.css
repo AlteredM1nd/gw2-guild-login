@@ -79,6 +79,123 @@
     padding: 12px 8px;
 }
 
+/* Tooltip Styles */
+.gw2-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.gw2-tooltip .gw2-tooltip-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2196F3;
+    color: white;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+    margin-left: 5px;
+    vertical-align: middle;
+    font-weight: bold;
+}
+
+.gw2-tooltip .gw2-tooltip-content {
+    visibility: hidden;
+    position: absolute;
+    z-index: 9999;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: nowrap;
+    max-width: 300px;
+    white-space: normal;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+    word-wrap: break-word;
+}
+
+.gw2-tooltip .gw2-tooltip-content::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.gw2-tooltip:hover .gw2-tooltip-content {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Responsive tooltip positioning */
+@media (max-width: 768px) {
+    .gw2-tooltip .gw2-tooltip-content {
+        left: 0;
+        transform: none;
+        max-width: 250px;
+    }
+    
+    .gw2-tooltip .gw2-tooltip-content::after {
+        left: 20px;
+    }
+}
+
+.gw2-field-hint {
+    position: relative;
+    display: inline-block;
+}
+
+.gw2-field-hint .gw2-hint-content {
+    display: none;
+    position: absolute;
+    top: -5px;
+    left: 100%;
+    margin-left: 10px;
+    background: #f0f8ff;
+    border: 1px solid #2196F3;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.4;
+    z-index: 1000;
+    width: 280px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    word-wrap: break-word;
+}
+
+.gw2-field-hint:hover .gw2-hint-content {
+    display: block;
+}
+
+/* Responsive hint positioning */
+@media (max-width: 1200px) {
+    .gw2-field-hint .gw2-hint-content {
+        left: 0;
+        margin-left: 0;
+        top: 100%;
+        margin-top: 5px;
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .gw2-field-hint .gw2-hint-content {
+        width: 200px;
+        font-size: 12px;
+    }
+}
+
 /* Dark mode override if needed */
 body.gw2-admin-dark {
     background: #2b3038 !important;
@@ -87,4 +204,121 @@ body.gw2-admin-dark {
 body.gw2-admin-dark .wrap {
     background: #383c44;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+body.gw2-admin-dark .gw2-tooltip .gw2-tooltip-content {
+    background-color: #555;
+    color: #fff;
+}
+
+body.gw2-admin-dark .gw2-tooltip .gw2-tooltip-content::after {
+    border-color: #555 transparent transparent transparent;
+}
+
+body.gw2-admin-dark .gw2-field-hint .gw2-hint-content {
+    background: #2c3e50;
+    border-color: #3498db;
+    color: #ecf0f1;
+}
+
+/* Enhanced Reports Styling */
+.gw2-admin-reports .gw2-report-filters {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.gw2-admin-reports .gw2-dashboard-stats {
+    margin-bottom: 30px;
+}
+
+.gw2-admin-reports .gw2-stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gw2-admin-reports .gw2-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.gw2-admin-reports .nav-tab-wrapper {
+    margin-bottom: 0;
+}
+
+.gw2-admin-reports .tab-content {
+    border: 1px solid #ccd0d4;
+    border-top: none;
+    background: #fff;
+    padding: 20px;
+}
+
+.gw2-admin-reports .widefat th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.gw2-admin-reports .widefat td {
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.gw2-admin-reports .widefat tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Status badges responsive design */
+@media (max-width: 768px) {
+    .gw2-status-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    
+    .gw2-admin-reports .widefat {
+        font-size: 14px;
+    }
+    
+    .gw2-admin-reports .gw2-stat-card h3 {
+        font-size: 2em !important;
+    }
+}
+
+/* Filter form responsive improvements */
+.gw2-report-filters form > div {
+    gap: 15px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.gw2-report-filters label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.gw2-report-filters input,
+.gw2-report-filters select {
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.gw2-report-filters input:focus,
+.gw2-report-filters select:focus {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    outline: none;
+}
+
+/* Export button styling */
+.gw2-admin-reports .button-secondary {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+.gw2-admin-reports .button-secondary:hover {
+    background: #5a6268;
+    border-color: #545b62;
 }

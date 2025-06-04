@@ -4,17 +4,62 @@ All notable changes to the GW2 Guild Login plugin will be documented in this fil
 
 ## [2.6.4] - 2025-06-03
 
+### Added
+- **Standalone Appearance & Branding Submenu**
+  - Primary & accent color pickers with live preview functionality
+  - Custom logo uploader with real-time preview
+  - Welcome text field for personalized messaging
+  - Persistent **Force Dark Mode** toggle with state retention
+  - **Restore Defaults** action to reset all appearance settings
+- **Comprehensive Tooltip & Hint System** for all Guild Settings fields
+  - **Guild IDs**: API lookup instructions and UUID format examples
+  - **Guild API Key**: Permission requirements, security warnings, and setup guides
+  - **Target Guild IDs**: Legacy field explanation with multi-guild format examples
+  - **Default User Role**: WordPress role explanations and security recommendations
+  - **Auto-register Users**: Security implications and guild restriction notes
+  - **API Cache Expiry**: Performance vs. accuracy trade-offs with timing recommendations
+  - **2FA Settings**: TOTP app support details and security benefits
+  - **Session Timeout**: Security vs. convenience balance guidelines
+  - **Rate Limiting**: API abuse prevention with usage context
+  - **Login Attempts**: Brute force protection with implementation details
+- **Professional Reports & Analytics System**
+  - **Advanced Filtering**: Time period selection (24h to 1 year), custom date ranges, and user search
+  - **Interactive Dashboard**: Real-time statistics with responsive cards and hover effects
+  - **Login Activity Analysis**: Detailed login records with GW2 account status and drill-down links
+  - **User Engagement Analytics**: Activity status tracking (Active/Recent/Inactive/Dormant) with comprehensive user profiles
+  - **Security Monitoring**: Failed login attempts by IP with risk assessment and threat analysis tools
+  - **Data Export**: Professional CSV export for all report types with filtered data support
+  - **Mobile-Responsive Design**: Touch-friendly interface with adaptive layouts for all screen sizes
+  - **Professional UI**: Modern card-based design with color-coded status badges and smooth animations
+- **Modern Admin Stylesheet** (`admin-style.css`)
+  - Updated card layouts and modern table styling
+  - Enhanced button designs and sidebar box styling
+  - Comprehensive dark-mode overrides
+  - Responsive tooltip positioning with improved readability
+
 ### Changed
-- Removed **Appearance & Branding** section from the **Guild Settings** page (now lives in its own submenu)
-- Introduced standalone **Appearance & Branding** submenu with:
-  - Primary & accent color pickers (with live preview)
-  - Custom logo uploader & preview
-  - Welcome text field
-  - Persistent **Force Dark Mode** checkbox with state retention and **Restore Defaults** button
-- Added **Restore Defaults** action to reset all appearance settings to plugin defaults
-- Enqueued a new modern admin stylesheet (`admin-style.css`) on all GW2 Guild Login admin pages via `enqueue_admin_assets()`
-- Created `includes/admin/css/admin-style.css` for updated card layouts, table styling, button designs, sidebar boxes, and dark-mode overrides
-- Updated **GW2_2FA_Handler::get_encryption_key()** to remove hardcoded fallback key: now supports a `GW2GL_ENCRYPTION_KEY` constant override or a securely generated/stored option key (32-byte SHA-256 derived)
+- **Admin Interface Reorganization**
+  - Removed **Appearance & Branding** section from Guild Settings page
+  - Moved appearance controls to dedicated submenu for better organization
+- **Enhanced CSS Architecture**
+  - Improved responsive design across all admin pages
+  - Better mobile and tablet compatibility
+  - Consistent design language throughout admin interface
+
+### Fixed
+- **Security Enhancement**: Updated `GW2_2FA_Handler::get_encryption_key()` to remove hardcoded fallback key
+  - Now supports `GW2GL_ENCRYPTION_KEY` constant override for advanced users
+  - Implements securely generated/stored option key (32-byte SHA-256 derived)
+  - Improved encryption key management and security
+- **PHPStan Static Analysis Implementation**
+  - Implemented enterprise-grade static analysis at level 9 (maximum strictness)
+  - Fixed critical type casting errors in reports.php and admin views
+  - Resolved undefined variable scope issues across codebase
+  - Added proper type hints and DocBlocks for improved code quality
+  - Generated comprehensive baseline (284 legacy issues) for gradual improvement
+  - Configured 2GB memory allocation for large codebase analysis
+  - All new code must pass strict PHPStan analysis (exit code 0)
+  - Added composer scripts: `phpstan`, `phpstan-clean`, `phpstan-baseline`
 
 ## [2.6.3] - 2025-06-03
 

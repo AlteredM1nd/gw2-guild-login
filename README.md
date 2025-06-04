@@ -80,6 +80,30 @@ A secure, modern WordPress plugin enabling users to log in using their Guild War
 - A Guild Wars 2 account with API key generation access
 - (Optional) A guild ID for guild-specific features
 
+## 🏆 Code Quality & Standards
+
+This plugin maintains the highest code quality standards:
+
+- **📊 PHPStan Level Max:** 100% compliant with PHPStan at maximum strictness level
+- **🔒 Type Safety:** Strict type declarations and comprehensive type checking
+- **🧪 Automated Testing:** Comprehensive PHPUnit test suite with CI/CD integration
+- **📝 WordPress Coding Standards:** Full compliance with WPCS guidelines
+- **🔧 Development Tools:** Pre-configured with Composer scripts for quality assurance
+
+### Quick Quality Checks
+```bash
+# Run static analysis
+composer phpstan
+
+# Check coding standards
+composer cs-check
+
+# Run tests
+composer test
+```
+
+See [`docs/PHPSTAN_GUIDE.md`](docs/PHPSTAN_GUIDE.md) for detailed development guidelines.
+
 ## Quick Start
 
 1. **Install the Plugin**

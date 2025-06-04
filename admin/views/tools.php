@@ -80,9 +80,17 @@ settings_errors('gw2_tools');
             <tr><th><?php esc_html_e('PHP Version', 'gw2-guild-login'); ?></th><td><?php echo esc_html(PHP_VERSION); ?></td></tr>
             <tr><th><?php esc_html_e('WordPress Version', 'gw2-guild-login'); ?></th><td><?php echo esc_html(get_bloginfo('version')); ?></td></tr>
             <tr><th><?php esc_html_e('Plugin Version', 'gw2-guild-login'); ?></th><td><?php echo esc_html(GW2_GUILD_LOGIN_VERSION); ?></td></tr>
-            <tr><th><?php esc_html_e('Active Theme', 'gw2-guild-login'); ?></th><td><?php echo esc_html(get_template()); ?></td></tr>
-            <tr><th><?php esc_html_e('Active Plugins', 'gw2-guild-login'); ?></th><td>
-                <?php foreach (get_option('active_plugins', []) as $p) { echo esc_html($p) . '<br>'; } ?>
+            <tr><th><?php esc_html_e('Active Theme', 'gw2-guild-login'); ?></th><td><?php echo esc_html(get_template()); ?></td></tr>            <tr><th><?php esc_html_e('Active Plugins', 'gw2-guild-login'); ?></th><td>
+                <?php 
+                $active_plugins = get_option('active_plugins');
+                if (is_array($active_plugins)) {
+                    foreach ($active_plugins as $p) { 
+                        echo esc_html($p) . '<br>'; 
+                    } 
+                } else {
+                    esc_html_e('No active plugins found', 'gw2-guild-login');
+                }
+                ?>
             </td></tr>
         </table>
     </form>

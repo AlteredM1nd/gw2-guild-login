@@ -342,18 +342,12 @@ return is_array($result) ? $result : (is_wp_error($result) ? $result : new WP_Er
 	 */
 	public function get_character_names(string $api_key): array|\WP_Error {
         $characters = $this->make_api_request('characters', $api_key);
-        /** @phpstan-ignore-next-line */
-if (is_wp_error($characters) || !is_array($characters)) {
+        /** @phpstan-ignore-next-line */        if (is_wp_error($characters) || !is_array($characters)) {
             return $characters;
         }
+        
         // Extract just the character names
-        if (is_wp_error($characters)) {
-    return $characters;
-}
-if (!is_array($characters)) {
-    return new WP_Error('unexpected_characters_response', __('Characters API response was not an array.', 'gw2-guild-login'));
-}
-$names = array();
+        $names = array();
 foreach ($characters as $char) {
     if (is_array($char) && isset($char['name']) && is_string($char['name'])) {
         $names[] = $char['name'];

@@ -133,13 +133,16 @@ class GW2_2FA_Login {
     /**
      * Handle 2FA verification form submission
      */
-    public function handle_2fa_verification(): ?\WP_Error {
+    public function handle_2fa_verification(): void {
         // Nonce verification for 2FA form
         if (!isset($_POST['_2fa_nonce']) || !wp_verify_nonce($_POST['_2fa_nonce'], '2fa_verify')) {
-            return new WP_Error(
+            $error = new WP_Error(
                 '2fa_nonce_invalid',
                 __('<strong>Error</strong>: Security verification failed. Please try again.', 'gw2-guild-login')
             );
+            // Log error and redirect instead of returning
+            wp_safe_redirect(wp_login_url() . '?error=2fa_nonce_invalid');
+            exit;
         }
 
         if (empty($_POST['log']) || empty($_POST['pwd'])) {

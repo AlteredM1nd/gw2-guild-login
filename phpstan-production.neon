@@ -12,5 +12,6 @@ parameters:
     excludePaths:
         - vendor/*
         - node_modules/*
-    reportUnmatchedIgnoredErrors: false
+        - tests/*
     treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false

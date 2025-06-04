@@ -1,6 +1,5 @@
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
-    - phpstan-baseline.neon
 
 parameters:
     level: 9
@@ -12,5 +11,6 @@ parameters:
     excludePaths:
         - vendor/*
         - node_modules/*
-    reportUnmatchedIgnoredErrors: false
+        - tests/*
     treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
