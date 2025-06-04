@@ -134,7 +134,7 @@ $opt_name = 'gw2gl_failed_attempts_' . (is_string($ip) ? md5($ip) : ''); // PHPS
                     $attempt['blocked_until'] = $now + 600; // Block 10 min
                     $this->log('Brute-force lockout: ' . $ip, $attempt);
                 }
-                update_option($opt_name, $attempt, false);
+                update_option($opt_name, $attempt);
                 return new WP_Error('login_failed', __('Login failed. Please try again later.', 'gw2-guild-login'));
             }
 

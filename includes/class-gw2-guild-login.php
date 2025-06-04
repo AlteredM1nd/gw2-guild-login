@@ -261,7 +261,7 @@ class GW2_Guild_Login {
 		}
 
 		// Check if the template file exists
-		$template_file = GW2_GUILD_LOGIN_PLUGIN_DIR . 'templates/' . $template_name;
+		$template_file = GW2_GUILD_LOGIN_PLUGIN_DIR . 'templates/' . (string) $template_name;
 
 		// Return the template file if it exists
 		if ( file_exists( $template_file ) ) {
