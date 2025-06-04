@@ -44,4 +44,4 @@ jobs:
 
       - name: Run PHPCS (WordPress Coding Standards)
         run: |
-          vendor/bin/phpcs --standard=WordPress --ignore=vendor .
+          php vendor/bin/phpcs --standard=WordPress --ignore=vendor .
