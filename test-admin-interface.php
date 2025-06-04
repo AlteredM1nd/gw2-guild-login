@@ -5,20 +5,29 @@
  */
 
 // Simulate WordPress environment for testing
-if (!defined('ABSPATH')) {
-    // Simple test environment setup
-    define('ABSPATH', __DIR__ . '/');
-    
-    // Mock WordPress functions for testing
-    function esc_html__($text, $domain = '') { return htmlspecialchars($text); }
-    function sanitize_hex_color($color) { return $color; }
-    function esc_url_raw($url) { return $url; }
-    function sanitize_textarea_field($text) { return $text; }
-    function sanitize_text_field($text) { return $text; }
-    function wp_kses_post($text) { return $text; }
-    function absint($value) { return abs(intval($value)); }
-    function get_option($option, $default = false) { return $default; }
-    function array_key_exists($key, $array) { return isset($array[$key]); }
+if ( ! defined( 'ABSPATH' ) ) {
+	// Simple test environment setup
+	define( 'ABSPATH', __DIR__ . '/' );
+
+	// Mock WordPress functions for testing
+	function esc_html__( $text, $domain = '' ) {
+		return htmlspecialchars( $text ); }
+	function sanitize_hex_color( $color ) {
+		return $color; }
+	function esc_url_raw( $url ) {
+		return $url; }
+	function sanitize_textarea_field( $text ) {
+		return $text; }
+	function sanitize_text_field( $text ) {
+		return $text; }
+	function wp_kses_post( $text ) {
+		return $text; }
+	function absint( $value ) {
+		return abs( intval( $value ) ); }
+	function get_option( $option, $default = false ) {
+		return $default; }
+	function array_key_exists( $key, $array ) {
+		return isset( $array[ $key ] ); }
 }
 
 // Include the admin class
@@ -31,19 +40,19 @@ $admin = new GW2_Guild_Login_Admin();
 echo "<h2>Testing Tooltip System</h2>\n";
 
 // Test tooltip method
-$reflection = new ReflectionClass($admin);
-$tooltipMethod = $reflection->getMethod('get_tooltip');
-$tooltipMethod->setAccessible(true);
+$reflection    = new ReflectionClass( $admin );
+$tooltipMethod = $reflection->getMethod( 'get_tooltip' );
+$tooltipMethod->setAccessible( true );
 
-$testTooltip = $tooltipMethod->invoke($admin, 'This is a test tooltip content');
-echo "<p>Tooltip HTML: " . htmlspecialchars($testTooltip) . "</p>\n";
+$testTooltip = $tooltipMethod->invoke( $admin, 'This is a test tooltip content' );
+echo '<p>Tooltip HTML: ' . htmlspecialchars( $testTooltip ) . "</p>\n";
 
 // Test field hint method
-$hintMethod = $reflection->getMethod('get_field_hint');
-$hintMethod->setAccessible(true);
+$hintMethod = $reflection->getMethod( 'get_field_hint' );
+$hintMethod->setAccessible( true );
 
-$testHint = $hintMethod->invoke($admin, 'This is a test hint with <strong>HTML</strong> content');
-echo "<p>Hint HTML: " . htmlspecialchars($testHint) . "</p>\n";
+$testHint = $hintMethod->invoke( $admin, 'This is a test hint with <strong>HTML</strong> content' );
+echo '<p>Hint HTML: ' . htmlspecialchars( $testHint ) . "</p>\n";
 
 // Test specific field scenarios
 echo "<h2>Testing Field Implementations</h2>\n";
@@ -80,4 +89,3 @@ echo "<li>✅ Login Attempt Limit - Brute force protection explanation</li>\n";
 echo "</ul>\n";
 
 echo "<p><strong>🎉 All admin interface enhancements have been successfully implemented!</strong></p>\n";
-?>

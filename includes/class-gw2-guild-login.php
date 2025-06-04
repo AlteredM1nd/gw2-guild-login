@@ -7,7 +7,7 @@ class GW2_Guild_Login {
 
 	public function __construct() {
 		// Set up plugin paths - ensure we have at least the basic file path
-		$this->plugin_file = defined( 'GW2_GUILD_LOGIN_FILE' ) ? GW2_GUILD_LOGIN_FILE : dirname( dirname( __FILE__ ) ) . '/gw2-guild-login.php';
+		$this->plugin_file = defined( 'GW2_GUILD_LOGIN_FILE' ) ? GW2_GUILD_LOGIN_FILE : dirname( __DIR__ ) . '/gw2-guild-login.php';
 		// Define constants before they're used
 		$this->define_constants();
 		// Now set up the rest of the paths
@@ -16,23 +16,23 @@ class GW2_Guild_Login {
 		// Initialize
 		$this->includes();
 		$this->init_hooks();
-		add_action('wp_logout', array($this, 'handle_logout_cache_invalidation'));
+		add_action( 'wp_logout', array( $this, 'handle_logout_cache_invalidation' ) );
 	}
 
 	/**
 	 * Invalidate user cache on logout
 	 */
 	public function handle_logout_cache_invalidation(): void {
-		if (!is_user_logged_in()) {
+		if ( ! is_user_logged_in() ) {
 			return;
 		}
 		$user_id = get_current_user_id();
-		if ($user_id <= 0) {
+		if ( $user_id <= 0 ) {
 			return;
 		}
 		// Use the existing user handler to clear cache
-		if (class_exists('GW2_User_Handler') && isset($this->user_handler)) {
-			$this->user_handler->clear_user_cache($user_id);
+		if ( class_exists( 'GW2_User_Handler' ) && isset( $this->user_handler ) ) {
+			$this->user_handler->clear_user_cache( $user_id );
 		}
 	}
 
@@ -233,7 +233,7 @@ class GW2_Guild_Login {
 	 * @param array<string,string> $templates
 	 * @return array<string,string>
 	 */
-	public function register_page_templates(array $templates): array {
+	public function register_page_templates( array $templates ): array {
 		$templates = array_merge( $templates, $this->templates );
 		return $templates;
 	}
@@ -244,7 +244,7 @@ class GW2_Guild_Login {
 	 * @param string $template
 	 * @return string
 	 */
-	public function load_page_template(string $template): string {
+	public function load_page_template( string $template ): string {
 		global $post;
 
 		// Return the template if it's not a page
@@ -254,7 +254,7 @@ class GW2_Guild_Login {
 
 		// Get the template name from post meta
 		$template_name = get_post_meta( $post->ID, '_wp_page_template', true );
-		if (!is_string($template_name)) {
+		if ( ! is_string( $template_name ) ) {
 			$template_name = '';
 		}
 
@@ -331,7 +331,7 @@ class GW2_Guild_Login {
 	 */
 	private static function create_tables(): void {
 		global $wpdb; /** @var \wpdb $wpdb */
-		if (! ($wpdb instanceof \wpdb)) {
+		if ( ! ( $wpdb instanceof \wpdb ) ) {
 			return;
 		}
 		$charset_collate = (string) $wpdb->get_charset_collate();
@@ -424,12 +424,15 @@ class GW2_Guild_Login {
 		}
 		// Warn if encryption key is missing/weak
 		if ( class_exists( 'GW2_User_Handler' ) && GW2_User_Handler::is_encryption_key_weak() ) {
-			add_action( 'admin_notices', function() {
-				printf(
-					'<div class="notice notice-error"><p>%s</p></div>',
-					esc_html__( 'GW2 Guild Login: Your encryption key is missing or too short. Please set a strong key (32+ chars) in wp-config.php for secure API key storage.', 'gw2-guild-login' )
-				);
-			} );
+			add_action(
+				'admin_notices',
+				function () {
+					printf(
+						'<div class="notice notice-error"><p>%s</p></div>',
+						esc_html__( 'GW2 Guild Login: Your encryption key is missing or too short. Please set a strong key (32+ chars) in wp-config.php for secure API key storage.', 'gw2-guild-login' )
+					);
+				}
+			);
 		}
 	}
 
