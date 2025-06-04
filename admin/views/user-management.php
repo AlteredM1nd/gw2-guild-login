@@ -1,7 +1,14 @@
 <?php
+/**
+ * User Management admin view for GW2 Guild Login plugin.
+ *
+ * Displays and manages guild users and allows adding new users.
+ *
+ * @package GW2_Guild_Login
+ */
 declare(strict_types=1);
 /** @var \WP_User[] $users */
-$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'all-users';
+$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'all-users';
 ?>
 
 <h2 class="nav-tab-wrapper">
@@ -19,7 +26,7 @@ $tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'all-users';
 		<select id="filter_role" name="filter_role">
 			<option value=""><?php esc_html_e( 'All', 'gw2-guild-login' ); ?></option>
 			<?php foreach ( get_editable_roles() as $slug => $info ) : ?>
-				<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $_GET['filter_role'] ?? '', $slug ); ?>><?php echo esc_html( $info['name'] ); ?></option>
+				<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( isset( $_GET['filter_role'] ) ? sanitize_key( wp_unslash( $_GET['filter_role'] ) ) : '', $slug ); ?>><?php echo esc_html( $info['name'] ); ?></option>
 			<?php endforeach; ?>
 		</select>
 		<button class="button"><?php esc_html_e( 'Filter', 'gw2-guild-login' ); ?></button>
@@ -41,7 +48,7 @@ $tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'all-users';
 			'meta_compare' => 'EXISTS',
 		);
 		if ( ! empty( $_GET['filter_role'] ) ) {
-			$args['role'] = sanitize_key( $_GET['filter_role'] );
+			$args['role'] = sanitize_key( wp_unslash( $_GET['filter_role'] ) );
 		}
 		$users_raw = get_users( $args );
 		$users     = is_array( $users_raw ) ? $users_raw : array();
@@ -96,11 +103,10 @@ $tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'all-users';
 	<h1><?php esc_html_e( 'Add New User', 'gw2-guild-login' ); ?></h1>
 	<?php
 	do_action( 'admin_notices' );
-	if ( 'POST' ===
-	$_SERVER['REQUEST_METHOD'] && wp_verify_nonce( $_POST['new_user_nonce'] ?? '', 'gw2_new_user' ) ) {
-		$u  = sanitize_user( $_POST['username'] ?? '' );
-		$e  = sanitize_email( $_POST['email'] ?? '' );
-		$r  = sanitize_key( $_POST['role'] ?? 'subscriber' );
+	if ( 'POST' === ( isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '' ) && wp_verify_nonce( isset( $_POST['new_user_nonce'] ) ? wp_unslash( $_POST['new_user_nonce'] ) : '', 'gw2_new_user' ) ) {
+		$u  = sanitize_user( isset( $_POST['username'] ) ? wp_unslash( $_POST['username'] ) : '' );
+		$e  = sanitize_email( isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : '' );
+		$r  = sanitize_key( isset( $_POST['role'] ) ? wp_unslash( $_POST['role'] ) : 'subscriber' );
 		$id = wp_insert_user(
 			array(
 				'user_login' => $u,
@@ -109,7 +115,7 @@ $tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'all-users';
 			)
 		);
 		if ( ! is_wp_error( $id ) ) {
-			update_user_meta( $id, 'gw2_guild_rank', sanitize_text_field( $_POST['guild_rank'] ) );
+			update_user_meta( $id, 'gw2_guild_rank', sanitize_text_field( isset( $_POST['guild_rank'] ) ? wp_unslash( $_POST['guild_rank'] ) : '' ) );
 			echo '<div class="updated"><p>' . esc_html__( 'User created.', 'gw2-guild-login' ) . '</p></div>';
 		} else {
 			echo '<div class="error"><p>' . esc_html( $id->get_error_message() ) . '</p></div>';
