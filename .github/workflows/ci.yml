@@ -39,6 +39,9 @@ jobs:
       - name: Run PHPStan (level 9 with baseline)
         run: vendor/bin/phpstan analyze --memory-limit=2G
 
+      - name: Ensure PHPCS is executable
+        run: chmod +x vendor/bin/phpcs
+
       - name: Run PHPCS (WordPress Coding Standards)
         run: |
           vendor/bin/phpcs --standard=WordPress --ignore=vendor .
