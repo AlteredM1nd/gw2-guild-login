@@ -1,6 +1,18 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Binary operation "\." between mixed and '' '' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: admin/views/dashboard.php
+
+		-
+			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: admin/views/dashboard.php
+
+		-
 			message: '#^Cannot call method db_version\(\) on mixed\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -19,8 +31,26 @@ parameters:
 			path: admin/views/guild-roster.php
 
 		-
+			message: '#^Binary operation "\." between mixed and '' '' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: admin/views/guild-roster.php
+
+		-
+			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: admin/views/guild-roster.php
+
+		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
+			count: 1
+			path: admin/views/guild-roster.php
+
+		-
+			message: '#^Cannot access offset ''guild_ids'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: admin/views/guild-roster.php
 
@@ -68,6 +98,12 @@ parameters:
 
 		-
 			message: '#^Parameter \#1 \$value of function count expects array\|Countable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/views/guild-roster.php
+
+		-
+			message: '#^Parameter \#2 \$string of function explode expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: admin/views/guild-roster.php
@@ -193,6 +229,12 @@ parameters:
 			path: admin/views/reports.php
 
 		-
+			message: '#^Cannot access offset ''guild_ids'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: admin/views/tools.php
+
+		-
 			message: '#^Cannot access offset ''tmp_name'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -223,6 +265,18 @@ parameters:
 			path: admin/views/tools.php
 
 		-
+			message: '#^Parameter \#2 \$string of function explode expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/views/tools.php
+
+		-
+			message: '#^Cannot access offset ''guild_ids'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: admin/views/user-management.php
+
+		-
 			message: '#^Cannot access offset ''ranks'' on array\<string, mixed\>\|WP_Error\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -247,7 +301,19 @@ parameters:
 			path: admin/views/user-management.php
 
 		-
+			message: '#^Parameter \#1 \$array of function current expects array\|object, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/views/user-management.php
+
+		-
 			message: '#^Parameter \#1 \$email of function sanitize_email expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/views/user-management.php
+
+		-
+			message: '#^Parameter \#1 \$guild_id of method GW2_Guild_Ranks\:\:fetch_guild_data\(\) expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: admin/views/user-management.php
@@ -255,7 +321,7 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$key of function sanitize_key expects string, mixed given\.$#'
 			identifier: argument.type
-			count: 3
+			count: 4
 			path: admin/views/user-management.php
 
 		-
@@ -409,6 +475,18 @@ parameters:
 			path: includes/GW2_Login_Shortcode.php
 
 		-
+			message: '#^Cannot access offset ''appearance_logo'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: includes/GW2_Login_Shortcode.php
+
+		-
+			message: '#^Cannot access offset ''appearance_welcome_text'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: includes/GW2_Login_Shortcode.php
+
+		-
 			message: '#^Method GW2GuildLogin\\GW2_Login_Shortcode\:\:display_messages\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -545,6 +623,36 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: includes/admin/class-gw2-admin-menu.php
+
+		-
+			message: '#^Cannot access offset ''appearance_accent_color'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: includes/admin/class-gw2-guild-login-admin.php
+
+		-
+			message: '#^Cannot access offset ''appearance_accent_color''\|''appearance_force_dark''\|''appearance_logo''\|''appearance_primary_color''\|''appearance_welcome_text'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: includes/admin/class-gw2-guild-login-admin.php
+
+		-
+			message: '#^Cannot access offset ''appearance_force_dark'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: includes/admin/class-gw2-guild-login-admin.php
+
+		-
+			message: '#^Cannot access offset ''appearance_logo'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: includes/admin/class-gw2-guild-login-admin.php
+
+		-
+			message: '#^Cannot access offset ''appearance_primary_color'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: includes/admin/class-gw2-guild-login-admin.php
 
 		-
 			message: '#^Method GW2_Guild_Login_Admin\:\:add_action_links\(\) has parameter \$links with no value type specified in iterable type array\.$#'
@@ -733,6 +841,18 @@ parameters:
 			path: includes/admin/class-gw2-guild-login-admin.php
 
 		-
+			message: '#^Part \$accent \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: includes/admin/class-gw2-guild-login-admin.php
+
+		-
+			message: '#^Part \$primary \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: includes/admin/class-gw2-guild-login-admin.php
+
+		-
 			message: '#^Property GW2_Guild_Login_Admin\:\:\$settings type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -793,6 +913,12 @@ parameters:
 			path: includes/class-gw2-2fa-login.php
 
 		-
+			message: '#^Parameter \#1 \$text of function wp_specialchars_decode expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: includes/class-gw2-2fa-login.php
+
+		-
 			message: '#^Property WP_User\:\:\$ID \(int\) in isset\(\) is not nullable\.$#'
 			identifier: isset.property
 			count: 2
@@ -815,12 +941,6 @@ parameters:
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: includes/class-gw2-api.php
-
-		-
-			message: '#^Binary operation "\." between literal\-string&non\-falsy\-string and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: includes/class-gw2-guild-login.php
 
 		-
 			message: '#^Call to an undefined method GW2_User_Handler\:\:clear_user_cache\(\)\.$#'
@@ -901,6 +1021,18 @@ parameters:
 			path: includes/class-gw2-guild-ranks.php
 
 		-
+			message: '#^Cannot access offset ''guild_ids'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: includes/class-gw2-guild-ranks.php
+
+		-
+			message: '#^Cannot access offset string on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: includes/class-gw2-guild-ranks.php
+
+		-
 			message: '#^Cannot cast mixed to string\.$#'
 			identifier: cast.string
 			count: 1
@@ -914,6 +1046,12 @@ parameters:
 
 		-
 			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: includes/class-gw2-guild-ranks.php
+
+		-
+			message: '#^Parameter \#2 \$string of function explode expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: includes/class-gw2-guild-ranks.php
