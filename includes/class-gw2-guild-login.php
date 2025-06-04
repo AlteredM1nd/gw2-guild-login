@@ -254,6 +254,9 @@ class GW2_Guild_Login {
 
 		// Get the template name from post meta
 		$template_name = get_post_meta( $post->ID, '_wp_page_template', true );
+		if (!is_string($template_name)) {
+			$template_name = '';
+		}
 
 		// Return default template if we don't have a custom one
 		if ( ! isset( $this->templates[ $template_name ] ) ) {
@@ -261,7 +264,7 @@ class GW2_Guild_Login {
 		}
 
 		// Check if the template file exists
-		$template_file = GW2_GUILD_LOGIN_PLUGIN_DIR . 'templates/' . (string) $template_name;
+		$template_file = GW2_GUILD_LOGIN_PLUGIN_DIR . 'templates/' . $template_name;
 
 		// Return the template file if it exists
 		if ( file_exists( $template_file ) ) {
