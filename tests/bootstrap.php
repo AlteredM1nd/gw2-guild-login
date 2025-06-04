@@ -6,6 +6,30 @@ if (!function_exists('get_current_user_id')) {
     }
 }
 
+// Polyfill for WordPress options functions
+if (!function_exists('get_option')) {
+    global $gw2gl_test_options;
+    /** @var array<string, mixed> $gw2gl_test_options */
+    $gw2gl_test_options = array();
+    
+    function get_option(string $option, mixed $default = false): mixed {
+        global $gw2gl_test_options;
+        return isset($gw2gl_test_options[$option]) ? $gw2gl_test_options[$option] : $default;
+    }
+    
+    function update_option(string $option, mixed $value): bool {
+        global $gw2gl_test_options;
+        $gw2gl_test_options[$option] = $value;
+        return true;
+    }
+    
+    function delete_option(string $option): bool {
+        global $gw2gl_test_options;
+        unset($gw2gl_test_options[$option]);
+        return true;
+    }
+}
+
 // PHPUnit bootstrap file for GW2 Guild Login
 
 // Ensure tests run in a safe environment
@@ -56,5 +80,24 @@ if (!function_exists('wp_rand')) {
             $max = mt_getrandmax();
         }
         return random_int($min, $max);
+    }
+}
+
+// Polyfill wp_generate_password for non-WordPress environments
+if (!function_exists('wp_generate_password')) {
+    function wp_generate_password(int $length = 12, bool $special_chars = true, bool $extra_special_chars = false): string {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        if ($special_chars) {
+            $chars .= '!@#$%^&*()';
+        }
+        if ($extra_special_chars) {
+            $chars .= '-_ []{}<>~`+=,.;:/?|';
+        }
+        
+        $password = '';
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $chars[random_int(0, strlen($chars) - 1)];
+        }
+        return $password;
     }
 }
