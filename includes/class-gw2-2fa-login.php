@@ -66,7 +66,7 @@ class GW2_2FA_Login {
 	 * @param string           $password The password.
 	 * @return WP_User|WP_Error
 	 */
-	public function verify_2fa( \WP_User|\WP_Error $user, string $username, string $password ): \WP_Error|\WP_User {
+	public function verify_2fa( \WP_User|\WP_Error $user, string $username, string $password ): \WP_User|\WP_Error {
 		// Don't interfere with other authentication methods.
 		// $user is WP_User or WP_Error. Only allow WP_User with valid ID.
 		if ( ! ( $user instanceof \WP_User ) || ! $user->exists() || ! is_int( $user->ID ) || 0 >= $user->ID ) {
