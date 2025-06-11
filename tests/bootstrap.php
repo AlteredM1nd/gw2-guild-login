@@ -1,4 +1,9 @@
 <?php
+// Define WordPress constants for testing
+if ( ! defined( 'WP_CONTENT_DIR' ) ) {
+	define( 'WP_CONTENT_DIR', sys_get_temp_dir() . '/wp-content' );
+}
+
 // Polyfill for get_current_user_id() when running PHPUnit outside WordPress
 if ( ! function_exists( 'get_current_user_id' ) ) {
 	function get_current_user_id(): int {

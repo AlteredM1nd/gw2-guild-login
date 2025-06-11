@@ -4,7 +4,6 @@
  *
  * @package GW2_Guild_Login
  * @since 1.0.0
- *
  * @phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
  * @phpcs:disable WordPress.Files.FileName.InvalidClassFileName
  */
