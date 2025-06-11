@@ -14,13 +14,3 @@ parameters:
         - node_modules/*
     reportUnmatchedIgnoredErrors: false
     treatPhpDocTypesAsCertain: false
-
-    ignoreErrors:
-        # Ignore mixed type errors in dashboard template
-        - '#Call to function is_array\(\) with array<mixed> will always evaluate to true\.#'
-        - '#Cannot cast mixed to string\.#'
-        - '#Call to function is_int\(\) with int will always evaluate to true\.#'
-        - '#Call to function ctype_digit\(\) with \*NEVER\* will always evaluate to true\.#'
-        - '#Call to function is_string\(\) with \*NEVER\* will always evaluate to true\.#'
-        - '#Parameter \#1 \(mixed\) of echo cannot be converted to string\.#'
-        - '#Call to function is_string\(\) with string will always evaluate to true\.#'

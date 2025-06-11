@@ -27,6 +27,13 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Validate configuration files
+        run: |
+          echo "Checking PHPStan configuration..."
+          ls -la phpstan.neon phpstan-baseline.neon
+          echo "Checking PHPCS configuration..."
+          ls -la phpcs.xml
+
       - name: Ensure PHPUnit is executable
         run: chmod +x vendor/bin/phpunit
 
@@ -37,11 +44,10 @@ jobs:
         run: chmod +x vendor/bin/phpstan
 
       - name: Run PHPStan (level 9 with baseline)
-        run: vendor/bin/phpstan analyze --memory-limit=2G
+        run: vendor/bin/phpstan analyze --level=max --memory-limit=2G --configuration=.phpstan.neon
 
       - name: Ensure PHPCS is executable
         run: chmod +x vendor/bin/phpcs
 
       - name: Run PHPCS (WordPress Coding Standards)
-        run: |
-          php vendor/bin/phpcs --standard=WordPress --ignore=vendor --extensions=php .
+        run: vendor/bin/phpcs --standard=phpcs.xml --report=summary

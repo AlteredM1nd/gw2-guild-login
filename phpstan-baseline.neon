@@ -1,33 +1,27 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Binary operation "\." between ''SELECT ID FROM '' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: admin/views/reports.php
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 2
+			path: admin/views/dashboard.php
 
 		-
-			message: '#^Binary operation "\." between ''SELECT option_name…'' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: admin/views/reports.php
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: admin/views/guild-roster.php
 
 		-
-			message: '#^Binary operation "\." between ''SELECT u\.ID, u\.user…'' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Binary operation "\." between ''SELECT user_id,…'' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
 			count: 3
+			path: admin/views/guild-roster.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 7
 			path: admin/views/reports.php
 
 		-
@@ -61,6 +55,12 @@ parameters:
 			path: admin/views/reports.php
 
 		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 33
+			path: admin/views/reports.php
+
+		-
 			message: '#^Parameter \#1 \$datetime of function strtotime expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
@@ -73,16 +73,16 @@ parameters:
 			path: admin/views/reports.php
 
 		-
-			message: '#^Undefined variable\: \$usermeta_table$#'
-			identifier: variable.undefined
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
 			count: 1
-			path: admin/views/reports.php
+			path: admin/views/tools.php
 
 		-
-			message: '#^Undefined variable\: \$users_table$#'
-			identifier: variable.undefined
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
 			count: 1
-			path: admin/views/reports.php
+			path: admin/views/user-management.php
 
 		-
 			message: '#^Call to function is_object\(\) with GW2_Guild_Login_Admin will always evaluate to true\.$#'
@@ -91,20 +91,14 @@ parameters:
 			path: gw2-guild-login.php
 
 		-
-			message: '#^Call to function method_exists\(\) with GW2_User_Handler and ''process_login'' will always evaluate to true\.$#'
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: gw2-guild-login.php
 
 		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$links$#'
-			identifier: parameter.notFound
-			count: 1
-			path: gw2-guild-login.php
-
-		-
-			message: '#^PHPDoc tag @return with type array is incompatible with native type void\.$#'
-			identifier: return.phpDocType
+			message: '#^Call to function method_exists\(\) with GW2_User_Handler and ''process_login'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
 			path: gw2-guild-login.php
 
@@ -125,6 +119,24 @@ parameters:
 			identifier: requireOnce.fileNotFound
 			count: 1
 			path: gw2-guild-login.php
+
+		-
+			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: includes/GW2_2FA_Handler.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 5
+			path: includes/GW2_2FA_Handler.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: includes/GW2_2FA_Handler.php
 
 		-
 			message: '#^Parameter \#1 \$query of method wpdb\:\:prepare\(\) expects literal\-string, non\-falsy\-string given\.$#'
@@ -166,12 +178,6 @@ parameters:
 			message: '#^Cannot access offset ''appearance_primary_color'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Cannot access offset mixed on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 7
 			path: includes/admin/class-gw2-guild-login-admin.php
 
 		-
@@ -249,25 +255,7 @@ parameters:
 		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
-			count: 8
-			path: includes/class-gw2-api.php
-
-		-
-			message: '#^Call to function is_wp_error\(\) with WP_Error will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: includes/class-gw2-api.php
-
-		-
-			message: '#^Method GW2_API\:\:make_api_request\(\) should return array\<string, mixed\>\|WP_Error but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 2
-			path: includes/class-gw2-api.php
-
-		-
-			message: '#^Property GW2_API\:\:\$rate_limits \(array\<string, array\{count\: int, reset\: int\}\>\) does not accept array\<mixed\>\.$#'
-			identifier: assign.propertyType
-			count: 1
+			count: 3
 			path: includes/class-gw2-api.php
 
 		-
@@ -289,6 +277,12 @@ parameters:
 			path: includes/class-gw2-guild-ranks.php
 
 		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 3
+			path: includes/class-gw2-guild-ranks.php
+
+		-
 			message: '#^Cannot access offset ''name'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -307,6 +301,12 @@ parameters:
 			path: includes/class-gw2-guild-ranks.php
 
 		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: includes/class-gw2-guild-ranks.php
+
+		-
 			message: '#^Parameter \#2 \$string of function explode expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
@@ -319,10 +319,58 @@ parameters:
 			path: includes/class-gw2-guild-ranks.php
 
 		-
-			message: '#^Function gw2gl_clear_api_cache not found\.$#'
-			identifier: function.notFound
+			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
-			path: tests/GW2_API_CacheTest.php
+			path: includes/class-gw2-password-reset.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: includes/class-gw2-password-reset.php
+
+		-
+			message: '#^Call to function ctype_digit\(\) with \*NEVER\* will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: templates/dashboard/dashboard.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: templates/dashboard/dashboard.php
+
+		-
+			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: templates/dashboard/dashboard.php
+
+		-
+			message: '#^Call to function is_string\(\) with \*NEVER\* will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: templates/dashboard/dashboard.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 3
+			path: templates/dashboard/dashboard.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: templates/dashboard/dashboard.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 2
+			path: test-admin-interface.php
 
 		-
 			message: '#^Cannot access offset string on mixed\.$#'
