@@ -35,19 +35,19 @@ jobs:
           ls -la phpcs.xml
 
       - name: Ensure PHPUnit is executable
-        run: chmod +x vendor/bin/phpunit.bat
+        run: chmod +x vendor/bin/phpunit
 
       - name: Run PHPUnit
         run: vendor/bin/phpunit.bat --testdox
 
       - name: Ensure PHPStan is executable
-        run: chmod +x vendor/bin/phpstan.bat
+        run: chmod +x vendor/bin/phpstan
 
       - name: Run PHPStan (level 9 with baseline)
         run: vendor/bin/phpstan.bat analyse --level=max --memory-limit=2G --configuration=.phpstan.neon
 
       - name: Ensure PHPCS is executable
-        run: chmod +x vendor/bin/phpcs.bat
+        run: chmod +x vendor/bin/phpcs
 
       - name: Run PHPCS (WordPress Coding Standards)
         run: vendor/bin/phpcs.bat --standard=phpcs.xml --report=summary
