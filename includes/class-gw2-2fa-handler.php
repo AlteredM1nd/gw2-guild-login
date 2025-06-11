@@ -17,10 +17,10 @@ class GW2_2FA_Handler {
 	 *
 	 * @param string       $name      The method name.
 	 * @param array<mixed> $arguments The method arguments.
-	 * @return never
+	 * @return void
 	 * @throws \Exception Always throws exception.
 	 */
-	public function __call( string $name, array $arguments ): never {
+	public function __call( string $name, array $arguments ): void {
 		throw new \Exception( 'GW2_2FA_Handler (legacy) is obsolete. Use GW2GuildLogin\\GW2_2FA_Handler.' );
 	}
 }

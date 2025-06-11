@@ -30,7 +30,7 @@ jobs:
       - name: Validate configuration files
         run: |
           echo "Checking PHPStan configuration..."
-          ls -la phpstan.neon phpstan-baseline.neon
+          ls -la .phpstan.neon phpstan-baseline.neon
           echo "Checking PHPCS configuration..."
           ls -la phpcs.xml
 

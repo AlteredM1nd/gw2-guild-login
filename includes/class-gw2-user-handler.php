@@ -352,9 +352,9 @@ class GW2_User_Handler {
 	 *
 	 * @param \WP_User $user     The user to log in.
 	 * @param bool     $remember Whether to remember the user.
-	 * @return true|\WP_Error True on success, WP_Error on failure
+	 * @return \WP_Error|true True on success, WP_Error on failure
 	 */
-	protected function login_user( \WP_User $user, bool $remember = false ): true|\WP_Error {
+	protected function login_user( \WP_User $user, bool $remember = false ): \WP_Error|true {
 		wp_set_current_user( $user->ID );
 		wp_set_auth_cookie( $user->ID, $remember );
 		do_action( 'wp_login', $user->user_login, $user );
