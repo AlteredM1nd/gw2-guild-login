@@ -560,8 +560,8 @@ class GW2_Guild_Login_Admin {
 		$value       = isset( $this->settings[ $id ] ) ? $this->settings[ $id ] : ( isset( $args['default'] ) ? $args['default'] : '' );
 		$description = isset( $args['description'] ) ? $args['description'] : '';
 		echo '<input type="text" class="gw2gl-color-picker" id="gw2gl_settings[' . esc_attr( $id ) . ']" name="gw2gl_settings[' . esc_attr( $id ) . ']" value="' . esc_attr( $value ) . '" data-default-color="' . esc_attr( $args['default'] ) . '" />';
-		if ( $description ) {
-			echo '<p class="description">' . esc_html( $description ) . '</p>';
+		if ( $description && is_string( $description ) ) {
+			echo '<p class="description">' . wp_kses_post( $description ) . '</p>';
 		}
 		echo '<script>jQuery(function($){$(".gw2gl-color-picker").wpColorPicker();});</script>';
 	}
@@ -582,8 +582,8 @@ class GW2_Guild_Login_Admin {
 			echo '<div><img src="' . esc_url( $value ) . '" alt="Logo Preview" class="gw2-admin-custom-logo" /></div>';
 		}
 		echo '</div>';
-		if ( $description ) {
-			echo '<p class="description">' . esc_html( $description ) . '</p>';
+		if ( $description && is_string( $description ) ) {
+			echo '<p class="description">' . wp_kses_post( $description ) . '</p>';
 		}
 		// Add JS for media uploader.
 		$select_logo = esc_js( __( 'Select Logo', 'gw2-guild-login' ) );
@@ -621,8 +621,8 @@ EOT;
 		$value       = isset( $this->settings[ $id ] ) && is_string( $this->settings[ $id ] ) ? $this->settings[ $id ] : ''; // PHPStan: always string.
 		$description = isset( $args['description'] ) ? $args['description'] : '';
 		echo '<textarea id="gw2gl_settings[' . esc_attr( $id ) . ']" name="gw2gl_settings[' . esc_attr( $id ) . ']" rows="3" class="large-text">' . esc_textarea( $value ) . '</textarea>';
-		if ( $description ) {
-			echo '<p class="description">' . esc_html( $description ) . '</p>';
+		if ( $description && is_string( $description ) ) {
+			echo '<p class="description">' . wp_kses_post( $description ) . '</p>';
 		}
 	}
 
@@ -639,8 +639,8 @@ EOT;
 		<input type="text" id="gw2gl_settings[<?php echo esc_attr( $id ); ?>]" 
 				name="gw2gl_settings[<?php echo esc_attr( $id ); ?>]" 
 				value="<?php echo esc_attr( $value ); ?>" class="regular-text">
-		<?php if ( $description ) : ?>
-			<p class="description"><?php echo esc_html( $description ); ?></p>
+		<?php if ( $description && is_string( $description ) ) : ?>
+			<p class="description"><?php echo wp_kses_post( $description ); ?></p>
 			<?php
 		endif;
 	}
@@ -663,8 +663,8 @@ EOT;
 				min="<?php echo esc_attr( $min ); ?>" 
 				step="<?php echo esc_attr( $step ); ?>" 
 				class="small-text">
-		<?php if ( $description ) : ?>
-			<p class="description"><?php echo esc_html( $description ); ?></p>
+		<?php if ( $description && is_string( $description ) ) : ?>
+			<p class="description"><?php echo wp_kses_post( $description ); ?></p>
 			<?php
 		endif;
 	}
@@ -686,8 +686,8 @@ EOT;
 					value="1" <?php checked( $checked ); ?>>
 			<?php echo esc_html( $label ); ?>
 		</label>
-		<?php if ( $description ) : ?>
-			<p class="description"><?php echo esc_html( $description ); ?></p>
+		<?php if ( $description && is_string( $description ) ) : ?>
+			<p class="description"><?php echo wp_kses_post( $description ); ?></p>
 			<?php
 		endif;
 	}
@@ -711,8 +711,8 @@ EOT;
 				</option>
 			<?php endforeach; ?>
 		</select>
-		<?php if ( $description ) : ?>
-			<p class="description"><?php echo esc_html( $description ); ?></p>
+		<?php if ( $description && is_string( $description ) ) : ?>
+			<p class="description"><?php echo wp_kses_post( $description ); ?></p>
 			<?php
 		endif;
 	}
