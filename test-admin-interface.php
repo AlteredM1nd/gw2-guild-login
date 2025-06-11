@@ -10,24 +10,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 
 	// Mock WordPress functions for testing
-	function esc_html__( $text, $domain = '' ) {
+	function esc_html__( string $text, string $domain = '' ): string {
 		return htmlspecialchars( $text ); }
-	function sanitize_hex_color( $color ) {
+	function sanitize_hex_color( string $color ): string {
 		return $color; }
-	function esc_url_raw( $url ) {
+	function esc_url_raw( string $url ): string {
 		return $url; }
-	function sanitize_textarea_field( $text ) {
+	function sanitize_textarea_field( string $text ): string {
 		return $text; }
-	function sanitize_text_field( $text ) {
+	function sanitize_text_field( string $text ): string {
 		return $text; }
-	function wp_kses_post( $text ) {
+	function wp_kses_post( string $text ): string {
 		return $text; }
-	function absint( $value ) {
-		return abs( intval( $value ) ); }
-	function get_option( $option, $default = false ) {
+	function absint( mixed $value ): int {
+		if (is_numeric($value)) {
+			return abs((int)$value);
+		}
+		return 0;
+	}
+	function get_option( string $option, mixed $default = false ): mixed {
 		return $default; }
-	function array_key_exists( $key, $array ) {
-		return isset( $array[ $key ] ); }
+	/**
+	 * @phpstan-param array<string|int, mixed> $array
+	 */
+	function array_key_exists( string|int $key, array $array ): bool {
+		return isset( $array[ $key ] );
+	}
 }
 
 // Include the admin class
@@ -45,14 +53,14 @@ $tooltipMethod = $reflection->getMethod( 'get_tooltip' );
 $tooltipMethod->setAccessible( true );
 
 $testTooltip = $tooltipMethod->invoke( $admin, 'This is a test tooltip content' );
-echo '<p>Tooltip HTML: ' . htmlspecialchars( $testTooltip ) . "</p>\n";
+echo '<p>Tooltip HTML: ' . htmlspecialchars( (string)$testTooltip ) . "</p>\n";
 
 // Test field hint method
 $hintMethod = $reflection->getMethod( 'get_field_hint' );
 $hintMethod->setAccessible( true );
 
 $testHint = $hintMethod->invoke( $admin, 'This is a test hint with <strong>HTML</strong> content' );
-echo '<p>Hint HTML: ' . htmlspecialchars( $testHint ) . "</p>\n";
+echo '<p>Hint HTML: ' . htmlspecialchars( (string)$testHint ) . "</p>\n";
 
 // Test specific field scenarios
 echo "<h2>Testing Field Implementations</h2>\n";

@@ -1,349 +1,97 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Binary operation "\." between mixed and '' '' results in an error\.$#'
+			message: '#^Binary operation "\." between ''SELECT ID FROM '' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
-			path: admin/views/dashboard.php
+			path: admin/views/reports.php
+
+		-
+			message: '#^Binary operation "\." between ''SELECT option_name…'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: admin/views/reports.php
+
+		-
+			message: '#^Binary operation "\." between ''SELECT u\.ID, u\.user…'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: admin/views/reports.php
+
+		-
+			message: '#^Binary operation "\." between ''SELECT user_id,…'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: admin/views/reports.php
 
 		-
 			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
-			count: 1
-			path: admin/views/dashboard.php
+			count: 3
+			path: admin/views/reports.php
 
 		-
-			message: '#^Cannot call method db_version\(\) on mixed\.$#'
-			identifier: method.nonObject
+			message: '#^Cannot access property \$options on mixed\.$#'
+			identifier: property.nonObject
 			count: 1
-			path: admin/views/dashboard.php
+			path: admin/views/reports.php
+
+		-
+			message: '#^Cannot access property \$prefix on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: admin/views/reports.php
+
+		-
+			message: '#^Cannot access property \$usermeta on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: admin/views/reports.php
+
+		-
+			message: '#^Cannot access property \$users on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: admin/views/reports.php
 
 		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
 			count: 1
-			path: admin/views/dashboard.php
+			path: admin/views/reports.php
 
 		-
-			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 2
-			path: admin/views/guild-roster.php
+			message: '#^Parameter \#1 \$datetime of function strtotime expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/views/reports.php
 
 		-
-			message: '#^Binary operation "\." between mixed and '' '' results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 2
-			path: admin/views/guild-roster.php
+			message: '#^Parameter \#1 \$query of method wpdb\:\:prepare\(\) expects literal\-string, non\-falsy\-string given\.$#'
+			identifier: argument.type
+			count: 3
+			path: admin/views/reports.php
 
 		-
-			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 2
-			path: admin/views/guild-roster.php
+			message: '#^Undefined variable\: \$usermeta_table$#'
+			identifier: variable.undefined
+			count: 1
+			path: admin/views/reports.php
 
 		-
-			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			message: '#^Undefined variable\: \$users_table$#'
+			identifier: variable.undefined
+			count: 1
+			path: admin/views/reports.php
+
+		-
+			message: '#^Call to function is_object\(\) with GW2_Guild_Login_Admin will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: admin/views/guild-roster.php
+			path: gw2-guild-login.php
 
 		-
-			message: '#^Cannot access offset ''guild_ids'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Cannot access offset ''joined'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Cannot access offset ''name'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Cannot access offset ''rank'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 2
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Parameter \#1 \$args of function get_users expects array\{blog_id\?\: int, role\?\: array\<string\>\|string, role__in\?\: array\<string\>, role__not_in\?\: array\<string\>, meta_key\?\: array\<string\>\|string, meta_value\?\: array\<string\>\|string, meta_compare\?\: string, meta_compare_key\?\: string, \.\.\.\}, array\{meta_key\: ''gw2_account_name'', meta_value\: mixed, number\: 1\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_filter expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Parameter \#1 \$value of function count expects array\|Countable, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Parameter \#2 \$string of function explode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/guild-roster.php
-
-		-
-			message: '#^Binary operation "\." between ''admin\.php\?page\='' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Cannot cast mixed to int\.$#'
-			identifier: cast.int
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_failed_attempts\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_failed_attempts\(\) has parameter \$end_timestamp with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_failed_attempts\(\) has parameter \$start_timestamp with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_login_activity\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_login_activity\(\) has parameter \$end_timestamp with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_login_activity\(\) has parameter \$search_user with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_login_activity\(\) has parameter \$start_timestamp with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_user_activity_status\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_user_activity_status\(\) has parameter \$last_login_timestamp with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_user_engagement\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_get_user_engagement\(\) has parameter \$search_user with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_handle_data_export\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_handle_data_export\(\) has parameter \$end_date with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_handle_data_export\(\) has parameter \$report_type with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Function gw2_handle_data_export\(\) has parameter \$start_date with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Parameter \#1 \$stream of function fclose expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Parameter \#1 \$stream of function fputcsv expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 4
-			path: admin/views/reports.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_attr expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/reports.php
-
-		-
-			message: '#^Cannot access offset ''guild_ids'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: admin/views/tools.php
-
-		-
-			message: '#^Cannot access offset ''tmp_name'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: admin/views/tools.php
-
-		-
-			message: '#^Parameter \#1 \$filename of function file_get_contents expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/tools.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/tools.php
-
-		-
-			message: '#^Parameter \#1 \$nonce of function wp_verify_nonce expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/tools.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/tools.php
-
-		-
-			message: '#^Parameter \#2 \$string of function explode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/tools.php
-
-		-
-			message: '#^Cannot access offset ''guild_ids'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Cannot access offset ''ranks'' on array\<string, mixed\>\|WP_Error\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Cannot access property \$ID on mixed\.$#'
-			identifier: property.nonObject
-			count: 3
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Cannot access property \$display_name on mixed\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Parameter \#1 \$array of function current expects array\|object, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Parameter \#1 \$email of function sanitize_email expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Parameter \#1 \$guild_id of method GW2_Guild_Ranks\:\:fetch_guild_data\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Parameter \#1 \$key of function sanitize_key expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 4
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Parameter \#1 \$nonce of function wp_verify_nonce expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Parameter \#1 \$username of function sanitize_user expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/views/user-management.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''GW2_Guild_Login…'' and ''instance'' will always evaluate to true\.$#'
+			message: '#^Call to function method_exists\(\) with GW2_User_Handler and ''process_login'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: gw2-guild-login.php
@@ -361,7 +109,7 @@ parameters:
 			path: gw2-guild-login.php
 
 		-
-			message: '#^Parameter \#2 \$callback of function add_action expects callable\(\)\: mixed, array\{mixed, ''register_settings''\} given\.$#'
+			message: '#^Parameter \#1 \$object_or_class of function is_a expects object, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: gw2-guild-login.php
@@ -379,259 +127,25 @@ parameters:
 			path: gw2-guild-login.php
 
 		-
-			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 6
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
-			identifier: catch.neverThrown
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_2FA_Handler\:\:enable_2fa\(\) has parameter \$backup_codes with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_2FA_Handler\:\:encrypt_backup_codes\(\) has parameter \$backup_codes with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_2FA_Handler\:\:generate_backup_codes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_2FA_Handler\:\:get_backup_codes_for_user\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_2FA_Handler\:\:set_backup_codes_for_user\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_2FA_Handler\:\:set_backup_codes_for_user\(\) has parameter \$codes with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$codes$#'
-			identifier: parameter.notFound
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Parameter \#1 \$length of function openssl_random_pseudo_bytes expects int, int\|false given\.$#'
+			message: '#^Parameter \#1 \$query of method wpdb\:\:prepare\(\) expects literal\-string, non\-falsy\-string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: includes/GW2_2FA_Handler.php
 
 		-
-			message: '#^Parameter \#2 \$offset of function substr expects int, int\|false given\.$#'
+			message: '#^Parameter \#1 \$object_or_class of function is_a expects object, mixed given\.$#'
 			identifier: argument.type
 			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Parameter \#3 \$length of function substr expects int\|null, int\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Property GW2GuildLogin\\GW2_2FA_Handler\:\:\$secret is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string and false will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: includes/GW2_2FA_Handler.php
-
-		-
-			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
 			path: includes/GW2_Login_Shortcode.php
 
 		-
-			message: '#^Cannot access offset ''appearance_logo'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Cannot access offset ''appearance_welcome_text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_Login_Shortcode\:\:display_messages\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_Login_Shortcode\:\:enqueue_assets\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_Login_Shortcode\:\:handle_login_submission\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_Login_Shortcode\:\:render_guild_only_content\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_Login_Shortcode\:\:render_login_form\(\) should return string but returns string\|false\.$#'
-			identifier: return.type
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_Login_Shortcode\:\:render_loginout_link\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_Login_Shortcode\:\:render_user_status\(\) should return string but returns string\|false\.$#'
-			identifier: return.type
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Method GW2GuildLogin\\GW2_Login_Shortcode\:\:set_message\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Parameter \#1 \$content of function do_shortcode expects string, string\|null given\.$#'
-			identifier: argument.type
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
 			count: 2
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Parameter \#1 \$redirect of function wp_login_url expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Property WP_Post\:\:\$post_content \(string\) in isset\(\) is not nullable\.$#'
-			identifier: isset.property
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Property WP_User\:\:\$ID \(int\) in isset\(\) is not nullable\.$#'
-			identifier: isset.property
-			count: 1
-			path: includes/GW2_Login_Shortcode.php
-
-		-
-			message: '#^Function gw2_admin_menu_init\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:add_admin_menus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:enqueue_styles\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:enqueue_styles\(\) has parameter \$hook with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:render_appearance_branding_page\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:render_dashboard_page\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:render_guild_roster_page\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:render_reports_page\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:render_settings_page\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:render_tools_page\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Method GW2_Admin_Menu\:\:render_user_management_page\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-admin-menu.php
-
-		-
-			message: '#^Cannot access offset ''appearance_accent_color'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
 			path: includes/admin/class-gw2-guild-login-admin.php
 
 		-
-			message: '#^Cannot access offset ''appearance_accent_color''\|''appearance_force_dark''\|''appearance_logo''\|''appearance_primary_color''\|''appearance_welcome_text'' on mixed\.$#'
+			message: '#^Cannot access offset ''appearance_accent_color'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: includes/admin/class-gw2-guild-login-admin.php
@@ -655,176 +169,26 @@ parameters:
 			path: includes/admin/class-gw2-guild-login-admin.php
 
 		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:add_action_links\(\) has parameter \$links with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Cannot access offset mixed on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 7
+			path: includes/admin/class-gw2-guild-login-admin.php
+
+		-
+			message: '#^Cannot call method get_names\(\) on mixed\.$#'
+			identifier: method.nonObject
 			count: 1
 			path: includes/admin/class-gw2-guild-login-admin.php
 
 		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:add_action_links\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''sanitize_text_field'' given\.$#'
+			identifier: argument.type
 			count: 1
 			path: includes/admin/class-gw2-guild-login-admin.php
 
 		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:add_admin_menu\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:api_section_callback\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:checkbox_field_callback\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:checkbox_field_callback\(\) has parameter \$args with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:color_picker_field_callback\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:color_picker_field_callback\(\) has parameter \$args with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:display_plugin_settings_page\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:enqueue_admin_assets\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:enqueue_scripts\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:enqueue_styles\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:general_section_callback\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:get_user_roles\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:logo_upload_field_callback\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:logo_upload_field_callback\(\) has parameter \$args with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:number_field_callback\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:number_field_callback\(\) has parameter \$args with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:plugin_action_links\(\) has parameter \$links with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:plugin_action_links\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:register_settings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:sanitize_settings\(\) has parameter \$input with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:sanitize_settings\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:select_field_callback\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:select_field_callback\(\) has parameter \$args with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:text_field_callback\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:text_field_callback\(\) has parameter \$args with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:textarea_field_callback\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Method GW2_Guild_Login_Admin\:\:textarea_field_callback\(\) has parameter \$args with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Parameter \#1 \$name of function translate_user_role expects string, mixed given\.$#'
+			identifier: argument.type
 			count: 1
 			path: includes/admin/class-gw2-guild-login-admin.php
 
@@ -835,7 +199,19 @@ parameters:
 			path: includes/admin/class-gw2-guild-login-admin.php
 
 		-
-			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(string\)\: bool\)\|null, Closure\(mixed\)\: \(0\|1\|false\) given\.$#'
+			message: '#^Parameter \#1 \$text of function esc_attr expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 20
+			path: includes/admin/class-gw2-guild-login-admin.php
+
+		-
+			message: '#^Parameter \#1 \$text of function esc_html expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 9
+			path: includes/admin/class-gw2-guild-login-admin.php
+
+		-
+			message: '#^Parameter \#1 \$url of function esc_url expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: includes/admin/class-gw2-guild-login-admin.php
@@ -853,152 +229,50 @@ parameters:
 			path: includes/admin/class-gw2-guild-login-admin.php
 
 		-
-			message: '#^Property GW2_Guild_Login_Admin\:\:\$settings type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/admin/class-gw2-guild-login-admin.php
-
-		-
-			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
+			message: '#^Cannot call method add\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 4
 			path: includes/class-gw2-2fa-admin.php
 
 		-
-			message: '#^Call to function is_object\(\) with WP_User will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: includes/class-gw2-2fa-admin.php
-
-		-
-			message: '#^Parameter \#1 \$nonce of function wp_verify_nonce expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: includes/class-gw2-2fa-admin.php
-
-		-
-			message: '#^Property WP_User\:\:\$ID \(int\) in isset\(\) is not nullable\.$#'
-			identifier: isset.property
-			count: 1
-			path: includes/class-gw2-2fa-admin.php
-
-		-
-			message: '#^Method GW2_2FA_Handler\:\:__call\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-2fa-handler.php
-
-		-
-			message: '#^Method GW2_2FA_Handler\:\:__call\(\) has parameter \$arguments with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: includes/class-gw2-2fa-handler.php
-
-		-
-			message: '#^Method GW2_2FA_Handler\:\:__call\(\) has parameter \$name with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: includes/class-gw2-2fa-handler.php
-
-		-
-			message: '#^Method GW2_2FA_Login\:\:send_backup_codes_email\(\) has parameter \$codes with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/class-gw2-2fa-login.php
-
-		-
-			message: '#^Parameter \#1 \$nonce of function wp_verify_nonce expects string, mixed given\.$#'
+			message: '#^Parameter \#1 \$query of method wpdb\:\:prepare\(\) expects literal\-string, non\-falsy\-string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: includes/class-gw2-2fa-login.php
 
 		-
-			message: '#^Parameter \#1 \$text of function wp_specialchars_decode expects string, mixed given\.$#'
+			message: '#^Parameter \#2 \$codes of method GW2_2FA_Login\:\:send_backup_codes_email\(\) expects array\<int, string\>, array\<string\> given\.$#'
 			identifier: argument.type
 			count: 1
 			path: includes/class-gw2-2fa-login.php
-
-		-
-			message: '#^Property WP_User\:\:\$ID \(int\) in isset\(\) is not nullable\.$#'
-			identifier: isset.property
-			count: 2
-			path: includes/class-gw2-2fa-login.php
-
-		-
-			message: '#^Function gw2gl_clear_api_cache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-api-cache-utils.php
 
 		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
-			count: 3
+			count: 8
 			path: includes/class-gw2-api.php
 
 		-
-			message: '#^Call to function is_string\(\) with ''2\.6\.4'' will always evaluate to true\.$#'
+			message: '#^Call to function is_wp_error\(\) with WP_Error will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: includes/class-gw2-api.php
 
 		-
-			message: '#^Call to an undefined method GW2_User_Handler\:\:clear_user_cache\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: includes/class-gw2-guild-login.php
+			message: '#^Method GW2_API\:\:make_api_request\(\) should return array\<string, mixed\>\|WP_Error but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 2
+			path: includes/class-gw2-api.php
 
 		-
-			message: '#^Constant GW2_GUILD_LOGIN_PLUGIN_BASENAME not found\.$#'
-			identifier: constant.notFound
+			message: '#^Property GW2_API\:\:\$rate_limits \(array\<string, array\{count\: int, reset\: int\}\>\) does not accept array\<mixed\>\.$#'
+			identifier: assign.propertyType
 			count: 1
-			path: includes/class-gw2-guild-login.php
+			path: includes/class-gw2-api.php
 
 		-
-			message: '#^Method GW2_Guild_Login\:\:activate\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-guild-login.php
-
-		-
-			message: '#^Method GW2_Guild_Login\:\:deactivate\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-guild-login.php
-
-		-
-			message: '#^Method GW2_Guild_Login\:\:define\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-guild-login.php
-
-		-
-			message: '#^Method GW2_Guild_Login\:\:init_components\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-guild-login.php
-
-		-
-			message: '#^Method GW2_Guild_Login\:\:load_dependencies\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-guild-login.php
-
-		-
-			message: '#^Path in require_once\(\) "/var/www/html/wp\-admin/includes/upgrade\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: includes/class-gw2-guild-login.php
-
-		-
-			message: '#^Property GW2_Guild_Login\:\:\$templates type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: includes/class-gw2-guild-login.php
-
-		-
-			message: '#^Property GW2_Guild_Login\:\:\$user_handler \(GW2_User_Handler\) in isset\(\) is not nullable\.$#'
-			identifier: isset.property
+			message: '#^Cannot access property \$ID on mixed\.$#'
+			identifier: property.nonObject
 			count: 1
 			path: includes/class-gw2-guild-login.php
 
@@ -1015,13 +289,7 @@ parameters:
 			path: includes/class-gw2-guild-ranks.php
 
 		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: includes/class-gw2-guild-ranks.php
-
-		-
-			message: '#^Cannot access offset ''guild_ids'' on mixed\.$#'
+			message: '#^Cannot access offset ''name'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: includes/class-gw2-guild-ranks.php
@@ -1033,20 +301,8 @@ parameters:
 			path: includes/class-gw2-guild-ranks.php
 
 		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 1
-			path: includes/class-gw2-guild-ranks.php
-
-		-
-			message: '#^Parameter \#1 \$content of function do_shortcode expects string, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: includes/class-gw2-guild-ranks.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
+			message: '#^Cannot access property \$roles on mixed\.$#'
+			identifier: property.nonObject
 			count: 1
 			path: includes/class-gw2-guild-ranks.php
 
@@ -1063,331 +319,13 @@ parameters:
 			path: includes/class-gw2-guild-ranks.php
 
 		-
-			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
+			message: '#^Function gw2gl_clear_api_cache not found\.$#'
+			identifier: function.notFound
 			count: 1
-			path: includes/class-gw2-password-reset.php
+			path: tests/GW2_API_CacheTest.php
 
 		-
-			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: includes/class-gw2-password-reset.php
-
-		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: includes/class-gw2-password-reset.php
-
-		-
-			message: '#^Method GW2_Password_Reset\:\:handle_redeem_magic_link\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-password-reset.php
-
-		-
-			message: '#^Method GW2_Password_Reset\:\:handle_request_reset\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-password-reset.php
-
-		-
-			message: '#^Method GW2_Password_Reset\:\:init\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-password-reset.php
-
-		-
-			message: '#^Method GW2_Password_Reset\:\:render_reset_form\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: includes/class-gw2-password-reset.php
-
-		-
-			message: '#^Method GW2_Password_Reset\:\:render_reset_form\(\) has parameter \$atts with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: includes/class-gw2-password-reset.php
-
-		-
-			message: '#^Property WP_User\:\:\$ID \(int\) in isset\(\) is not nullable\.$#'
-			identifier: isset.property
-			count: 2
-			path: includes/class-gw2-password-reset.php
-
-		-
-			message: '#^Call to function is_string\(\) with non\-empty\-string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: includes/class-gw2-session-handler.php
-
-		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
+			message: '#^Cannot access offset string on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
 			count: 3
-			path: includes/class-gw2-session-handler.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between non\-empty\-string and '''' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: includes/class-gw2-session-handler.php
-
-		-
-			message: '#^Call to an undefined method GW2_User_Handler\:\:decrypt_api_key\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: includes/class-gw2-user-dashboard.php
-
-		-
-			message: '#^Call to an undefined method GW2_User_Handler\:\:find_or_create_user\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: includes/class-gw2-user-handler.php
-
-		-
-			message: '#^Call to an undefined method GW2_User_Handler\:\:log\(\)\.$#'
-			identifier: method.notFound
-			count: 9
-			path: includes/class-gw2-user-handler.php
-
-		-
-			message: '#^Call to an undefined method GW2_User_Handler\:\:update_user_meta\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: includes/class-gw2-user-handler.php
-
-		-
-			message: '#^Call to function ctype_digit\(\) with \*NEVER\* will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Call to function is_object\(\) with WP_User will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Call to function is_string\(\) with \*NEVER\* will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 8
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Property WP_User\:\:\$ID \(int\) in isset\(\) is not nullable\.$#'
-			identifier: isset.property
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$all_sessions in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$current_session in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$gw2_account_id in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$gw2_account_name in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$gw2_created in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$gw2_guilds in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$gw2_world in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$is_current might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$last_login in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Variable \$session_id might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: templates/dashboard/dashboard.php
-
-		-
-			message: '#^Function absint\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function absint\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function array_key_exists\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function array_key_exists\(\) has parameter \$array with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function array_key_exists\(\) has parameter \$key with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function esc_html__\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function esc_html__\(\) has parameter \$domain with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function esc_html__\(\) has parameter \$text with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function esc_url_raw\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function esc_url_raw\(\) has parameter \$url with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function get_option\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function get_option\(\) has parameter \$default with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function get_option\(\) has parameter \$option with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function sanitize_hex_color\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function sanitize_hex_color\(\) has parameter \$color with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function sanitize_text_field\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function sanitize_text_field\(\) has parameter \$text with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function sanitize_textarea_field\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function sanitize_textarea_field\(\) has parameter \$text with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function wp_kses_post\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Function wp_kses_post\(\) has parameter \$text with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: test-admin-interface.php
-
-		-
-			message: '#^Parameter \#1 \$string of function htmlspecialchars expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: test-admin-interface.php
+			path: tests/bootstrap.php

@@ -1,5 +1,13 @@
 <?php
+/**
+ * GW2 Session Handler.
+ *
+ * @package GW2_Guild_Login
+ * @since 1.0.0
+ */
+
 declare(strict_types=1);
+
 /**
  * Handles session management for the plugin
  */
@@ -22,48 +30,46 @@ class GW2_Session_Handler {
 	/**
 	 * Set a session variable
 	 *
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param string $key   The session key.
+	 * @param mixed  $value The value to store.
 	 */
 	public static function set( string $key, mixed $value ): void {
 		self::init();
-		if ( ! is_string( $key ) || $key === '' ) {
+		if ( '' === $key ) {
 			return;
 		}
 		if ( ! isset( $_SESSION['gw2_guild_login'] ) || ! is_array( $_SESSION['gw2_guild_login'] ) ) {
 			$_SESSION['gw2_guild_login'] = array();
 		}
-		if ( is_string( $key ) && $key !== '' ) {
-			$_SESSION['gw2_guild_login'][ $key ] = $value;
-		}
+		$_SESSION['gw2_guild_login'][ $key ] = $value;
 	}
 
 	/**
 	 * Get a session variable
 	 *
-	 * @param string $key
-	 * @param mixed  $default
+	 * @param string $key           The session key.
+	 * @param mixed  $default_value The default value if key doesn't exist.
 	 * @return mixed
 	 */
-	public static function get( string $key, mixed $default = null ): mixed {
+	public static function get( string $key, mixed $default_value = null ): mixed {
 		self::init();
-		if ( ! is_string( $key ) || $key === '' ) {
-			return $default;
+		if ( '' === $key ) {
+			return $default_value;
 		}
 		if ( ! isset( $_SESSION['gw2_guild_login'] ) || ! is_array( $_SESSION['gw2_guild_login'] ) ) {
-			return $default;
+			return $default_value;
 		}
-		return ( is_string( $key ) && array_key_exists( $key, $_SESSION['gw2_guild_login'] ) ) ? $_SESSION['gw2_guild_login'][ $key ] : $default;
+		return array_key_exists( $key, $_SESSION['gw2_guild_login'] ) ? $_SESSION['gw2_guild_login'][ $key ] : $default_value; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	}
 
 	/**
 	 * Remove a session variable
 	 *
-	 * @param string $key
+	 * @param string $key The session key to remove.
 	 */
 	public static function remove( string $key ): void {
 		self::init();
-		if ( ! is_string( $key ) || $key === '' ) {
+		if ( '' === $key ) {
 			return;
 		}
 		if ( isset( $_SESSION['gw2_guild_login'] ) && is_array( $_SESSION['gw2_guild_login'] ) && array_key_exists( $key, $_SESSION['gw2_guild_login'] ) ) {
@@ -90,5 +96,5 @@ class GW2_Session_Handler {
 	}
 }
 
-// Initialize session early
+// Initialize session early.
 add_action( 'plugins_loaded', array( 'GW2_Session_Handler', 'init' ), 1 );

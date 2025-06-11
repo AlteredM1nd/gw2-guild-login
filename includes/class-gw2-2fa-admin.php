@@ -1,5 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+/**
+ * Two-Factor Authentication admin functionality.
+ *
+ * @package GW2_Guild_Login
+ * @since 2.4.0
+ */
+
+declare(strict_types=1);
+
 use GW2GuildLogin\GW2_2FA_Handler;
+
 /**
  * GW2_2FA_Admin
  *
@@ -16,50 +26,44 @@ class GW2_2FA_Admin {
 	private $handler;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 */
 	public function __construct() {
 		$this->handler = GW2_2FA_Handler::instance();
-		// Add AJAX handler for regenerating backup codes
-		add_action( 'wp_ajax_gw2_regenerate_backup_codes', array( $this, 'ajax_regenerate_backup_codes' ) );
-		$this->handler = GW2_2FA_Handler::instance();
 
-		// Add 2FA section to user profile
+		// Add AJAX handler for regenerating backup codes.
+		add_action( 'wp_ajax_gw2_regenerate_backup_codes', array( $this, 'ajax_regenerate_backup_codes' ) );
+
+		// Add 2FA section to user profile.
 		add_action( 'show_user_profile', array( $this, 'add_2fa_profile_section' ) );
 		add_action( 'edit_user_profile', array( $this, 'add_2fa_profile_section' ) );
 
-		// Handle 2FA form submission
+		// Handle 2FA form submission.
 		add_action( 'personal_options_update', array( $this, 'save_2fa_settings' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'save_2fa_settings' ) );
-
-		// Enqueue scripts and styles
+		// Enqueue scripts and styles.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
-	 * Add 2FA section to user profile
+	 * Add 2FA section to user profile.
 	 *
-	 * @param WP_User $user
-	 */
-	/**
-	 * Add 2FA section to user profile
-	 *
-	 * @param WP_User $user
+	 * @param WP_User $user The user object.
 	 * @return void
 	 */
-	public function add_2fa_profile_section( \WP_User $user ): void {
-		if ( ! is_object( $user ) || ! isset( $user->ID ) || ! is_int( $user->ID ) || ! current_user_can( 'edit_user', $user->ID ) ) {
+	public function add_2fa_profile_section( WP_User $user ): void {
+		if ( ! current_user_can( 'edit_user', $user->ID ) ) {
 			return;
 		}
 		$is_enabled   = $this->handler->is_2fa_enabled( $user->ID );
 		$backup_codes = $this->handler->get_backup_codes_for_user( $user->ID );
-		// Generate a new secret if 2FA is being set up
+		// Generate a new secret if 2FA is being set up.
 		$secret      = '';
 		$qr_code_url = '';
 		$show_setup  = false;
 		if ( isset( $_GET['setup-2fa'] ) && ! $is_enabled ) {
 			$secret      = $this->handler->generate_secret();
-			$qr_code_url = $this->handler->get_qr_code_url( $secret, isset( $user->user_login ) && is_string( $user->user_login ) ? $user->user_login : '' ); // $qr_code_url will be escaped on output
+			$qr_code_url = $this->handler->get_qr_code_url( $secret, isset( $user->user_login ) && is_string( $user->user_login ) ? $user->user_login : '' ); // $qr_code_url will be escaped on output.
 			$show_setup  = true;
 		}
 		?>
@@ -143,25 +147,25 @@ class GW2_2FA_Admin {
 	 * Save 2FA settings
 	 *
 	 * @param int $user_id
-	 */
-	/**
-	 * Save 2FA settings
-	 *
-	 * @param int $user_id
-	 * @return void
-	 */
+	 */ /**
+		 * Save 2FA settings.
+		 *
+		 * @param int $user_id The user ID.
+		 * @return void
+		 */
 	public function save_2fa_settings( int $user_id ): void {
-		if ( ! is_int( $user_id ) || $user_id <= 0 ) {
+		if ( 0 >= $user_id ) {
 			return;
 		}
-		if ( ! isset( $_POST['gw2_2fa_profile_nonce'] ) || ! wp_verify_nonce( $_POST['gw2_2fa_profile_nonce'], 'gw2_2fa_profile_action' ) ) {
+		$nonce = isset( $_POST['gw2_2fa_profile_nonce'] ) && is_string( $_POST['gw2_2fa_profile_nonce'] ) ? sanitize_key( wp_unslash( $_POST['gw2_2fa_profile_nonce'] ) ) : '';
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'gw2_2fa_profile_action' ) ) {
 			return;
 		}
-		// Handle enabling 2FA
+		// Handle enabling 2FA.
 		if ( isset( $_POST['enable_2fa'] ) && isset( $_POST['2fa_secret'] ) && isset( $_POST['2fa_code'] ) ) {
-			$secret = isset( $_POST['2fa_secret'] ) ? sanitize_text_field( $_POST['2fa_secret'] ) : '';
-			$code   = isset( $_POST['2fa_code'] ) ? sanitize_text_field( $_POST['2fa_code'] ) : '';
-			if ( ! is_string( $secret ) || ! is_string( $code ) || $secret === '' || $code === '' ) {
+			$secret = isset( $_POST['2fa_secret'] ) && is_string( $_POST['2fa_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['2fa_secret'] ) ) : '';
+			$code   = isset( $_POST['2fa_code'] ) && is_string( $_POST['2fa_code'] ) ? sanitize_text_field( wp_unslash( $_POST['2fa_code'] ) ) : '';
+			if ( '' === $secret || '' === $code ) {
 				add_action(
 					'user_profile_update_errors',
 					function ( $errors ) {
@@ -198,9 +202,7 @@ class GW2_2FA_Admin {
 					}
 				);
 			}
-		}
-		// Handle disabling 2FA
-		elseif ( isset( $_POST['disable_2fa'] ) ) {
+		} elseif ( isset( $_POST['disable_2fa'] ) ) {
 			$result = $this->handler->disable_2fa( $user_id );
 			if ( is_wp_error( $result ) ) {
 				add_action(
@@ -221,19 +223,15 @@ class GW2_2FA_Admin {
 			}
 		}
 	}
-
 	/**
-	 * Enqueue scripts and styles
-	 */
-	/**
-	 * Enqueue scripts and styles
+	 * Enqueue scripts and styles.
 	 *
-	 * @param string $hook
+	 * @param string $hook The current admin page hook.
 	 * @return void
 	 */
 	public function enqueue_scripts( string $hook ): void {
 		$current_user_id = get_current_user_id();
-		if ( $hook !== 'profile.php' && $hook !== 'user-edit.php' ) {
+		if ( 'profile.php' !== $hook && 'user-edit.php' !== $hook ) {
 			return;
 		}
 
@@ -268,25 +266,23 @@ class GW2_2FA_Admin {
 			)
 		);
 	}
-
 	/**
-	 * AJAX handler for regenerating backup codes
-	 */
-	/**
-	 * AJAX handler for regenerating backup codes
+	 * AJAX handler for regenerating backup codes.
 	 *
 	 * @return void
 	 */
 	public function ajax_regenerate_backup_codes(): void {
-		// Check nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'gw2_2fa_nonce' ) ) {
+		// Check nonce.
+		$nonce = isset( $_POST['nonce'] ) && is_string( $_POST['nonce'] ) ? sanitize_key( wp_unslash( $_POST['nonce'] ) ) : '';
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'gw2_2fa_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security verification failed.', 'gw2-guild-login' ) ), 403 );
 		}
-		$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
-		if ( ! is_int( $user_id ) || $user_id <= 0 || $user_id !== get_current_user_id() ) {
+		$user_id_raw = isset( $_POST['user_id'] ) && is_string( $_POST['user_id'] ) ? sanitize_text_field( wp_unslash( $_POST['user_id'] ) ) : '0';
+		$user_id     = is_numeric( $user_id_raw ) ? intval( $user_id_raw ) : 0;
+		if ( 0 >= $user_id || get_current_user_id() !== $user_id ) {
 			wp_send_json_error( array( 'message' => __( 'Unauthorized.', 'gw2-guild-login' ) ), 403 );
 		}
-		// Generate and set new backup codes
+		// Generate and set new backup codes.
 		$codes  = $this->handler->generate_backup_codes();
 		$result = $this->handler->set_backup_codes_for_user( $user_id, $codes );
 		if ( is_wp_error( $result ) ) {

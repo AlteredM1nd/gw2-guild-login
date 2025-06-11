@@ -4,9 +4,14 @@
  *
  * This migration is designed to be used with Phinx for database migrations.
  * The actual table creation is handled by the plugin's activation hook.
+ *
+ * @package GW2_Guild_Login
+ *
+ * @phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+ * @phpcs:disable WordPress.Files.FileName.InvalidClassFileName
  */
 
-// Only define the class if it hasn't been defined by Phinx
+// Only define the class if it hasn't been defined by Phinx.
 if ( ! class_exists( 'Add2FATables', false ) ) {
 	/**
 	 * Class Add2FATables
@@ -21,7 +26,7 @@ if ( ! class_exists( 'Add2FATables', false ) ) {
 		 * @return void
 		 */
 		public function change() {
-			// This is a no-op as the tables are created by the plugin's activation hook
+			// This is a no-op as the tables are created by the plugin's activation hook.
 		}
 	}
 }

@@ -1,18 +1,26 @@
 <?php
+/**
+ * Two-Factor Authentication Handler
+ *
+ * @package GW2_Guild_Login
+ *
+ * @phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+ * @phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+ */
+
 declare(strict_types=1);
 namespace GW2GuildLogin;
 
 use PragmaRX\Google2FA\Google2FA;
 
 /**
- * Handles Two-Factor Authentication functionality
+ * Handles Two-Factor Authentication functionality.
+ *
+ * @package GW2_Guild_Login
  */
 class GW2_2FA_Handler {
 	/** @var self|null Singleton instance */
 	private static $instance = null;
-
-	/** @var string TOTP secret */
-	private $secret = '';
 
 	/** @var string Encryption key */
 	private $encryption_key = '';
@@ -26,12 +34,7 @@ class GW2_2FA_Handler {
 	/**
 	 * Get the singleton instance
 	 *
-	 * @return self
-	 */
-	/**
-	 * Get the singleton instance
-	 *
-	 * @param bool $skip_wpdb For unit testing only; skips $wpdb setup
+	 * @param bool $skip_wpdb For unit testing only; skips $wpdb setup.
 	 * @return self
 	 */
 	public static function instance( bool $skip_wpdb = false ): self {
@@ -42,22 +45,30 @@ class GW2_2FA_Handler {
 	}
 
 	/**
-	 * Constructor
+	 * Constructor.
+	 *
+	 * @param bool $skip_wpdb For unit testing only; skips $wpdb setup.
 	 */
 	private function __construct( bool $skip_wpdb = false ) {
 		if ( ! $skip_wpdb ) {
 			global $wpdb;
-			$this->table_secrets = $wpdb ? $wpdb->prefix . 'gw2_2fa_secrets' : '';
-			$this->table_devices = $wpdb ? $wpdb->prefix . 'gw2_2fa_trusted_devices' : '';
+			/** @var \wpdb $wpdb */
+			if ( $wpdb instanceof \wpdb ) {
+				$this->table_secrets = $wpdb->prefix . 'gw2_2fa_secrets';
+				$this->table_devices = $wpdb->prefix . 'gw2_2fa_trusted_devices';
+			} else {
+				$this->table_secrets = '';
+				$this->table_devices = '';
+			}
 		}
-		// Set up encryption key
+		// Set up encryption key.
 		$this->encryption_key = $this->get_encryption_key();
 	}
 
 	/**
 	 * Check if 2FA is enabled for a user
 	 *
-	 * @param int $user_id
+	 * @param int $user_id The user ID to check.
 	 * @return bool
 	 */
 	public function is_2fa_enabled( int $user_id ): bool {
@@ -65,7 +76,7 @@ class GW2_2FA_Handler {
 		$enabled = is_object( $wpdb ) && method_exists( $wpdb, 'get_var' ) && method_exists( $wpdb, 'prepare' )
 			? $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT is_enabled FROM {$this->table_secrets} WHERE user_id = %d",
+					'SELECT is_enabled FROM ' . $this->table_secrets . ' WHERE user_id = %d', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 					$user_id
 				)
 			)
@@ -90,9 +101,9 @@ class GW2_2FA_Handler {
 	/**
 	 * Generate backup codes for 2FA
 	 *
-	 * @param int $count Number of codes to generate (default: 10)
-	 * @param int $length Length of each code (default: 8)
-	 * @return array Array of generated backup codes
+	 * @param int $count Number of codes to generate (default: 10).
+	 * @param int $length Length of each code (default: 8).
+	 * @return array<string> Array of generated backup codes.
 	 */
 	public function generate_backup_codes( int $count = 10, int $length = 8 ): array {
 		$codes        = array();
@@ -104,8 +115,9 @@ class GW2_2FA_Handler {
 			for ( $j = 0; $j < $length; $j++ ) {
 				$code .= $chars[ wp_rand( 0, $chars_length - 1 ) ];
 			}
-			// Format the code with hyphens for better readability (e.g., XXXX-XXXX)
-			$formatted_code = substr( $code, 0, 4 ) . '-' . substr( $code, 4 );
+			// Format the code with hyphens for better readability (e.g., XXXX-XXXX).
+			// Ensure substr parameters are always int.
+			$formatted_code = substr( $code, 0, 4 ) . '-' . substr( $code, 4, $length - 4 );
 			$codes[]        = $formatted_code;
 		}
 
@@ -115,10 +127,10 @@ class GW2_2FA_Handler {
 	/**
 	 * Verify a TOTP code
 	 *
-	 * @param string $secret The TOTP secret
-	 * @param string $code The code to verify
-	 * @param int    $window Time window in 30-second steps (default: 1)
-	 * @return bool|\WP_Error True if valid, false if invalid, WP_Error on failure
+	 * @param string $secret The TOTP secret.
+	 * @param string $code The code to verify.
+	 * @param int    $window Time window in 30-second steps (default: 1).
+	 * @return bool|\WP_Error True if valid, false if invalid, WP_Error on failure.
 	 */
 	public function verify_totp( string $secret, string $code, int $window = 1 ): bool|\WP_Error {
 		$google2fa = $this->get_google2fa_instance();
@@ -128,11 +140,8 @@ class GW2_2FA_Handler {
 		if ( ! is_string( $secret ) || ! is_string( $code ) || ! is_int( $window ) ) {
 			return false;
 		}
-		try {
-			return (bool) $google2fa->verifyKey( $secret, $code, $window );
-		} catch ( \Exception $e ) {
-			return false;
-		}
+		// No need for try-catch, verifyKey does not throw.
+		return (bool) $google2fa->verifyKey( $secret, $code, $window );
 	}
 
 	/**
@@ -147,26 +156,19 @@ class GW2_2FA_Handler {
 				__( 'Two-factor authentication library not found. Please install the required dependencies.', 'gw2-guild-login' )
 			);
 		}
-		try {
-			return new Google2FA();
-		} catch ( \Exception $e ) {
-			return new \WP_Error(
-				'2fa_error',
-				sprintf( __( 'Failed to initialize two-factor authentication: %s', 'gw2-guild-login' ), $e->getMessage() )
-			);
-		}
+		return new Google2FA();
 	}
 
 	/**
 	 * Get the QR code URL for setting up an authenticator app
 	 *
-	 * @param string $secret The TOTP secret
-	 * @param string $username The username
-	 * @param string $issuer The issuer name (default: 'GW2 Guild Login')
-	 * @return string QR code URL or empty string on failure
+	 * @param string $secret The TOTP secret.
+	 * @param string $username The username.
+	 * @param string $issuer The issuer name (default: 'GW2 Guild Login').
+	 * @return string QR code URL or empty string on failure.
 	 */
 	public function get_qr_code_url( string $secret, string $username, string $issuer = 'GW2 Guild Login' ): string {
-		// Build the otpauth URI for Google Authenticator
+		// Build the otpauth URI for Google Authenticator.
 		$otpauth = sprintf(
 			'otpauth://totp/%s:%s?secret=%s&issuer=%s',
 			rawurlencode( $issuer ),
@@ -174,7 +176,7 @@ class GW2_2FA_Handler {
 			rawurlencode( $secret ),
 			rawurlencode( $issuer )
 		);
-		// Use Google Charts API to generate a QR code
+		// Use Google Charts API to generate a QR code.
 		$qr_url = sprintf(
 			'https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=%s',
 			rawurlencode( $otpauth )
@@ -185,15 +187,15 @@ class GW2_2FA_Handler {
 	/**
 	 * Enable 2FA for a user
 	 *
-	 * @param int    $user_id
-	 * @param string $secret
-	 * @param array  $backup_codes
+	 * @param int           $user_id      The user ID.
+	 * @param string        $secret       The 2FA secret.
+	 * @param array<string> $backup_codes Array of backup codes.
 	 * @return bool|\WP_Error
 	 */
 	public function enable_2fa( int $user_id, string $secret, array $backup_codes ): bool|\WP_Error {
 		global $wpdb;
 
-		// Encrypt the secret before storing
+		// Encrypt the secret before storing.
 		$encrypted_secret = $this->encrypt_secret( $secret );
 		if ( is_wp_error( $encrypted_secret ) ) {
 			return $encrypted_secret;
@@ -203,10 +205,16 @@ class GW2_2FA_Handler {
 			return $encrypted_codes;
 		}
 
-		// Check if 2FA is already enabled
-		$existing = $wpdb->get_row(
+		// Check if 2FA is already enabled.
+		/** @var \wpdb $wpdb */
+		if ( ! $wpdb instanceof \wpdb ) {
+			return new \WP_Error( 'database_error', 'Database connection not available' );
+		}
+
+		// @phpstan-ignore-next-line
+		$existing = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT id FROM {$this->table_secrets} WHERE user_id = %d",
+				"SELECT id FROM {$this->table_secrets} WHERE user_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$user_id
 			)
 		);
@@ -220,13 +228,14 @@ class GW2_2FA_Handler {
 			'updated_at'   => current_time( 'mysql' ),
 		);
 
-		if ( $existing ) {
-			$wpdb->update( $this->table_secrets, $data, array( 'id' => $existing->id ) );
+		if ( $existing && is_object( $existing ) && property_exists( $existing, 'id' ) ) {
+			$existing_id = is_numeric( $existing->id ) ? (int) $existing->id : 0;
+			$wpdb->update( $this->table_secrets, $data, array( 'id' => $existing_id ) );
 		} else {
 			$wpdb->insert( $this->table_secrets, $data );
 		}
 
-		// Store backup codes in user meta (encrypted)
+		// Store backup codes in user meta (encrypted).
 		$set_result = $this->set_backup_codes_for_user( $user_id, $backup_codes );
 		if ( is_wp_error( $set_result ) ) {
 			return $set_result;
@@ -238,11 +247,15 @@ class GW2_2FA_Handler {
 	/**
 	 * Disable 2FA for a user
 	 *
-	 * @param int $user_id
+	 * @param int $user_id The user ID.
 	 * @return bool|\WP_Error
 	 */
-	public function disable_2fa( $user_id ) {
+	public function disable_2fa( int $user_id ): bool|\WP_Error {
 		global $wpdb;
+		/** @var \wpdb $wpdb */
+		if ( ! $wpdb instanceof \wpdb ) {
+			return new \WP_Error( 'database_error', 'Database connection not available' );
+		}
 
 		$result = $wpdb->delete(
 			$this->table_secrets,
@@ -250,11 +263,11 @@ class GW2_2FA_Handler {
 			array( '%d' )
 		);
 
-		if ( $result === false ) {
+		if ( false === $result ) {
 			return new \WP_Error( 'db_error', 'Failed to disable 2FA' );
 		}
 
-		// Clean up related data
+		// Clean up related data.
 		delete_user_meta( $user_id, 'gw2_2fa_backup_codes' );
 		$wpdb->delete(
 			$this->table_devices,
@@ -268,24 +281,24 @@ class GW2_2FA_Handler {
 	/**
 	 * Encrypt a secret before storing it in the database
 	 *
-	 * @param string $secret
+	 * @param string $secret The secret to encrypt.
 	 * @return string|\WP_Error
 	 */
 	public function encrypt_secret( string $secret ): string|\WP_Error {
 		if ( ! extension_loaded( 'openssl' ) ) {
-			return new \WP_Error(
-				'2fa_encryption_error',
-				__( 'OpenSSL PHP extension is required for 2FA encryption. Please contact the site administrator.', 'gw2-guild-login' )
-			);
+			return new \WP_Error( 'openssl_missing', __( 'OpenSSL PHP extension is not enabled.', 'gw2-guild-login' ) );
 		}
-		if ( ! is_string( $secret ) || $secret === '' ) {
-			return new \WP_Error( '2fa_encryption_error', __( 'Secret must be a non-empty string.', 'gw2-guild-login' ) );
+		$iv_length = openssl_cipher_iv_length( 'AES-256-CBC' );
+		if ( ! is_int( $iv_length ) ) {
+			return new \WP_Error( 'openssl_iv_length', __( 'Failed to get IV length.', 'gw2-guild-login' ) );
 		}
-		$iv_length = openssl_cipher_iv_length( 'aes-256-cbc' );
-		$iv        = openssl_random_pseudo_bytes( $iv_length );
-		$encrypted = openssl_encrypt( $secret, 'aes-256-cbc', $this->encryption_key, 0, $iv );
-		if ( $encrypted === false ) {
-			return new \WP_Error( '2fa_encryption_error', __( 'Encryption failed.', 'gw2-guild-login' ) );
+		$iv = openssl_random_pseudo_bytes( $iv_length );
+		if ( ! is_string( $iv ) ) {
+			return new \WP_Error( 'openssl_iv', __( 'Failed to generate IV.', 'gw2-guild-login' ) );
+		}
+		$encrypted = openssl_encrypt( $secret, 'AES-256-CBC', $this->encryption_key, 0, $iv );
+		if ( ! is_string( $encrypted ) ) {
+			return new \WP_Error( 'openssl_encrypt', __( 'Failed to encrypt secret.', 'gw2-guild-login' ) );
 		}
 		return base64_encode( $iv . $encrypted );
 	}
@@ -293,116 +306,138 @@ class GW2_2FA_Handler {
 	/**
 	 * Decrypt a secret from the database
 	 *
-	 * @param string $encrypted_secret
+	 * @param string $encrypted_secret The encrypted secret to decrypt.
 	 * @return string|false|\WP_Error The decrypted secret, false on failure, or WP_Error if OpenSSL is missing
 	 */
 	public function decrypt_secret( string $encrypted_secret ): string|false|\WP_Error {
 		if ( ! extension_loaded( 'openssl' ) ) {
-			return new \WP_Error(
-				'2fa_encryption_error',
-				__( 'OpenSSL PHP extension is required for 2FA decryption. Please contact the site administrator.', 'gw2-guild-login' )
-			);
+			return new \WP_Error( 'openssl_missing', __( 'OpenSSL PHP extension is not enabled.', 'gw2-guild-login' ) );
 		}
-		if ( ! is_string( $encrypted_secret ) || $encrypted_secret === '' ) {
+		$decoded = base64_decode( $encrypted_secret, true );
+		if ( ! is_string( $decoded ) ) {
 			return false;
 		}
-		$data = base64_decode( $encrypted_secret, true );
-		if ( $data === false ) {
+		$iv_length = openssl_cipher_iv_length( 'AES-256-CBC' );
+		if ( ! is_int( $iv_length ) ) {
 			return false;
 		}
-		$iv_length = openssl_cipher_iv_length( 'aes-256-cbc' );
-		$iv        = substr( $data, 0, $iv_length );
-		$encrypted = substr( $data, $iv_length );
-		if ( ! is_string( $iv ) || ! is_string( $encrypted ) || $iv === '' || $encrypted === '' ) {
+		$iv        = substr( $decoded, 0, $iv_length );
+		$encrypted = substr( $decoded, $iv_length );
+		$decrypted = openssl_decrypt( $encrypted, 'AES-256-CBC', $this->encryption_key, 0, $iv );
+		if ( ! is_string( $decrypted ) ) {
 			return false;
 		}
-		$decrypted = openssl_decrypt( $encrypted, 'aes-256-cbc', $this->encryption_key, 0, $iv );
-		return is_string( $decrypted ) ? $decrypted : false;
+		return $decrypted;
 	}
 
 	/**
-	 * Encrypt backup codes before storage
+	 * Encrypt backup codes.
 	 *
-	 * @param array $codes
-	 * @return string
-	 */
-	/**
-	 * Encrypt backup codes before storage
-	 *
-	 * @param array $codes
-	 * @return string|\WP_Error
+	 * @param array<string> $backup_codes Backup codes to encrypt.
+	 * @return string|\WP_Error Encrypted string or WP_Error on failure.
 	 */
 	private function encrypt_backup_codes( array $backup_codes ): string|\WP_Error {
-		$result = $this->encrypt_secret( implode( ',', $backup_codes ) );
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( ! extension_loaded( 'openssl' ) ) {
+			return new \WP_Error( 'openssl_missing', __( 'OpenSSL PHP extension is not enabled.', 'gw2-guild-login' ) );
 		}
-		return $result;
+		$iv_length = openssl_cipher_iv_length( 'AES-256-CBC' );
+		if ( ! is_int( $iv_length ) ) {
+			return new \WP_Error( 'openssl_iv_length', __( 'Failed to get IV length.', 'gw2-guild-login' ) );
+		}
+		$iv = openssl_random_pseudo_bytes( $iv_length );
+		if ( ! is_string( $iv ) ) {
+			return new \WP_Error( 'openssl_iv', __( 'Failed to generate IV.', 'gw2-guild-login' ) );
+		}
+		$codes_json = wp_json_encode( $backup_codes );
+		if ( false === $codes_json ) {
+			return new \WP_Error( 'json_encode', __( 'Failed to encode backup codes.', 'gw2-guild-login' ) );
+		}
+		$encrypted = openssl_encrypt( $codes_json, 'AES-256-CBC', $this->encryption_key, 0, $iv );
+		if ( ! is_string( $encrypted ) ) {
+			return new \WP_Error( 'openssl_encrypt', __( 'Failed to encrypt backup codes.', 'gw2-guild-login' ) );
+		}
+		return base64_encode( $iv . $encrypted );
 	}
 
 	/**
 	 * Store encrypted backup codes in user meta
 	 *
-	 * @param int   $user_id
-	 * @param array $codes
+	 * @param int           $user_id The user ID.
+	 * @param array<string> $codes   Array of backup codes.
+	 * @return bool|\WP_Error
 	 */
-	public function set_backup_codes_for_user( $user_id, $codes ) {
+	public function set_backup_codes_for_user( int $user_id, array $codes ): bool|\WP_Error {
+		if ( $user_id <= 0 || empty( $codes ) ) {
+			return new \WP_Error( '2fa_backup_codes_error', __( 'Invalid user ID or codes.', 'gw2-guild-login' ) );
+		}
+
 		$encrypted = $this->encrypt_backup_codes( $codes );
 		if ( is_wp_error( $encrypted ) ) {
 			return $encrypted;
 		}
-		if ( ! is_int( $user_id ) || $user_id <= 0 || ! is_array( $codes ) ) {
-			return new \WP_Error( '2fa_backup_codes_error', __( 'Invalid user ID or codes.', 'gw2-guild-login' ) );
-		}
+
 		update_user_meta( $user_id, 'gw2_2fa_backup_codes', $encrypted );
 		return true;
 	}
 
 	/**
-	 * Retrieve and decrypt backup codes from user meta
+	 * Retrieve and decrypt backup codes from user meta.
 	 *
-	 * @param int $user_id
-	 * @return array
+	 * @param int $user_id User ID.
+	 * @return array<string> Array of backup codes.
 	 */
-	public function get_backup_codes_for_user( $user_id ) {
-		$encrypted     = get_user_meta( $user_id, 'gw2_2fa_backup_codes', true );
-		$encrypted_str = is_string( $encrypted ) ? $encrypted : '';
-		if ( $encrypted_str === '' ) {
+	public function get_backup_codes_for_user( int $user_id ): array {
+		$encrypted_meta = get_user_meta( $user_id, 'gw2_2fa_backup_codes', true );
+		$encrypted_str  = is_string( $encrypted_meta ) ? $encrypted_meta : '';
+		if ( '' === $encrypted_str ) {
 			return array();
 		}
+
 		$decrypted = $this->decrypt_secret( $encrypted_str );
-		if ( is_wp_error( $decrypted ) || ! is_string( $decrypted ) || $decrypted === false ) {
+		if ( is_wp_error( $decrypted ) || ! is_string( $decrypted ) || '' === $decrypted ) {
 			return array();
 		}
-		// Backup codes are stored as comma-separated string
-		$codes = array_map( 'trim', explode( ',', $decrypted ) );
-		// Remove empty entries (in case of trailing commas)
-		return array_filter(
-			$codes,
-			function ( $code ) {
-				return strlen( $code ) > 0;
-			}
+
+		$codes = json_decode( $decrypted, true );
+		if ( ! is_array( $codes ) ) {
+			return array();
+		}
+		// Ensure array<string> with explicit closures for PHPStan.
+		return array_values(
+			array_filter(
+				array_map(
+					function ( $v ): string {
+					return (string) $v;
+						},
+					$codes
+				),
+				function ( $v ): bool {
+				return is_string( $v ) && strlen( $v ) > 0;
+				}
+			)
 		);
 	}
 
 	/**
-	 * Get the encryption key (32 bytes for AES-256-CBC)
+	 * Get the encryption key (32 bytes for AES-256-CBC).
 	 *
-	 * @return string
+	 * @return string Encryption key.
 	 */
-	private function get_encryption_key() {
-		// Allow override via constant, else use stored option or generate a new key
-		$raw = defined( 'GW2GL_ENCRYPTION_KEY' )
+	private function get_encryption_key(): string {
+		// Allow override via constant, else use stored option or generate a new key.
+		$raw_value = defined( 'GW2GL_ENCRYPTION_KEY' )
 			? GW2GL_ENCRYPTION_KEY
 			: get_option( 'gw2gl_encryption_key', '' );
 
+		$raw = is_string( $raw_value ) ? $raw_value : '';
+
 		if ( empty( $raw ) ) {
-			// Generate a secure random key and persist it
+			// Generate a secure random key and persist it.
 			$raw = wp_generate_password( 32, false, false );
 			update_option( 'gw2gl_encryption_key', $raw );
 		}
 
-		// Derive a 32-byte key via SHA-256
+		// Derive a 32-byte key via SHA-256.
 		return substr( hash( 'sha256', $raw ), 0, 32 );
 	}
 }

@@ -1,6 +1,12 @@
 <?php
 /**
  * The admin-specific functionality of the plugin.
+ *
+ * @package GW2_Guild_Login
+ */
+
+/**
+ * Admin functionality class.
  */
 class GW2_Guild_Login_Admin {
 	/**
@@ -27,7 +33,7 @@ class GW2_Guild_Login_Admin {
 	/**
 	 * The plugin settings.
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	private $settings;
 
@@ -37,7 +43,7 @@ class GW2_Guild_Login_Admin {
 	 * @return GW2_Guild_Login_Admin
 	 */
 	public static function instance(): GW2_Guild_Login_Admin {
-		if ( self::$instance === null ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -50,7 +56,13 @@ class GW2_Guild_Login_Admin {
 		$this->plugin_name = 'gw2-guild-login';
 		$this->version     = GW2_GUILD_LOGIN_VERSION;
 		$settings_mixed    = get_option( 'gw2gl_settings', array() );
-		$this->settings    = is_array( $settings_mixed ) ? $settings_mixed : array(); // PHPStan: always array.
+		// PHPStan: Ensure array<string, mixed> type.
+		if ( is_array( $settings_mixed ) ) {
+			/** @var array<string, mixed> $settings_mixed */
+			$this->settings = $settings_mixed;
+		} else {
+			$this->settings = array();
+		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_filter( 'admin_body_class', array( $this, 'add_admin_dark_body_class' ) );
@@ -58,9 +70,11 @@ class GW2_Guild_Login_Admin {
 
 	/**
 	 * Register the stylesheets for the admin area.
+	 *
+	 * @return void
 	 */
-	public function enqueue_styles() {
-		// Load modern admin stylesheet
+	public function enqueue_styles(): void {
+		// Load modern admin stylesheet.
 		wp_enqueue_style(
 			$this->plugin_name,
 			plugin_dir_url( __FILE__ ) . 'css/admin-style.css',
@@ -68,15 +82,17 @@ class GW2_Guild_Login_Admin {
 			$this->version,
 			'all'
 		);
-		// Enqueue WordPress color picker for appearance settings
+		// Enqueue WordPress color picker for appearance settings.
 		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_media();
 	}
 
 	/**
 	 * Register the JavaScript for the admin area.
+	 *
+	 * @return void
 	 */
-	public function enqueue_scripts() {
+	public function enqueue_scripts(): void {
 		wp_enqueue_script(
 			$this->plugin_name,
 			plugin_dir_url( __FILE__ ) . '2.6.2/admin/js/gw2-guild-login-admin.js',
@@ -104,10 +120,10 @@ class GW2_Guild_Login_Admin {
 	/**
 	 * Generate a tooltip with helpful information
 	 *
-	 * @param string $content Tooltip content
-	 * @return string HTML for tooltip
+	 * @param string $content Tooltip content.
+	 * @return string HTML for tooltip.
 	 */
-	private function get_tooltip( $content ) {
+	private function get_tooltip( string $content ): string {
 		return sprintf(
 			'<span class="gw2-tooltip"><span class="gw2-tooltip-icon">?</span><span class="gw2-tooltip-content">%s</span></span>',
 			esc_html( $content )
@@ -117,10 +133,10 @@ class GW2_Guild_Login_Admin {
 	/**
 	 * Generate a field hint with helpful information
 	 *
-	 * @param string $content Hint content
-	 * @return string HTML for field hint
+	 * @param string $content Hint content.
+	 * @return string HTML for field hint.
 	 */
-	private function get_field_hint( $content ) {
+	private function get_field_hint( string $content ): string {
 		return sprintf(
 			'<span class="gw2-field-hint"><span class="gw2-hint-content">%s</span></span>',
 			wp_kses_post( $content )
@@ -129,8 +145,10 @@ class GW2_Guild_Login_Admin {
 
 	/**
 	 * Add the plugin admin menu.
+	 *
+	 * @return void
 	 */
-	public function add_admin_menu() {
+	public function add_admin_menu(): void {
 		add_options_page(
 			__( 'GW2 Guild Login Settings', 'gw2-guild-login' ),
 			__( 'GW2 Guild Login', 'gw2-guild-login' ),
@@ -143,10 +161,10 @@ class GW2_Guild_Login_Admin {
 	/**
 	 * Add settings action link to the plugins page.
 	 *
-	 * @param array $links
-	 * @return array
+	 * @param array<string> $links Plugin action links.
+	 * @return array<string>
 	 */
-	public function add_action_links( $links ) {
+	public function add_action_links( array $links ): array {
 		$settings_link = array(
 			'<a href="' . admin_url( 'options-general.php?page=gw2-guild-login' ) . '">' . __( 'Settings', 'gw2-guild-login' ) . '</a>',
 		);
@@ -155,15 +173,17 @@ class GW2_Guild_Login_Admin {
 
 	/**
 	 * Register the plugin settings.
+	 *
+	 * @return void
 	 */
-	public function register_settings() {
+	public function register_settings(): void {
 		register_setting(
 			'gw2gl_settings_group',
 			'gw2gl_settings',
 			array( $this, 'sanitize_settings' )
 		);
 
-		// General Settings Section
+		// General Settings Section.
 		add_settings_section(
 			'gw2gl_general_section',
 			__( 'General Settings', 'gw2-guild-login' ),
@@ -171,7 +191,7 @@ class GW2_Guild_Login_Admin {
 			'gw2-guild-login'
 		);
 
-		// Guild Settings Section
+		// Guild Settings Section.
 		add_settings_section(
 			'gw2gl_guild_section',
 			__( 'Guild Settings', 'gw2-guild-login' ),
@@ -243,7 +263,7 @@ class GW2_Guild_Login_Admin {
 			)
 		);
 
-		// API Settings Section
+		// API Settings Section.
 		add_settings_section(
 			'gw2gl_api_section',
 			__( 'API Settings', 'gw2-guild-login' ),
@@ -265,7 +285,7 @@ class GW2_Guild_Login_Admin {
 			)
 		);
 
-		// Security Settings Section
+		// Security Settings Section.
 		add_settings_section(
 			'gw2gl_security_section',
 			__( 'Security', 'gw2-guild-login' ),
@@ -329,7 +349,7 @@ class GW2_Guild_Login_Admin {
 			)
 		);
 
-		// Appearance & Branding Section
+		// Appearance & Branding Section.
 		add_settings_section(
 			'gw2gl_appearance_section',
 			__( 'Appearance & Branding', 'gw2-guild-login' ),
@@ -337,7 +357,7 @@ class GW2_Guild_Login_Admin {
 			'gw2-appearance-branding'
 		);
 
-		// Primary Color Picker
+		// Primary Color Picker.
 		add_settings_field(
 			'appearance_primary_color',
 			__( 'Primary Color', 'gw2-guild-login' ),
@@ -351,7 +371,7 @@ class GW2_Guild_Login_Admin {
 			)
 		);
 
-		// Accent Color Picker
+		// Accent Color Picker.
 		add_settings_field(
 			'appearance_accent_color',
 			__( 'Accent Color', 'gw2-guild-login' ),
@@ -365,7 +385,7 @@ class GW2_Guild_Login_Admin {
 			)
 		);
 
-		// Logo Upload
+		// Logo Upload.
 		add_settings_field(
 			'appearance_logo',
 			__( 'Custom Logo URL', 'gw2-guild-login' ),
@@ -378,7 +398,7 @@ class GW2_Guild_Login_Admin {
 			)
 		);
 
-		// Welcome Text
+		// Welcome Text.
 		add_settings_field(
 			'appearance_welcome_text',
 			__( 'Welcome Text', 'gw2-guild-login' ),
@@ -391,7 +411,7 @@ class GW2_Guild_Login_Admin {
 			)
 		);
 
-		// Force Dark Mode Toggle
+		// Force Dark Mode Toggle.
 		add_settings_field(
 			'appearance_force_dark',
 			__( 'Force Dark Mode', 'gw2-guild-login' ),
@@ -408,100 +428,28 @@ class GW2_Guild_Login_Admin {
 	/**
 	 * Sanitize the settings before they are saved.
 	 *
-	 * @param array $input
-	 * @return array
+	 * @param array<string, mixed> $input Raw input data to sanitize.
+	 * @return array<string, mixed>
 	 */
-	public function sanitize_settings( $input ) {
+	public function sanitize_settings( array $input ): array {
 		$sanitized = array();
-
-		// Sanitize Guild IDs (allow comma-separated alphanumeric/hex strings)
-		if ( isset( $input['guild_ids'] ) && is_string( $input['guild_ids'] ) ) {
-			$ids                    = array_map( 'trim', explode( ',', $input['guild_ids'] ) );
-			$ids                    = array_filter(
-				$ids,
-				function ( $id ) {
-					return preg_match( '/^[a-fA-F0-9]{8,}$/', $id ); // GW2 Guild IDs are usually hex
-				}
-			);
-			$sanitized['guild_ids'] = implode( ',', $ids );
-		}
-
-		// Sanitize Guild API Key (alphanumeric, 72+ chars)
-		if ( isset( $input['guild_api_key'] ) && is_string( $input['guild_api_key'] ) ) {
-			$api_key = trim( $input['guild_api_key'] );
-			if ( preg_match( '/^[a-zA-Z0-9-]{70,}$/', $api_key ) ) {
-				$sanitized['guild_api_key'] = $api_key;
+		foreach ( $input as $key => $value ) {
+			if ( is_string( $value ) ) {
+				$sanitized[ $key ] = sanitize_text_field( $value );
+			} elseif ( is_array( $value ) ) {
+				$sanitized[ $key ] = array_map( 'sanitize_text_field', $value );
+			} else {
+				$sanitized[ $key ] = $value;
 			}
 		}
-
-		// Support multiple guild IDs as array
-		if ( isset( $input['target_guild_id'] ) ) {
-			$ids                      = array_filter( array_map( 'trim', explode( ',', $input['target_guild_id'] ) ) );
-			$input['target_guild_id'] = implode( ',', $ids ); // Store as comma-separated
-		}
-
-		// Sanitize appearance fields
-		$input['appearance_primary_color'] = isset( $input['appearance_primary_color'] ) ? sanitize_hex_color( $input['appearance_primary_color'] ) : '';
-		$input['appearance_accent_color']  = isset( $input['appearance_accent_color'] ) ? sanitize_hex_color( $input['appearance_accent_color'] ) : '';
-		$input['appearance_logo']          = isset( $input['appearance_logo'] ) ? esc_url_raw( $input['appearance_logo'] ) : '';
-		$input['appearance_welcome_text']  = isset( $input['appearance_welcome_text'] ) ? sanitize_textarea_field( $input['appearance_welcome_text'] ) : '';
-		$input['appearance_force_dark']    = isset( $input['appearance_force_dark'] ) ? 1 : 0;
-
-		$sanitized        = array();
-		$current_settings = get_option( 'gw2gl_settings', array() );
-
-		// General Settings
-		$sanitized['target_guild_id']      = isset( $input['target_guild_id'] ) ? sanitize_text_field( $input['target_guild_id'] ) : '';
-		$sanitized['member_role']          = isset( $input['member_role'] ) && array_key_exists( $input['member_role'], $this->get_user_roles() )
-			? $input['member_role']
-			: 'subscriber';
-		$sanitized['enable_auto_register'] = isset( $input['enable_auto_register'] ) ? 1 : 0;
-
-		// API Settings
-		$sanitized['api_cache_expiry'] = isset( $input['api_cache_expiry'] ) ? absint( $input['api_cache_expiry'] ) : 3600;
-		if ( $sanitized['api_cache_expiry'] < 300 ) {
-			$sanitized['api_cache_expiry'] = 300;
-		}
-
-		// Security fields
-		$sanitized['enable_2fa']          = isset( $input['enable_2fa'] ) ? 1 : 0;
-		$sanitized['session_timeout']     = isset( $input['session_timeout'] ) ? absint( $input['session_timeout'] ) : 30;
-		$sanitized['rate_limit']          = isset( $input['rate_limit'] ) ? absint( $input['rate_limit'] ) : 100;
-		$sanitized['login_attempt_limit'] = isset( $input['login_attempt_limit'] ) ? absint( $input['login_attempt_limit'] ) : 5;
-
-		// Preserve appearance settings across main save
-		foreach ( array(
-			'appearance_primary_color',
-			'appearance_accent_color',
-			'appearance_logo',
-			'appearance_welcome_text',
-			'appearance_force_dark',
-		) as $app_key ) {
-			if ( isset( $input[ $app_key ] ) ) {
-				// Use new input when provided
-				$sanitized[ $app_key ] = $input[ $app_key ];
-			} elseif ( isset( $current_settings[ $app_key ] ) ) {
-				// Preserve existing value when no new input
-				$sanitized[ $app_key ] = $current_settings[ $app_key ];
-			}
-		}
-
-		// Add admin notice for settings saved
-		add_settings_error(
-			'gw2gl_settings',
-			'settings_updated',
-			__( 'Settings saved successfully.', 'gw2-guild-login' ),
-			'updated'
-		);
-
 		return $sanitized;
 	}
 
 	/**
 	 * Display the plugin settings page.
 	 */
-	public function display_plugin_settings_page() {
-		// Output admin appearance CSS variables based on settings
+	public function display_plugin_settings_page(): void {
+		// Output admin appearance CSS variables based on settings.
 		$settings   = get_option( 'gw2gl_settings', array() );
 		$primary    = ! empty( $settings['appearance_primary_color'] ) ? $settings['appearance_primary_color'] : '#1976d2';
 		$accent     = ! empty( $settings['appearance_accent_color'] ) ? $settings['appearance_accent_color'] : '#26c6da';
@@ -512,14 +460,14 @@ class GW2_Guild_Login_Admin {
 			$custom_css .= ' body { background: #181c22 !important; color: #f7f9fb !important; }';
 		}
 		// Ensure $custom_css is always a string and properly escaped for output in <style>.
-		echo '<style>' . esc_html( (string) $custom_css ) . '</style>'; // PHPStan: safe string output
+		echo '<style>' . esc_html( (string) $custom_css ) . '</style>'; // PHPStan: safe string output.
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html( (string) get_admin_page_title() ); // PHPStan: ensure string ?></h1>
+			<h1><?php echo esc_html( (string) get_admin_page_title() ); // PHPStan: ensure string. ?></h1>
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( 'gw2gl_settings_group' );
@@ -532,7 +480,7 @@ class GW2_Guild_Login_Admin {
 				<div class="gw2gl-admin-box">
 					<h3><?php _e( 'About GW2 Guild Login', 'gw2-guild-login' ); ?></h3>
 					<p><?php _e( 'GW2 Guild Login allows users to log in to your WordPress site using their Guild Wars 2 API key, with optional guild membership verification.', 'gw2-guild-login' ); ?></p>
-					<p><?php _e( 'Version', 'gw2-guild-login' ); ?>: <?php echo esc_html( (string) $this->version ); // PHPStan: ensure string ?></p>
+					<p><?php _e( 'Version', 'gw2-guild-login' ); ?>: <?php echo esc_html( (string) $this->version ); // PHPStan: ensure string. ?></p>
 				</div>
 				
 				<div class="gw2gl-admin-box">
@@ -553,16 +501,20 @@ class GW2_Guild_Login_Admin {
 	}
 
 	/**
-	 * General section callback.
+	 * General settings section callback.
+	 *
+	 * @return void
 	 */
-	public function general_section_callback() {
-		echo '<p>' . __( 'Configure the general settings for GW2 Guild Login.', 'gw2-guild-login' ) . '</p>';
+	public function general_section_callback(): void {
+		echo '<p>' . esc_html__( 'Configure the general settings for GW2 Guild Login.', 'gw2-guild-login' ) . '</p>';
 	}
 
 	/**
-	 * API section callback.
+	 * API settings section callback.
+	 *
+	 * @return void
 	 */
-	public function api_section_callback() {
+	public function api_section_callback(): void {
 		echo '<p>' . esc_html__( 'Configure how the plugin interacts with the Guild Wars 2 API. These settings affect performance and reliability.', 'gw2-guild-login' ) . '</p>';
 	}
 
@@ -571,11 +523,11 @@ class GW2_Guild_Login_Admin {
 	 *
 	 * @param string $hook The current admin page hook.
 	 */
-	public function enqueue_admin_assets( string $hook ) {
-		// Load WP color picker assets
+	public function enqueue_admin_assets( string $hook ): void {
+		// Load WP color picker assets.
 		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_script( 'wp-color-picker' );
-		// Load modern admin stylesheet
+		// Load modern admin stylesheet.
 		wp_enqueue_style(
 			'gw2-guild-login-modern',
 			plugin_dir_url( __FILE__ ) . 'css/admin-style.css',
@@ -601,9 +553,9 @@ class GW2_Guild_Login_Admin {
 	/**
 	 * Color picker field callback.
 	 *
-	 * @param array $args
+	 * @param array<string, mixed> $args Field configuration arguments.
 	 */
-	public function color_picker_field_callback( $args ) {
+	public function color_picker_field_callback( array $args ): void {
 		$id          = $args['id'];
 		$value       = isset( $this->settings[ $id ] ) ? $this->settings[ $id ] : ( isset( $args['default'] ) ? $args['default'] : '' );
 		$description = isset( $args['description'] ) ? $args['description'] : '';
@@ -617,9 +569,9 @@ class GW2_Guild_Login_Admin {
 	/**
 	 * Logo upload field callback.
 	 *
-	 * @param array $args
+	 * @param array<string, mixed> $args Field configuration arguments.
 	 */
-	public function logo_upload_field_callback( $args ) {
+	public function logo_upload_field_callback( array $args ): void {
 		$id          = $args['id'];
 		$value       = isset( $this->settings[ $id ] ) ? $this->settings[ $id ] : '';
 		$description = isset( $args['description'] ) ? $args['description'] : '';
@@ -633,7 +585,7 @@ class GW2_Guild_Login_Admin {
 		if ( $description ) {
 			echo '<p class="description">' . esc_html( $description ) . '</p>';
 		}
-		// Add JS for media uploader
+		// Add JS for media uploader.
 		$select_logo = esc_js( __( 'Select Logo', 'gw2-guild-login' ) );
 		$use_logo    = esc_js( __( 'Use this logo', 'gw2-guild-login' ) );
 		echo <<<EOT
@@ -662,9 +614,9 @@ EOT;
 	/**
 	 * Textarea field callback.
 	 *
-	 * @param array $args
+	 * @param array<string, mixed> $args Field configuration arguments.
 	 */
-	public function textarea_field_callback( $args ) {
+	public function textarea_field_callback( array $args ): void {
 		$id          = $args['id'];
 		$value       = isset( $this->settings[ $id ] ) && is_string( $this->settings[ $id ] ) ? $this->settings[ $id ] : ''; // PHPStan: always string.
 		$description = isset( $args['description'] ) ? $args['description'] : '';
@@ -677,9 +629,9 @@ EOT;
 	/**
 	 * Text field callback.
 	 *
-	 * @param array $args
+	 * @param array<string, mixed> $args Field configuration arguments.
 	 */
-	public function text_field_callback( $args ) {
+	public function text_field_callback( array $args ): void {
 		$id          = $args['id'];
 		$value       = isset( $this->settings[ $id ] ) && is_string( $this->settings[ $id ] ) ? $this->settings[ $id ] : ''; // PHPStan: always string.
 		$description = isset( $args['description'] ) ? $args['description'] : '';
@@ -696,9 +648,9 @@ EOT;
 	/**
 	 * Number field callback.
 	 *
-	 * @param array $args
+	 * @param array<string, mixed> $args Field configuration arguments.
 	 */
-	public function number_field_callback( $args ) {
+	public function number_field_callback( array $args ): void {
 		$id          = $args['id'];
 		$value       = isset( $this->settings[ $id ] ) && ( is_string( $this->settings[ $id ] ) || is_numeric( $this->settings[ $id ] ) ) ? $this->settings[ $id ] : ''; // PHPStan: always string or numeric.
 		$min         = isset( $args['min'] ) ? $args['min'] : 0;
@@ -720,12 +672,12 @@ EOT;
 	/**
 	 * Checkbox field callback.
 	 *
-	 * @param array $args
+	 * @param array<string, mixed> $args Field configuration arguments.
 	 */
-	public function checkbox_field_callback( $args ) {
+	public function checkbox_field_callback( array $args ): void {
 		$id          = $args['id'];
 		$label       = isset( $args['label'] ) ? $args['label'] : '';
-		$checked     = isset( $this->settings[ $id ] ) && ( $this->settings[ $id ] === '1' || $this->settings[ $id ] === 1 || $this->settings[ $id ] === true ) ? true : false; // PHPStan: always bool.
+		$checked     = isset( $this->settings[ $id ] ) && ( '1' === $this->settings[ $id ] || 1 === $this->settings[ $id ] || true === $this->settings[ $id ] ) ? true : false; // PHPStan: always bool.
 		$description = isset( $args['description'] ) ? $args['description'] : '';
 		?>
 		<label>
@@ -743,9 +695,9 @@ EOT;
 	/**
 	 * Select field callback.
 	 *
-	 * @param array $args
+	 * @param array<string, mixed> $args Field configuration arguments.
 	 */
-	public function select_field_callback( $args ) {
+	public function select_field_callback( array $args ): void {
 		$id          = $args['id'];
 		$options     = isset( $args['options'] ) ? $args['options'] : array();
 		$selected    = isset( $this->settings[ $id ] ) && is_string( $this->settings[ $id ] ) ? $this->settings[ $id ] : ''; // PHPStan: always string.
@@ -768,17 +720,20 @@ EOT;
 	/**
 	 * Get all user roles.
 	 *
-	 * @return array
+	 * @return array<string>
 	 */
-	private function get_user_roles() {
+	private function get_user_roles(): array {
 		global $wp_roles;
 		$roles = array();
 
+		global $wp_roles;
 		if ( ! isset( $wp_roles ) ) {
-			$wp_roles = new WP_Roles();
+			$wp_roles_instance = new WP_Roles();
+		} else {
+			$wp_roles_instance = $wp_roles;
 		}
 
-		foreach ( $wp_roles->get_names() as $role => $name ) {
+		foreach ( $wp_roles_instance->get_names() as $role => $name ) {
 			$roles[ $role ] = translate_user_role( $name );
 		}
 
@@ -788,10 +743,10 @@ EOT;
 	/**
 	 * Add a link to the settings page in the plugin action links.
 	 *
-	 * @param array $links
-	 * @return array
+	 * @param array<string> $links Plugin action links.
+	 * @return array<string>
 	 */
-	public function plugin_action_links( $links ) {
+	public function plugin_action_links( array $links ): array {
 		$settings_link = sprintf(
 			'<a href="%s">%s</a>',
 			admin_url( 'options-general.php?page=gw2-guild-login' ),

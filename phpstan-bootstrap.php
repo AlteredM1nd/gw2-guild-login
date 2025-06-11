@@ -1,9 +1,11 @@
 <?php
 /**
  * PHPStan bootstrap file to define constants for static analysis
+ *
+ * @package GW2_Guild_Login
  */
 
-// Define plugin constants that PHPStan needs
+// Define plugin constants that PHPStan needs.
 if ( ! defined( 'GW2_GUILD_LOGIN_VERSION' ) ) {
 	define( 'GW2_GUILD_LOGIN_VERSION', '2.6.4' );
 }
@@ -20,7 +22,7 @@ if ( ! defined( 'GW2_GUILD_LOGIN_URL' ) ) {
 	define( 'GW2_GUILD_LOGIN_URL', 'https://example.com/wp-content/plugins/gw2-guild-login/' );
 }
 
-// Define WordPress constants that might be missing during analysis
+// Define WordPress constants that might be missing during analysis.
 if ( ! defined( 'WPINC' ) ) {
 	define( 'WPINC', 'wp-includes' );
 }

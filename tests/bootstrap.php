@@ -8,8 +8,8 @@ if ( ! function_exists( 'get_current_user_id' ) ) {
 
 // Polyfill for WordPress options functions
 if ( ! function_exists( 'get_option' ) ) {
-	global $gw2gl_test_options;
 	/** @var array<string, mixed> $gw2gl_test_options */
+	global $gw2gl_test_options;
 	$gw2gl_test_options = array();
 
 	function get_option( string $option, mixed $default = false ): mixed {
@@ -101,3 +101,5 @@ if ( ! function_exists( 'wp_generate_password' ) ) {
 		return $password;
 	}
 }
+
+require_once __DIR__ . '/../includes/class-gw2-api-cache-utils.php';

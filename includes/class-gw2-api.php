@@ -1,7 +1,15 @@
 <?php
-declare(strict_types=1);
 /**
- * Handles all GW2 API interactions
+ * GW2 API handler.
+ *
+ * @package GW2_Guild_Login
+ * @since 1.0.0
+ */
+
+declare(strict_types=1);
+
+/**
+ * Handles all GW2 API interactions.
  */
 class GW2_API {
 	/**
@@ -24,8 +32,8 @@ class GW2_API {
 	 * @var array<string, int>
 	 */
 	protected array $rate_limit = array(
-		'requests' => 300, // Requests per window
-		'window'   => 60,  // Seconds
+		'requests' => 300, // Requests per window.
+		'window'   => 60,  // Seconds.
 	);
 
 	/**
@@ -39,33 +47,33 @@ class GW2_API {
 	 * Constructor
 	 */
 	public function __construct() {
-		// Get cache expiry from options
+		// Get cache expiry from options.
 		$options      = get_option( 'gw2gl_settings', array() );
 		$cache_expiry = is_array( $options ) && isset( $options['api_cache_expiry'] ) ? $options['api_cache_expiry'] : null;
 		if ( is_numeric( $cache_expiry ) ) {
 			$this->cache_expiry = (int) $cache_expiry;
 		}
 
-		// Initialize rate limiting
+		// Initialize rate limiting.
 		$rate_limits = get_transient( 'gw2gl_rate_limits' );
 		/** @phpstan-ignore-next-line */
 		$this->rate_limits = is_array( $rate_limits ) ? $rate_limits : array();
 	}
 
 	/**
-	 * Validate an API key and return account info
+	 * Validate an API key and return account info.
 	 *
-	 * @param string $api_key
+	 * @param string $api_key The GW2 API key to validate.
 	 * @return array<string, mixed>|WP_Error
 	 */
 	public function validate_api_key( string $api_key ): array|\WP_Error {
-		// Check rate limit first
+		// Check rate limit first.
 		$rate_limited = $this->check_rate_limit( 'validate_key' );
 		if ( is_wp_error( $rate_limited ) ) {
 			return $rate_limited;
 		}
 
-		// Sanitize the API key
+		// Sanitize the API key.
 		/** @phpstan-ignore-next-line */
 		$api_key = $this->sanitize_api_key( $api_key );
 		if ( empty( $api_key ) ) {
@@ -73,13 +81,13 @@ class GW2_API {
 		}
 
 		try {
-			// Check token info first
+			// Check token info first.
 			$token_info = $this->make_api_request( 'tokeninfo', $api_key );
 			if ( is_wp_error( $token_info ) ) {
 				return $token_info;
 			}
 
-			// Check required permissions
+			// Check required permissions.
 			$required_permissions = array( 'account', 'guilds' );
 			/** @phpstan-ignore-next-line */
 			$permissions         = ( is_array( $token_info ) && isset( $token_info['permissions'] ) && is_array( $token_info['permissions'] ) ) ? $token_info['permissions'] : array();
@@ -96,13 +104,13 @@ class GW2_API {
 				);
 			}
 
-			// Get account info
+			// Get account info.
 			$account_info = $this->make_api_request( 'account', $api_key );
 			if ( is_wp_error( $account_info ) ) {
 				return $account_info;
 			}
 
-			// Add token info to account info
+			// Add token info to account info.
 			/** @phpstan-ignore-next-line */
 			if ( is_array( $account_info ) ) {
 				$account_info['permissions'] = ( is_array( $token_info ) && isset( $token_info['permissions'] ) && is_array( $token_info['permissions'] ) ) ? $token_info['permissions'] : array();
@@ -121,12 +129,12 @@ class GW2_API {
 	/**
 	 * Check if the account is a member of the target guild
 	 *
-	 * @param string $api_key
-	 * @param string $account_id
+	 * @param string $api_key The GW2 API key.
+	 * @param string $account_id The account ID.
 	 * @return bool|WP_Error
 	 */
 	public function is_guild_member( string $api_key, string $account_id ): bool|\WP_Error {
-		// Check rate limit first
+		// Check rate limit first.
 		$rate_limited = $this->check_rate_limit( 'guild_check' );
 		if ( is_wp_error( $rate_limited ) ) {
 			return $rate_limited;
@@ -143,18 +151,18 @@ class GW2_API {
 			);
 		}
 
-		// Support multiple guild IDs (comma-separated)
+		// Support multiple guild IDs (comma-separated).
 		$target_guild_ids = array_filter( array_map( 'trim', explode( ',', $target_guild_ids_str ) ) );
 
 		try {
-			// Get account guilds
+			// Get account guilds.
 			$guilds = $this->make_api_request( 'account/guilds', $api_key );
 
 			if ( is_wp_error( $guilds ) ) {
 				return $guilds;
 			}
 
-			// Check if the account is in any of the target guilds
+			// Check if the account is in any of the target guilds.
 			foreach ( $target_guild_ids as $guild_id ) {
 				/** @phpstan-ignore-next-line */
 				if ( isset( $guilds ) && is_array( $guilds ) && in_array( $guild_id, $guilds, true ) ) {
@@ -169,16 +177,17 @@ class GW2_API {
 	}
 
 	/**
-	 * Check and enforce rate limiting
+	 * Check and enforce rate limiting.
 	 *
-	 * @param string $endpoint
-	 * @return bool|WP_Error True if allowed, WP_Error if rate limited
+	 * @param string $endpoint The API endpoint.
+	 * @return bool|WP_Error True if allowed, WP_Error if rate limited.
 	 */
 	protected function check_rate_limit( string $endpoint ): bool|\WP_Error {
-		$now = (int) time();
-		$key = md5( $endpoint . ( isset( $_SERVER['REMOTE_ADDR'] ) && is_string( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '' ) );
+		$now         = (int) time();
+		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) && is_string( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$key         = md5( $endpoint . $remote_addr );
 
-		// Initialize if not set
+		// Initialize if not set.
 		if ( ! isset( $this->rate_limits[ $key ] ) ) {
 			$this->rate_limits[ $key ] = array(
 				'count' => 0,
@@ -186,7 +195,7 @@ class GW2_API {
 			);
 		}
 
-		// Reset counter if window has passed
+		// Reset counter if window has passed.
 		/** @phpstan-ignore-next-line */
 		if ( isset( $this->rate_limits[ $key ] ) && is_array( $this->rate_limits[ $key ] ) && isset( $this->rate_limits[ $key ]['reset'] ) && is_int( $this->rate_limits[ $key ]['reset'] ) && $now > $this->rate_limits[ $key ]['reset'] ) {
 			$this->rate_limits[ $key ] = array(
@@ -195,7 +204,7 @@ class GW2_API {
 			);
 		}
 
-		// Check if rate limited
+		// Check if rate limited.
 		/** @phpstan-ignore-next-line */
 		if ( isset( $this->rate_limits[ $key ] ) && is_array( $this->rate_limits[ $key ] ) && isset( $this->rate_limits[ $key ]['count'] ) && is_int( $this->rate_limits[ $key ]['count'] ) && $this->rate_limits[ $key ]['count'] >= $this->rate_limit['requests'] ) {
 			return new WP_Error(
@@ -207,7 +216,7 @@ class GW2_API {
 			);
 		}
 
-		// Increment counter
+		// Increment counter.
 		/** @phpstan-ignore-next-line */
 		if ( isset( $this->rate_limits[ $key ] ) && is_array( $this->rate_limits[ $key ] ) && isset( $this->rate_limits[ $key ]['count'] ) && is_int( $this->rate_limits[ $key ]['count'] ) ) {
 			++$this->rate_limits[ $key ]['count'];
@@ -220,22 +229,23 @@ class GW2_API {
 	/**
 	 * Make a request to the GW2 API with caching.
 	 *
-	 * @param string $endpoint
-	 * @param string $api_key
+	 * @param string $endpoint The API endpoint.
+	 * @param string $api_key The API key (optional).
 	 * @param bool   $force_refresh Optional. If true, bypass cache and fetch fresh data.
 	 * @return array<string, mixed>|WP_Error
+	 * @throws Exception When API request fails.
 	 */
 	protected function make_api_request( string $endpoint, string $api_key = '', bool $force_refresh = false ): array|\WP_Error {
 		try {
-			// Build the request URL
+			// Build the request URL.
 			$url = self::API_BASE_URL . ltrim( $endpoint, '/' );
 
-			// Add API key if provided
+			// Add API key if provided.
 			$args = array(
 				'timeout'   => 30,
 				'sslverify' => true,
 				'headers'   => array(
-					'User-Agent' => 'GW2-Guild-Login/' . ( defined( 'GW2_GUILD_LOGIN_VERSION' ) && is_string( GW2_GUILD_LOGIN_VERSION ) ? GW2_GUILD_LOGIN_VERSION : 'unknown' ) . '; ' . home_url(),
+					'User-Agent' => 'GW2-Guild-Login/' . ( defined( 'GW2_GUILD_LOGIN_VERSION' ) ? GW2_GUILD_LOGIN_VERSION : 'unknown' ) . '; ' . home_url(),
 				),
 			);
 
@@ -243,21 +253,21 @@ class GW2_API {
 				$args['headers']['Authorization'] = 'Bearer ' . $api_key;
 			}
 
-			// Check cache first unless force_refresh or filter disables cache
+			// Check cache first unless force_refresh or filter disables cache.
 			$transient_key   = 'gw2gl_' . md5( $url . $api_key );
 			$disable_cache   = apply_filters( 'gw2gl_disable_api_cache', false, $endpoint, $api_key );
 			$cached_response = ( ! $force_refresh && ! $disable_cache ) ? get_transient( $transient_key ) : false;
 
-			if ( $cached_response !== false ) {
+			if ( false !== $cached_response ) {
 				/** @phpstan-ignore-next-line */
 				/** @phpstan-ignore-next-line */
 				return is_array( $cached_response ) ? $cached_response : array();
 			}
 
-			// Make the request
+			// Make the request.
 			$response = wp_remote_get( $url, $args );
 
-			// Check for errors
+			// Check for errors.
 			if ( is_wp_error( $response ) ) {
 				$msg           = $response->get_error_message();
 				$response_code = 0;
@@ -268,8 +278,8 @@ class GW2_API {
 			$response_body = wp_remote_retrieve_body( $response );
 			$data          = json_decode( $response_body, true );
 
-			// Check for API errors
-			if ( $response_code !== 200 ) {
+			// Check for API errors.
+			if ( 200 !== $response_code ) {
 				$error_message = __( 'Unknown API error', 'gw2-guild-login' );
 
 				if ( is_array( $data ) && ! empty( $data['text'] ) ) {
@@ -281,7 +291,7 @@ class GW2_API {
 				throw new Exception( is_string( $error_message ) ? $error_message : __( 'Unknown API error', 'gw2-guild-login' ), (int) $response_code );
 			}
 
-			// Cache the response
+			// Cache the response.
 			set_transient( $transient_key, $data, $this->cache_expiry );
 
 			/** @phpstan-ignore-next-line */
@@ -301,15 +311,15 @@ class GW2_API {
 	}
 
 	/**
-	 * Sanitize an API key
+	 * Sanitize an API key.
 	 *
-	 * @param string $api_key
+	 * @param string $api_key The API key to sanitize.
 	 * @return string|false
 	 */
 	protected function sanitize_api_key( string $api_key ): string|false {
 		$api_key = trim( $api_key );
 
-		// Check if the API key matches the expected format
+		// Check if the API key matches the expected format.
 		if ( ! preg_match( '/^[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{20}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}$/i', $api_key ) ) {
 			return false;
 		}
@@ -318,9 +328,9 @@ class GW2_API {
 	}
 
 	/**
-	 * Get guild details
+	 * Get guild details.
 	 *
-	 * @param string $guild_id
+	 * @param string $guild_id The guild ID.
 	 * @return array<string, mixed>|WP_Error
 	 */
 	public function get_guild_details( string $guild_id ): array|\WP_Error {
@@ -328,16 +338,16 @@ class GW2_API {
 			return new WP_Error( 'invalid_guild_id', __( 'Invalid guild ID', 'gw2-guild-login' ) );
 		}
 
-		$result = $this->make_api_request( 'guild/' . urlencode( $guild_id ) );
+		$result = $this->make_api_request( 'guild/' . rawurlencode( $guild_id ) );
 		/** @phpstan-ignore-next-line */
 		return is_array( $result ) ? $result : ( is_wp_error( $result ) ? $result : new WP_Error( 'unexpected_api_response', __( 'Unexpected API response type.', 'gw2-guild-login' ) ) );
 	}
 
 	/**
-	 * Get character names for an account
+	 * Get character names for an account.
 	 *
-	 * @param string $api_key The GW2 API key
-	 * @return array<int, string>|WP_Error Array of character names on success, WP_Error on failure
+	 * @param string $api_key The GW2 API key.
+	 * @return array<int, string>|WP_Error Array of character names on success, WP_Error on failure.
 	 */
 	public function get_character_names( string $api_key ): array|\WP_Error {
 		$characters = $this->make_api_request( 'characters', $api_key );
@@ -345,7 +355,7 @@ class GW2_API {
 			return $characters;
 		}
 
-		// Extract just the character names
+		// Extract just the character names.
 		$names = array();
 		foreach ( $characters as $char ) {
 			if ( is_array( $char ) && isset( $char['name'] ) && is_string( $char['name'] ) ) {
@@ -356,20 +366,20 @@ class GW2_API {
 	}
 
 	/**
-	 * Get account data from the GW2 API using an API key
+	 * Get account data from the GW2 API using an API key.
 	 *
-	 * @param string $api_key The GW2 API key
-	 * @return array<string, mixed>|WP_Error Account data on success, WP_Error on failure
+	 * @param string $api_key The GW2 API key.
+	 * @return array<string, mixed>|WP_Error Account data on success, WP_Error on failure.
 	 */
 	public function get_account_data( string $api_key ): array|\WP_Error {
-		// First validate the API key
+		// First validate the API key.
 		$token_info = $this->validate_api_key( $api_key );
 		/** @phpstan-ignore-next-line */
 		if ( is_wp_error( $token_info ) || ! is_array( $token_info ) || ! isset( $token_info['permissions'] ) || ! is_array( $token_info['permissions'] ) ) {
 			return $token_info;
 		}
 
-		// Check if the key has the required permissions
+		// Check if the key has the required permissions.
 		$required_permissions = array( 'account', 'characters', 'guilds' );
 		$missing_permissions  = array_diff( $required_permissions, $token_info['permissions'] );
 
@@ -383,7 +393,7 @@ class GW2_API {
 			);
 		}
 
-		// Get account info
+		// Get account info.
 		$account = $this->make_api_request( 'account', $api_key );
 		if ( ! is_array( $account ) ) {
 			return new WP_Error( 'unexpected_account_response', __( 'Account API response was not an array.', 'gw2-guild-login' ) );
@@ -396,7 +406,7 @@ class GW2_API {
 			return $account;
 		}
 
-		// Get guilds if available
+		// Get guilds if available.
 		$guilds = array();
 		/** @phpstan-ignore-next-line */
 		/** @phpstan-ignore-next-line */
@@ -405,7 +415,7 @@ class GW2_API {
 			$guilds        = is_wp_error( $guilds_result ) || ! is_array( $guilds_result ) ? array() : array_values( $guilds_result );
 		}
 
-		// Get characters if available
+		// Get characters if available.
 		$characters = array();
 		/** @phpstan-ignore-next-line */
 		/** @phpstan-ignore-next-line */
@@ -414,10 +424,10 @@ class GW2_API {
 			/** @phpstan-ignore-next-line */
 			/** @phpstan-ignore-next-line */
 			$characters = ( ! is_wp_error( $character_names ) && is_array( $character_names ) ) ? array_values( $character_names ) : array();
-			// Don't fail the whole request if characters can't be fetched
+			// Don't fail the whole request if characters can't be fetched.
 		}
 
-		// Format the response
+		// Format the response.
 		return array(
 			'id'           => isset( $account['id'] ) && is_string( $account['id'] ) ? $account['id'] : '',
 			'name'         => isset( $account['name'] ) && is_string( $account['name'] ) ? $account['name'] : '',

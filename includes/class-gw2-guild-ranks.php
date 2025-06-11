@@ -1,13 +1,18 @@
 <?php
+/**
+ * GW2 Guild Ranks Handler.
+ *
+ * @package GW2_Guild_Login
+ * @since 2.4.0
+ */
+
 declare(strict_types=1);
+
 /**
  * GW2_Guild_Ranks
  *
  * Handles Guild Rank-based access control for the GW2 Guild Login plugin.
  * Provides methods for restricting content, managing rank settings, and integrating with the GW2 API.
- *
- * @package GW2_Guild_Login
- * @since 2.4.0
  */
 class GW2_Guild_Ranks {
 	/** @var self|null Singleton instance */
@@ -50,13 +55,13 @@ class GW2_Guild_Ranks {
 		global $wpdb;
 		$this->table_ranks = (string) $wpdb->prefix . 'gw2_guild_ranks';
 
-		// Set cache expiration (1 hour)
+		// Set cache expiration (1 hour).
 		$this->cache_expiration = defined( 'HOUR_IN_SECONDS' ) ? HOUR_IN_SECONDS : 3600;
 
-		// Register activation hook
+		// Register activation hook.
 		register_activation_hook( GW2_GUILD_LOGIN_FILE, array( $this, 'activate' ) );
 
-		// Register shortcode
+		// Register shortcode.
 		add_shortcode( 'gw2_restricted', array( $this, 'restricted_content_shortcode' ) );
 	}
 
@@ -81,10 +86,16 @@ class GW2_Guild_Ranks {
          last_updated datetime DEFAULT CURRENT_TIMESTAMP,
          PRIMARY KEY  (id),
          UNIQUE KEY rank_guild (rank_id, guild_id)
-        ) " . (string) $wpdb->get_charset_collate() . ';';
+    		) " . (string) $wpdb->get_charset_collate() . ';';
 
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta( $sql );
+		// Ensure the path to upgrade.php is correct.
+		$upgrade_file = ABSPATH . 'wp-admin/includes/upgrade.php';
+		if ( file_exists( $upgrade_file ) ) {
+			require_once $upgrade_file;
+			dbDelta( $sql );
+		} else {
+			error_log( 'GW2 Guild Login: upgrade.php not found at ' . $upgrade_file );
+		}
 	}
 
 	/**
@@ -118,32 +129,37 @@ class GW2_Guild_Ranks {
 			return;
 		}
 
-		// Handle form submission for rank-role mappings
-		if ( isset( $_POST['gw2_rank_roles'] ) ) {
-			check_admin_referer( 'gw2_rank_settings' );
-			$mappings = array_map( 'sanitize_text_field', wp_unslash( $_POST['gw2_rank_roles'] ) );
+		// Handle form submission for rank-role mappings.
+		$rank_roles_raw = filter_input( INPUT_POST, 'gw2_rank_roles', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+		if ( is_array( $rank_roles_raw ) ) {
+			$mappings = array_map(
+				function ( $item ) {
+						return is_string( $item ) ? sanitize_text_field( $item ) : '';
+				},
+				$rank_roles_raw
+			);
 			update_option( 'gw2_rank_role_map', $mappings );
 			add_settings_error( 'gw2_messages', 'gw2_message', __( 'Rank mappings saved.', 'gw2-guild-login' ), 'updated' );
 		}
 
-		// Fetch saved general settings
+		// Fetch saved general settings.
 		$general   = get_option( 'gw2gl_settings', array() );
-		$guild_ids = array_filter( array_map( 'trim', explode( ',', $general['guild_ids'] ?? '' ) ) );
-		$guild_id  = $guild_ids[0] ?? '';
+		$guild_ids = is_array( $general ) && isset( $general['guild_ids'] ) ? array_filter( array_map( 'trim', explode( ',', $general['guild_ids'] ) ) ) : array();
+		$guild_id  = isset( $guild_ids[0] ) ? $guild_ids[0] : '';
 
-		// Fetch guild ranks from API
+		// Fetch guild ranks from API.
 		$data  = $this->fetch_guild_data( (string) $guild_id );
 		$ranks = is_array( $data ) && isset( $data['ranks'] ) && is_array( $data['ranks'] ) ? $data['ranks'] : array();
 
-		// Get available WP roles
+		// Get available WP roles.
 		if ( function_exists( 'get_editable_roles' ) ) {
 			$roles = get_editable_roles();
 		} else {
 			global $wp_roles;
-			$roles = $wp_roles->roles;
+			$roles = isset( $wp_roles->roles ) && is_array( $wp_roles->roles ) ? $wp_roles->roles : array();
 		}
 
-		// Load existing mappings
+		// Load existing mappings.
 		$saved_map = get_option( 'gw2_rank_role_map', array() );
 
 		?>
@@ -163,8 +179,8 @@ class GW2_Guild_Ranks {
 							<td>
 								<select name="gw2_rank_roles[<?php echo esc_attr( $name ); ?>]">
 									<?php foreach ( $roles as $slug => $info ) : ?>
-										<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $saved_map[ $name ] ?? '', $slug ); ?>>
-											<?php echo esc_html( $info['name'] ); ?>
+										<option value="<?php echo esc_attr( is_string( $slug ) ? $slug : '' ); ?>" <?php selected( isset( $saved_map[ $name ] ) ? $saved_map[ $name ] : '', $slug ); ?>>
+											<?php echo esc_html( isset( $info['name'] ) && is_string( $info['name'] ) ? $info['name'] : '' ); ?>
 										</option>
 									<?php endforeach; ?>
 								</select>
@@ -189,7 +205,7 @@ class GW2_Guild_Ranks {
 		$api_key_mixed = get_option( 'gw2_api_key' );
 		$guild_id_safe = is_string( $guild_id ) ? $guild_id : '';
 		$api_key_safe  = is_string( $api_key_mixed ) ? $api_key_mixed : '';
-		if ( $api_key_safe === '' || $guild_id_safe === '' ) {
+		if ( '' === $api_key_safe || '' === $guild_id_safe ) {
 			return new WP_Error( 'missing_api_key', 'GW2 API key is not configured' );
 		}
 		$ranks_url        = "https://api.guildwars2.com/v2/guild/$guild_id_safe/ranks?access_token=$api_key_safe";
@@ -229,24 +245,24 @@ class GW2_Guild_Ranks {
 		$required_rank_safe = is_string( $required_rank ) ? $required_rank : '';
 		$guild_id_safe      = is_string( $guild_id_mixed ) ? $guild_id_mixed : '';
 		$account_name_safe  = is_string( $account_name_mixed ) ? $account_name_mixed : '';
-		if ( $guild_id_safe === '' || $account_name_safe === '' || $required_rank_safe === '' ) {
+		if ( '' === $guild_id_safe || '' === $account_name_safe || '' === $required_rank_safe ) {
 			return false;
 		}
 		$cache_key = $this->cache_prefix . $guild_id_safe;
 		$data      = get_transient( $cache_key );
-		// If no cache or cache is invalid, fetch fresh data
-		if ( $data === false || ! is_array( $data ) || ! isset( $data['members'] ) || ! is_array( $data['members'] ) ) {
+		// If no cache or cache is invalid, fetch fresh data.
+		if ( false === $data || ! is_array( $data ) || ! isset( $data['members'] ) || ! is_array( $data['members'] ) ) {
 			$data = $this->fetch_guild_data( $guild_id_safe );
 			if ( is_wp_error( $data ) || ! is_array( $data ) || ! isset( $data['members'] ) || ! is_array( $data['members'] ) ) {
 				return false;
 			}
 			set_transient( $cache_key, $data, $this->cache_expiration );
 		}
-		// Find the user in members list
+		// Find the user in members list.
 		foreach ( $data['members'] as $member ) {
 			if ( is_array( $member ) && isset( $member['name'], $member['rank'] ) && is_string( $member['name'] ) && is_string( $member['rank'] ) ) {
-				if ( $member['name'] === $account_name_safe ) {
-					return $member['rank'] === $required_rank_safe;
+				if ( $account_name_safe === $member['name'] ) {
+					return $required_rank_safe === $member['rank'];
 				}
 			}
 		}
@@ -279,6 +295,8 @@ class GW2_Guild_Ranks {
 		}
 
 		if ( $this->check_rank_access( $user_id, $atts['rank'] ) ) {
+			// Ensure $content is a string before using do_shortcode.
+			$content = is_string( $content ) ? $content : '';
 			return do_shortcode( $content );
 		} else {
 			return '<div class="gw2-access-denied">' . esc_html( $atts['message'] ) . '</div>';
@@ -286,13 +304,13 @@ class GW2_Guild_Ranks {
 	}
 }
 
-// Initialize the plugin
+// Initialize the plugin.
 /**
  * Initialize GW2_Guild_Ranks plugin singleton.
  *
  * @return GW2_Guild_Ranks Plugin instance.
  */
-function gw2_guild_ranks_init(): GW2_Guild_Ranks {
+function gw2_guild_ranks_init(): GW2_Guild_Ranks { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
 	return GW2_Guild_Ranks::instance();
 }
 add_action( 'plugins_loaded', 'gw2_guild_ranks_init' );

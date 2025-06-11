@@ -1,8 +1,16 @@
 <?php
-// Exit if accessed directly or user lacks capability
+/**
+ * Appearance & Branding admin view for GW2 Guild Login plugin.
+ *
+ * Provides appearance and branding settings including color picker and media uploader.
+ *
+ * @package GW2_Guild_Login
+ */
+
 if ( ! current_user_can( 'manage_options' ) ) {
 	return;
 }
+
 ?>
 <div class="wrap gw2-admin-appearance-branding">
 	<h1><?php esc_html_e( 'Appearance & Branding', 'gw2-guild-login' ); ?></h1>
@@ -15,4 +23,3 @@ if ( ! current_user_can( 'manage_options' ) ) {
 		?>
 	</form>
 </div>
-<!-- Field callbacks enqueue their own JS for color picker and media uploader -->
